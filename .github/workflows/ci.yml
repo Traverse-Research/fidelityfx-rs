@@ -1,0 +1,16 @@
+on:
+  push:
+  pull_request:
+
+jobs:
+  rust:
+    name: Lint Rust code
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Cargo fmt
+        run: cargo fmt --all -- --check
+      - name: Cargo clippy
+        run: cargo clippy --workspace --all-targets -- -D warnings
+      - name: Cargo test
+        run: cargo test --workspace

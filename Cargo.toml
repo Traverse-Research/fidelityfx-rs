@@ -1,0 +1,10 @@
+[package]
+name = "rust-template"
+version = "0.0.0"
+authors = ["Traverse Research <support@traverseresearch.nl>"]
+edition = "2021"
+license = "MIT"
+homepage = "https://traverseresearch.nl"
+repository = "https://github.com/Traverse-Research/rust-template"
+description = "A useful description"
+include = ["src", "LICENSE", "CONTRIBUTING.md"]
