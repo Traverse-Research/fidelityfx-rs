@@ -1,6 +1,6 @@
 # rust-template title
 
-[![Actions Status](https://github.com/Traverse-Research/rust-template/workflows/Continuous%20integration/badge.svg)](https://github.com/Traverse-Research/rust-template/actions)
+[![Actions Status](https://github.com/Traverse-Research/rust-template/actions/workflows/ci.yml/badge.svg)](https://github.com/Traverse-Research/rust-template/actions)
 [![Latest version](https://img.shields.io/crates/v/rust-template.svg?logo=rust)](https://crates.io/crates/rust-template)
 [![Documentation](https://docs.rs/rust-template/badge.svg)](https://docs.rs/rust-template)
 [![Lines of code](https://tokei.rs/b1/github/Traverse-Research/rust-template)](https://github.com/Traverse-Research/rust-template)
