@@ -7,4 +7,6 @@ license = "MIT"
 homepage = "https://traverseresearch.nl"
 repository = "https://github.com/Traverse-Research/rust-template"
 description = "A useful description"
-include = ["src", "LICENSE", "CONTRIBUTING.md"]
+include = ["src", "LICENSE"]
+categories = [] # https://crates.io/category_slugs
+keywords = []
