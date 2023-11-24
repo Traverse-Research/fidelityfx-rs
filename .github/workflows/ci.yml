@@ -14,3 +14,15 @@ jobs:
         run: cargo clippy --workspace --all-targets -- -D warnings
       - name: Cargo test
         run: cargo test --workspace
+
+  rust-msrv:
+    name: Build-test MSRV (1.74) with minimal crate dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@nightly
+      - name: Generate minimal-version dependencies
+        run: cargo -Zminimal-versions generate-lockfile
+      - uses: dtolnay/rust-toolchain@1.74.0
+      - name: Cargo check
+        run: cargo check --workspace --all-targets
