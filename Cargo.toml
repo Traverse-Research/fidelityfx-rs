@@ -1,12 +1,25 @@
 [package]
-name = "rust-template"
-version = "0.0.0"
+name = "fidelityfx"
+version = "0.1.0"
 authors = ["Traverse Research <support@traverseresearch.nl>"]
 edition = "2021"
 license = "MIT"
 homepage = "https://traverseresearch.nl"
-repository = "https://github.com/Traverse-Research/rust-template"
-description = "A useful description"
+repository = "https://github.com/Traverse-Research/fidelityfx-rs"
+description = "Rust Bindings for the AMD FidelityFX SDK"
 include = ["src", "LICENSE"]
-categories = [] # https://crates.io/category_slugs
-keywords = []
+categories = ["rendering"] # https://crates.io/category_slugs
+keywords = ["fidelity", "fx", "fidelity-fx", "fidelityfx", "upscaling", "vulkan", "dx12", "directx12"]
+
+[dependencies]
+widestring = "1.0"
+
+[build-dependencies]
+bindgen = { version = "0.69", optional = true }
+cc = "1.0"
+glob = "0.3"
+
+[features]
+vulkan = []
+d3d12 = []
+generate-bindings = ["dep:bindgen"]
