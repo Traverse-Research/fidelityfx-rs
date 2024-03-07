@@ -12,6 +12,7 @@ categories = ["rendering"] # https://crates.io/category_slugs
 keywords = ["fidelity", "fx", "fidelity-fx", "fidelityfx", "upscaling", "vulkan", "dx12", "directx12"]
 
 [dependencies]
+glob = "0.3"
 widestring = "1.0"
 
 [build-dependencies]
