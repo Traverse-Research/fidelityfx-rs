@@ -16,7 +16,7 @@ optional = true
 [dependencies.windows]
 version = "0.54"
 optional = true
-features = ["Win32_Graphics_Direct3D12"]
+features = ["Win32_Graphics_Direct3D12", "Win32_Graphics_Dxgi_Common"]
 
 [features]
 default = []

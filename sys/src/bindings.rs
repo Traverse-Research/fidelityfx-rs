@@ -257,20 +257,60 @@ pub const FFX_SURFACE_FORMAT_R8G8_UINT: SurfaceFormat = 23;
 pub const FFX_SURFACE_FORMAT_R32_FLOAT: SurfaceFormat = 24;
 #[doc = " An enumeration of surface formats.\n\n @ingroup SDKTypes"]
 pub type SurfaceFormat = ::std::os::raw::c_int;
-#[doc = "< No usage flags indicate a resource is read only."]
-pub const FFX_RESOURCE_USAGE_READ_ONLY: ResourceUsage = 0;
-#[doc = "< Indicates a resource will be used as render target."]
-pub const FFX_RESOURCE_USAGE_RENDERTARGET: ResourceUsage = 1;
-#[doc = "< Indicates a resource will be used as UAV."]
-pub const FFX_RESOURCE_USAGE_UAV: ResourceUsage = 2;
-#[doc = "< Indicates a resource will be used as depth target."]
-pub const FFX_RESOURCE_USAGE_DEPTHTARGET: ResourceUsage = 4;
-#[doc = "< Indicates a resource will be used as indirect argument buffer"]
-pub const FFX_RESOURCE_USAGE_INDIRECT: ResourceUsage = 8;
-#[doc = "< Indicates a resource that will generate array views. Works on 2D and cubemap textures"]
-pub const FFX_RESOURCE_USAGE_ARRAYVIEW: ResourceUsage = 16;
+impl ResourceUsage {
+    #[doc = "< No usage flags indicate a resource is read only."]
+    pub const FFX_RESOURCE_USAGE_READ_ONLY: ResourceUsage = ResourceUsage(0);
+}
+impl ResourceUsage {
+    #[doc = "< Indicates a resource will be used as render target."]
+    pub const FFX_RESOURCE_USAGE_RENDERTARGET: ResourceUsage = ResourceUsage(1);
+}
+impl ResourceUsage {
+    #[doc = "< Indicates a resource will be used as UAV."]
+    pub const FFX_RESOURCE_USAGE_UAV: ResourceUsage = ResourceUsage(2);
+}
+impl ResourceUsage {
+    #[doc = "< Indicates a resource will be used as depth target."]
+    pub const FFX_RESOURCE_USAGE_DEPTHTARGET: ResourceUsage = ResourceUsage(4);
+}
+impl ResourceUsage {
+    #[doc = "< Indicates a resource will be used as indirect argument buffer"]
+    pub const FFX_RESOURCE_USAGE_INDIRECT: ResourceUsage = ResourceUsage(8);
+}
+impl ResourceUsage {
+    #[doc = "< Indicates a resource that will generate array views. Works on 2D and cubemap textures"]
+    pub const FFX_RESOURCE_USAGE_ARRAYVIEW: ResourceUsage = ResourceUsage(16);
+}
+impl ::std::ops::BitOr<ResourceUsage> for ResourceUsage {
+    type Output = Self;
+    #[inline]
+    fn bitor(self, other: Self) -> Self {
+        ResourceUsage(self.0 | other.0)
+    }
+}
+impl ::std::ops::BitOrAssign for ResourceUsage {
+    #[inline]
+    fn bitor_assign(&mut self, rhs: ResourceUsage) {
+        self.0 |= rhs.0;
+    }
+}
+impl ::std::ops::BitAnd<ResourceUsage> for ResourceUsage {
+    type Output = Self;
+    #[inline]
+    fn bitand(self, other: Self) -> Self {
+        ResourceUsage(self.0 & other.0)
+    }
+}
+impl ::std::ops::BitAndAssign for ResourceUsage {
+    #[inline]
+    fn bitand_assign(&mut self, rhs: ResourceUsage) {
+        self.0 &= rhs.0;
+    }
+}
+#[repr(transparent)]
 #[doc = " An enumeration of resource usage.\n\n @ingroup SDKTypes"]
-pub type ResourceUsage = ::std::os::raw::c_int;
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub struct ResourceUsage(pub ::std::os::raw::c_int);
 #[repr(i32)]
 #[doc = " An enumeration of resource states.\n\n @ingroup SDKTypes"]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
@@ -317,14 +357,48 @@ pub const FFX_RESOURCE_VIEW_DIMENSION_TEXTURE_2D_ARRAY: ResourceViewDimension = 
 pub const FFX_RESOURCE_VIEW_DIMENSION_TEXTURE_3D: ResourceViewDimension = 5;
 #[doc = " An enumeration of resource view dimensions.\n\n @ingroup SDKTypes"]
 pub type ResourceViewDimension = ::std::os::raw::c_int;
-#[doc = "< No flags."]
-pub const FFX_RESOURCE_FLAGS_NONE: ResourceFlags = 0;
-#[doc = "< A bit indicating a resource does not need to persist across frames."]
-pub const FFX_RESOURCE_FLAGS_ALIASABLE: ResourceFlags = 1;
-#[doc = "< Special case flag used internally when importing resources that require additional setup"]
-pub const FFX_RESOURCE_FLAGS_UNDEFINED: ResourceFlags = 2;
+impl ResourceFlags {
+    #[doc = "< No flags."]
+    pub const FFX_RESOURCE_FLAGS_NONE: ResourceFlags = ResourceFlags(0);
+}
+impl ResourceFlags {
+    #[doc = "< A bit indicating a resource does not need to persist across frames."]
+    pub const FFX_RESOURCE_FLAGS_ALIASABLE: ResourceFlags = ResourceFlags(1);
+}
+impl ResourceFlags {
+    #[doc = "< Special case flag used internally when importing resources that require additional setup"]
+    pub const FFX_RESOURCE_FLAGS_UNDEFINED: ResourceFlags = ResourceFlags(2);
+}
+impl ::std::ops::BitOr<ResourceFlags> for ResourceFlags {
+    type Output = Self;
+    #[inline]
+    fn bitor(self, other: Self) -> Self {
+        ResourceFlags(self.0 | other.0)
+    }
+}
+impl ::std::ops::BitOrAssign for ResourceFlags {
+    #[inline]
+    fn bitor_assign(&mut self, rhs: ResourceFlags) {
+        self.0 |= rhs.0;
+    }
+}
+impl ::std::ops::BitAnd<ResourceFlags> for ResourceFlags {
+    type Output = Self;
+    #[inline]
+    fn bitand(self, other: Self) -> Self {
+        ResourceFlags(self.0 & other.0)
+    }
+}
+impl ::std::ops::BitAndAssign for ResourceFlags {
+    #[inline]
+    fn bitand_assign(&mut self, rhs: ResourceFlags) {
+        self.0 &= rhs.0;
+    }
+}
+#[repr(transparent)]
 #[doc = " An enumeration of surface dimensions.\n\n @ingroup SDKTypes"]
-pub type ResourceFlags = ::std::os::raw::c_int;
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub struct ResourceFlags(pub ::std::os::raw::c_int);
 #[doc = "< The resource view is an unordered access view (UAV)."]
 pub const FFX_RESOURCE_VIEW_UNORDERED_ACCESS: ResourceViewType = 0;
 #[doc = "< The resource view is a shader resource view (SRV)."]

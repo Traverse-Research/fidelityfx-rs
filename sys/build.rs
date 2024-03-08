@@ -1,10 +1,12 @@
 #[cfg(feature = "generate-bindings")]
 mod bindgen;
 
+use std::path::Path;
+
 use cc;
 use glob::glob;
 
-fn build_fsr3(api_dir: &str, _vk_include_dir: &str) {
+fn build_fsr3(api_dir: &str) {
     let components = ["fsr3", "fsr3upscaler", "opticalflow", "frameinterpolation"];
     let mut sources = vec![];
     for component in components {
@@ -39,14 +41,14 @@ fn build_fsr3(api_dir: &str, _vk_include_dir: &str) {
 
 fn main() {
     let api_dir = "./FidelityFX-FSR3/src/ffx-fsr3-api";
-    let vk_include_dir = "./Vulkan-Headers/Include";
+    let vk_include_dir = Path::new(env!("CARGO_MANIFEST_DIR")).join("Vulkan-Headers/include");
 
-    build_fsr3(api_dir, vk_include_dir);
+    build_fsr3(api_dir);
 
     #[cfg(feature = "generate-bindings")]
     {
         bindgen::generate_bindings(api_dir);
-        // bindgen::generate_vk_bindings(api_dir, vk_include_dir);
-        // bindgen::generate_d3d12_bindings(api_dir);
+        bindgen::generate_vk_bindings(api_dir, &vk_include_dir);
+        bindgen::generate_d3d12_bindings(api_dir);
     }
 }

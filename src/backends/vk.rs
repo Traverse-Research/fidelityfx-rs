@@ -1,20 +1,25 @@
-use crate::{interface::ScratchBuffer, *};
-use ash::vk::Handle;
+use crate::{
+    error::{Error, FfxError, Result},
+    interface::{Interface, ScratchBuffer},
+    CommandList,
+};
+use ash::vk::{self, Handle};
 use widestring::WideString;
 
-impl From<ash::vk::CommandBuffer> for CommandList {
-    fn from(value: ash::vk::CommandBuffer) -> Self {
-        unsafe { CommandList(fsr_sys::vk::GetCommandListVK(value.as_raw())) }
+impl From<vk::CommandBuffer> for CommandList {
+    fn from(value: vk::CommandBuffer) -> Self {
+        unsafe { CommandList(fidelityfx_sys::vk::GetCommandListVK(value.as_raw())) }
     }
 }
 
 pub unsafe fn get_interface(
-    entry: &ash::Entry,
+    // entry: &ash::Entry,
+    device: fidelityfx_sys::Device,
     instance: &ash::Instance,
-    physical_device: ash::vk::PhysicalDevice,
-) -> Result<Interface, Error> {
+    physical_device: vk::PhysicalDevice,
+) -> Result<Interface> {
     let scratch_buffer_size = unsafe {
-        fsr_sys::vk::GetScratchMemorySizeVK(
+        fidelityfx_sys::vk::GetScratchMemorySizeVK(
             physical_device.as_raw(),
             std::mem::transmute(Some(
                 instance.fp_v1_0().enumerate_device_extension_properties,
@@ -30,45 +35,67 @@ pub unsafe fn get_interface(
 
     // Create the actual fsr interface
     let error = unsafe {
-        fsr_sys::vk::GetInterfaceVK(
+        fidelityfx_sys::vk::GetInterfaceVK(
             &mut retval.interface,
+            device,
             retval.scratch_buffer.ptr().cast::<std::ffi::c_void>(),
             retval.scratch_buffer.len(),
-            instance.handle().as_raw(),
-            physical_device.as_raw(),
-            std::mem::transmute(Some(entry.static_fn().get_instance_proc_addr)),
-            std::mem::transmute(Some(instance.fp_v1_0().get_device_proc_addr)),
+            /* maxContexts */ 1,
         )
     };
-    if error != fsr_sys::FFX_OK {
-        return Err(Error::Fsr(FsrError::from_error_code(error)));
+    if error != fidelityfx_sys::FFX_OK {
+        return Err(FfxError::from_error_code(error).into());
     }
 
     Ok(retval)
 }
 
-pub unsafe fn get_device(device: ash::Device) -> Device {
-    unsafe { fsr_sys::vk::GetDeviceVK(device.handle().as_raw()) }
+pub unsafe fn get_device(
+    instance: &ash::Instance,
+    device: &ash::Device,
+    physical_device: vk::PhysicalDevice,
+) -> fidelityfx_sys::Device {
+    let mut device_context = fidelityfx_sys::vk::VkDeviceContext {
+        vkDevice: device.handle().as_raw(),
+        vkPhysicalDevice: physical_device.as_raw(),
+        vkDeviceProcAddr: std::mem::transmute(Some(instance.fp_v1_0().get_device_proc_addr)),
+    };
+    unsafe { fidelityfx_sys::vk::GetDeviceVK(&mut device_context) }
 }
 
 pub unsafe fn get_texture_resource(
-    context: &mut Context,
-    image: ash::vk::Image,
-    image_view: ash::vk::ImageView,
-    format: ash::vk::Format,
-    size: [u32; 2],
-    state: ResourceStates,
+    image: vk::Image,
+    type_: vk::ImageType,
+    format: vk::Format,
+    size: [u32; 3],
+    mip_count: u32,
+    flags: fidelityfx_sys::ResourceFlags,
+    usage: fidelityfx_sys::ResourceUsage,
+    state: fidelityfx_sys::ResourceStates,
     name: &str,
-) -> Resource {
+) -> fidelityfx_sys::Resource {
+    let resource_description = fidelityfx_sys::ResourceDescription {
+        type_: match type_ {
+            vk::ImageType::TYPE_1D => fidelityfx_sys::FFX_RESOURCE_DIMENSION_TEXTURE_1D,
+            vk::ImageType::TYPE_2D => fidelityfx_sys::FFX_RESOURCE_DIMENSION_TEXTURE_2D,
+            // vk::ImageType::TYPE_3D => fidelityfx_sys::FFX_RESOURCE_DIMENSION_TEXTURE_3D,
+            _ => unimplemented!(),
+        },
+        format: format.as_raw(),
+        __bindgen_anon_1: fidelityfx_sys::ResourceDescription__bindgen_ty_1 { width: size[0] },
+        __bindgen_anon_2: fidelityfx_sys::ResourceDescription__bindgen_ty_2 { height: size[1] },
+        __bindgen_anon_3: fidelityfx_sys::ResourceDescription__bindgen_ty_3 { depth: size[2] },
+        mipCount: mip_count,
+        flags,
+        usage,
+    };
+
     unsafe {
-        fsr_sys::vk::GetTextureResourceVK(
-            context.context.as_mut(),
-            image.as_raw(),
-            image_view.as_raw(),
-            size[0],
-            size[1],
-            format.as_raw(),
-            WideString::from_str(name).as_ptr(),
+        fidelityfx_sys::vk::GetResourceVK(
+            // TODO: what pointer do they want? On dx12 it seems to be the ID3D12Resource. Is the Vulkan equivalent memory/buffer/image?
+            image.as_raw() as *mut _,
+            resource_description,
+            WideString::from_str(name).as_mut_ptr(),
             state,
         )
     }
