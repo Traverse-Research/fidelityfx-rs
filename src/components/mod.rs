@@ -1,1 +1,1 @@
-mod fsr3;
+pub mod fsr3;

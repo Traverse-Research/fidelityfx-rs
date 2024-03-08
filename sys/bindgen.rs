@@ -26,17 +26,17 @@ impl bindgen::callbacks::ParseCallbacks for Renamer {
     }
 }
 
-pub fn generate_bindings(api_dir: &str) {
-    let wrapper = format!("{}/include/FidelityFX/host/ffx_fsr3.h", api_dir);
+pub fn generate_bindings(api_dir: &Path) {
+    let wrapper = api_dir.join("include/FidelityFX/host/ffx_fsr3.h");
 
     // Generate bindings
     let mut bindings = bindgen::Builder::default()
         .layout_tests(false)
         .derive_default(true)
         .prepend_enum_name(false)
-        .header(wrapper)
+        .header(wrapper.to_string_lossy())
         .clang_arg("-xc++")
-        .clang_arg(format!("-I{api_dir}/include"))
+        .clang_arg(format!("-I{}/include", api_dir.display()))
         .trust_clang_mangling(false)
         .default_non_copy_union_style(bindgen::NonCopyUnionStyle::ManuallyDrop)
         // .allowlist_file(r".*(/|\\)ffx-fsr3-api(/|\\)[^/\\]+\.h")
@@ -63,23 +63,26 @@ pub fn generate_bindings(api_dir: &str) {
         .expect("Couldn't write bindings!");
 }
 
-pub fn generate_vk_bindings(api_dir: &str, vk_include_dir: &Path) {
-    let wrapper_api = format!("{api_dir}/include/FidelityFX/host/backends/vk/ffx_vk.h");
+pub fn generate_vk_bindings(api_dir: &Path, vk_include_dir: &Path) {
+    let wrapper = format!(
+        "{}/include/FidelityFX/host/backends/vk/ffx_vk.h",
+        api_dir.display()
+    );
 
     // Generate bindings
     let mut bindings = bindgen::Builder::default()
         .layout_tests(false)
         .derive_default(true)
         .prepend_enum_name(false)
-        .header(&wrapper_api)
+        .header(&wrapper)
         .clang_arg("-xc++")
-        .clang_arg(format!("-I{api_dir}/include"))
+        .clang_arg(format!("-I{}/include", api_dir.display()))
         .trust_clang_mangling(false)
         .parse_callbacks(Box::new(bindgen::CargoCallbacks))
         .parse_callbacks(Box::new(Renamer))
         .clang_arg(format!("-I{}", vk_include_dir.display()))
         .allowlist_recursively(false)
-        .allowlist_file(&wrapper_api);
+        .allowlist_file(&wrapper);
 
     if cfg!(not(target_os = "windows")) {
         bindings = bindings.clang_args(["-DFFX_GCC"]).clang_arg("-std=c++2a");
@@ -93,22 +96,25 @@ pub fn generate_vk_bindings(api_dir: &str, vk_include_dir: &Path) {
         .expect("Couldn't write bindings!");
 }
 
-pub fn generate_d3d12_bindings(api_dir: &str) {
-    let wrapper_api = format!("{api_dir}/include/FidelityFX/host/backends/dx12/ffx_dx12.h");
+pub fn generate_d3d12_bindings(api_dir: &Path) {
+    let wrapper = format!(
+        "{}/include/FidelityFX/host/backends/dx12/ffx_dx12.h",
+        api_dir.display()
+    );
 
     // Generate bindings
     let bindings = bindgen::Builder::default()
         .layout_tests(false)
         .derive_default(true)
         .prepend_enum_name(false)
-        .header(&wrapper_api)
+        .header(&wrapper)
         .clang_arg("-xc++")
-        .clang_arg(format!("-I{api_dir}/include"))
+        .clang_arg(format!("-I{}/include", api_dir.display()))
         .trust_clang_mangling(false)
         .parse_callbacks(Box::new(bindgen::CargoCallbacks))
         .parse_callbacks(Box::new(Renamer))
         .allowlist_recursively(false)
-        .allowlist_file(&wrapper_api)
+        .allowlist_file(&wrapper)
         .generate()
         .expect("Unable to generate bindings");
 

@@ -24,7 +24,7 @@ unsafe fn get_scratch_memory_size() -> usize {
     fidelityfx_sys::d3d12::GetScratchMemorySizeDX12(/*TODO */ 1)
 }
 
-pub unsafe fn get_interface(device: &mut ID3D12Device) -> Result<Interface> {
+pub unsafe fn get_interface(device: fidelityfx_sys::Device) -> Result<Interface> {
     let scratch_buffer =
         ScratchBuffer::new(get_scratch_memory_size()).map_err(|e| Error::ScratchBuffer(e))?;
 
@@ -35,7 +35,7 @@ pub unsafe fn get_interface(device: &mut ID3D12Device) -> Result<Interface> {
 
     fidelityfx_sys::d3d12::GetInterfaceDX12(
         &mut retval.interface,
-        device as *mut _ as _,
+        device,
         retval.scratch_buffer.ptr().cast::<std::ffi::c_void>(),
         retval.scratch_buffer.len(),
         /* TODO */ 1,
@@ -44,8 +44,9 @@ pub unsafe fn get_interface(device: &mut ID3D12Device) -> Result<Interface> {
     Ok(retval)
 }
 
-pub unsafe fn get_device(device: &mut ID3D12Device) -> Device {
-    fidelityfx_sys::d3d12::GetDeviceDX12(device as *mut _ as _)
+pub unsafe fn get_device(device: &ID3D12Device) -> Device {
+    fidelityfx_sys::d3d12::GetDeviceDX12(device as *const _ as _)
+    // fidelityfx_sys::d3d12::GetDeviceDX12(device.0.as_raw())
 }
 
 pub unsafe fn get_texture_resource(
