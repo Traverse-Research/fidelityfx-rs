@@ -3,7 +3,6 @@ name = "fidelityfx"
 version = "0.1.0"
 authors = ["Traverse Research <support@traverseresearch.nl>"]
 edition = "2021"
-<<<<<<< HEAD
 license = "MIT"
 homepage = "https://traverseresearch.nl"
 repository = "https://github.com/Traverse-Research/fidelityfx-rs"
@@ -11,8 +10,6 @@ description = "Rust Bindings for the AMD FidelityFX SDK"
 include = ["src", "LICENSE"]
 categories = ["rendering"] # https://crates.io/category_slugs
 keywords = ["fidelity", "fx", "fidelity-fx", "fidelityfx", "upscaling", "vulkan", "dx12", "directx12"]
-=======
->>>>>>> ef3b7a5 (Hi from Marijn)
 
 [dependencies]
 bitflags = "2"
@@ -27,7 +24,7 @@ optional = true
 [dependencies.windows]
 version = "0.54"
 optional = true
-features = ["Win32_Graphics_Direct3D12"]
+features = ["Win32_Graphics_Direct3D12", "Win32_Graphics_Dxgi_Common"]
 
 [features]
 default = []

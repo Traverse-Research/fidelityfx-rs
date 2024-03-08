@@ -1,54 +1,79 @@
-use crate::{interface::ScratchBuffer, *};
-// use widestring::U16String;
-use windows::Win32::Graphics::Direct3D12::{ID3D12CommandList, ID3D12Device, ID3D12Resource};
+use crate::{
+    error::{Error, FfxError, Result},
+    interface::{Interface, ScratchBuffer},
+    CommandList,
+};
+use fidelityfx_sys::{Device, ResourceStates};
+use widestring::U16String;
+use windows::Win32::Graphics::{
+    Direct3D12::{ID3D12CommandList, ID3D12Device, ID3D12Resource},
+    Dxgi,
+};
 
 impl From<&mut ID3D12CommandList> for CommandList {
     fn from(value: &mut ID3D12CommandList) -> Self {
-        unsafe { CommandList(fsr_sys::d3d12::GetCommandListDX12(value as *mut _ as _)) }
+        unsafe {
+            CommandList(fidelityfx_sys::d3d12::GetCommandListDX12(
+                value as *mut _ as _,
+            ))
+        }
     }
 }
 
 unsafe fn get_scratch_memory_size() -> usize {
-    fsr_sys::d3d12::GetScratchMemorySizeDX12()
+    fidelityfx_sys::d3d12::GetScratchMemorySizeDX12(/*TODO */ 1)
 }
 
-pub unsafe fn get_interface(device: &mut ID3D12Device) -> Result<Interface, Error> {
+pub unsafe fn get_interface(device: &mut ID3D12Device) -> Result<Interface> {
     let scratch_buffer =
         ScratchBuffer::new(get_scratch_memory_size()).map_err(|e| Error::ScratchBuffer(e))?;
 
     let mut retval = Interface {
-        interface: fsr_sys::Interface::default(),
+        interface: fidelityfx_sys::Interface::default(),
         scratch_buffer,
     };
 
-    fsr_sys::d3d12::GetInterfaceDX12(
+    fidelityfx_sys::d3d12::GetInterfaceDX12(
         &mut retval.interface,
         device as *mut _ as _,
         retval.scratch_buffer.ptr().cast::<std::ffi::c_void>(),
         retval.scratch_buffer.len(),
+        /* TODO */ 1,
     );
 
     Ok(retval)
 }
 
 pub unsafe fn get_device(device: &mut ID3D12Device) -> Device {
-    fsr_sys::d3d12::GetDeviceDX12(device as *mut _ as _)
+    fidelityfx_sys::d3d12::GetDeviceDX12(device as *mut _ as _)
 }
 
 pub unsafe fn get_texture_resource(
-    context: &mut Context,
     resource: &mut ID3D12Resource,
+    type_: fidelityfx_sys::ResourceType,
+    format: Dxgi::Common::DXGI_FORMAT,
+    size: [u32; 3],
+    mip_count: u32,
+    flags: fidelityfx_sys::ResourceFlags,
+    usage: fidelityfx_sys::ResourceUsage,
     state: ResourceStates,
     name: &str,
-    shader_component_mapping: u32,
 ) {
-    fsr_sys::d3d12::GetResourceDX12(
-        context.context.as_mut(),
+    let resource_description = fidelityfx_sys::ResourceDescription {
+        type_,
+        format: format.0,
+        __bindgen_anon_1: fidelityfx_sys::ResourceDescription__bindgen_ty_1 { width: size[0] },
+        __bindgen_anon_2: fidelityfx_sys::ResourceDescription__bindgen_ty_2 { height: size[1] },
+        __bindgen_anon_3: fidelityfx_sys::ResourceDescription__bindgen_ty_3 { depth: size[2] },
+        mipCount: mip_count,
+        flags,
+        usage,
+    };
+
+    fidelityfx_sys::d3d12::GetResourceDX12(
         resource as *mut _ as _,
-        // name.encode_utf16
-        todo!(),
-        // U16String::from_str(name).as_ptr(),
+        resource_description,
+        U16String::from_str(name).as_mut_ptr(),
         state,
-        shader_component_mapping,
     );
 }
