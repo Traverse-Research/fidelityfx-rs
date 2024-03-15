@@ -1,5 +1,5 @@
-//! Unsafe Rust bindings for [FidelityFX Super Resolution 2](https://github.com/GPUOpen-Effects/FidelityFX-FSR2)
-//!
+//! Unsafe Rust bindings for [FidelityFX SDK](https://github.com/GPUOpen-Effects/FidelityFX-FSR2)
+//! Main skeleton taken from [FSR2 Rust Bindings from Embark Studios](https://github.com/EmbarkStudios/fsr-rs)
 //!
 //! # Vulkan psuedo code
 //! ```no_run
@@ -74,15 +74,17 @@ impl From<&ContextDescription<'_>> for fidelityfx_sys::Fsr3ContextDescription {
                 height: val.display_size[1],
             },
             fpMessage: val.message_callback,
-
-            // TODO
-            // callbacks: val.interface.interface,
-            // device: *val.device,
-            upscaleOutputSize: todo!(),
-            backendInterfaceSharedResources: todo!(),
-            backendInterfaceUpscaling: todo!(),
-            backendInterfaceFrameInterpolation: todo!(),
-            backBufferFormat: todo!(),
+            // TODO(YIGIT): This requires a check
+            upscaleOutputSize: fidelityfx_sys::Dimensions2D {
+                width: val.display_size[0],
+                height: val.display_size[1],
+            },
+            backendInterfaceSharedResources: val.interface.interface,
+            backendInterfaceUpscaling: val.interface.interface,
+            backendInterfaceFrameInterpolation: val.interface.interface,
+            // TODO(YIGIT): This is a magic number
+            // 0 would be unknown, fidelityfx_sys::FFX_SURFACE_FORMAT_R32G32B32A32_FLOAT
+            backBufferFormat: 0,
         }
     }
 }
