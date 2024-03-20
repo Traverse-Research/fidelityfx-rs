@@ -311,32 +311,79 @@ impl ::std::ops::BitAndAssign for ResourceUsage {
 #[doc = " An enumeration of resource usage.\n\n @ingroup SDKTypes"]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub struct ResourceUsage(pub ::std::os::raw::c_int);
-#[repr(i32)]
+impl ResourceStates {
+    pub const COMMON: ResourceStates = ResourceStates(1);
+}
+impl ResourceStates {
+    #[doc = "< Indicates a resource is in the state to be used as UAV."]
+    pub const UNORDERED_ACCESS: ResourceStates = ResourceStates(2);
+}
+impl ResourceStates {
+    #[doc = "< Indicates a resource is in the state to be read by compute shaders."]
+    pub const COMPUTE_READ: ResourceStates = ResourceStates(4);
+}
+impl ResourceStates {
+    #[doc = "< Indicates a resource is in the state to be read by pixel shaders."]
+    pub const PIXEL_READ: ResourceStates = ResourceStates(8);
+}
+impl ResourceStates {
+    #[doc = "< Indicates a resource is in the state to be read by pixel or compute shaders."]
+    pub const PIXEL_COMPUTE_READ: ResourceStates = ResourceStates(12);
+}
+impl ResourceStates {
+    #[doc = "< Indicates a resource is in the state to be used as source in a copy command."]
+    pub const COPY_SRC: ResourceStates = ResourceStates(16);
+}
+impl ResourceStates {
+    #[doc = "< Indicates a resource is in the state to be used as destination in a copy command."]
+    pub const COPY_DEST: ResourceStates = ResourceStates(32);
+}
+impl ResourceStates {
+    #[doc = "< Indicates a resource is in generic (slow) read state."]
+    pub const GENERIC_READ: ResourceStates = ResourceStates(20);
+}
+impl ResourceStates {
+    #[doc = "< Indicates a resource is in the state to be used as an indirect command argument"]
+    pub const INDIRECT_ARGUMENT: ResourceStates = ResourceStates(64);
+}
+impl ResourceStates {
+    #[doc = "< Indicates a resource is in the state to be used to present to the swap chain"]
+    pub const PRESENT: ResourceStates = ResourceStates(128);
+}
+impl ResourceStates {
+    #[doc = "< Indicates a resource is in the state to be used as render target"]
+    pub const RENDER_TARGET: ResourceStates = ResourceStates(256);
+}
+impl ::std::ops::BitOr<ResourceStates> for ResourceStates {
+    type Output = Self;
+    #[inline]
+    fn bitor(self, other: Self) -> Self {
+        ResourceStates(self.0 | other.0)
+    }
+}
+impl ::std::ops::BitOrAssign for ResourceStates {
+    #[inline]
+    fn bitor_assign(&mut self, rhs: ResourceStates) {
+        self.0 |= rhs.0;
+    }
+}
+impl ::std::ops::BitAnd<ResourceStates> for ResourceStates {
+    type Output = Self;
+    #[inline]
+    fn bitand(self, other: Self) -> Self {
+        ResourceStates(self.0 & other.0)
+    }
+}
+impl ::std::ops::BitAndAssign for ResourceStates {
+    #[inline]
+    fn bitand_assign(&mut self, rhs: ResourceStates) {
+        self.0 &= rhs.0;
+    }
+}
+#[repr(transparent)]
 #[doc = " An enumeration of resource states.\n\n @ingroup SDKTypes"]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
-pub enum ResourceStates {
-    COMMON = 1,
-    #[doc = "< Indicates a resource is in the state to be used as UAV."]
-    UNORDERED_ACCESS = 2,
-    #[doc = "< Indicates a resource is in the state to be read by compute shaders."]
-    COMPUTE_READ = 4,
-    #[doc = "< Indicates a resource is in the state to be read by pixel shaders."]
-    PIXEL_READ = 8,
-    #[doc = "< Indicates a resource is in the state to be read by pixel or compute shaders."]
-    PIXEL_COMPUTE_READ = 12,
-    #[doc = "< Indicates a resource is in the state to be used as source in a copy command."]
-    COPY_SRC = 16,
-    #[doc = "< Indicates a resource is in the state to be used as destination in a copy command."]
-    COPY_DEST = 32,
-    #[doc = "< Indicates a resource is in generic (slow) read state."]
-    GENERIC_READ = 20,
-    #[doc = "< Indicates a resource is in the state to be used as an indirect command argument"]
-    INDIRECT_ARGUMENT = 64,
-    #[doc = "< Indicates a resource is in the state to be used to present to the swap chain"]
-    PRESENT = 128,
-    #[doc = "< Indicates a resource is in the state to be used as render target"]
-    RENDER_TARGET = 256,
-}
+pub struct ResourceStates(pub ::std::os::raw::c_int);
 #[doc = "< A resource with a single dimension."]
 pub const FFX_RESOURCE_DIMENSION_TEXTURE_1D: ResourceDimension = 0;
 #[doc = "< A resource with two dimensions."]

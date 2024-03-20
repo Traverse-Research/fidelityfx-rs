@@ -82,7 +82,7 @@ impl From<&ContextDescription<'_>> for fidelityfx_sys::Fsr3ContextDescription {
             backendInterfaceSharedResources: val.interface.interface,
             backendInterfaceUpscaling: val.interface.interface,
             backendInterfaceFrameInterpolation: val.interface.interface,
-            // TODO(YIGIT): This is a magic number
+            // TODO(YIGIT): Somehow need to decide what to use here
             // 0 would be unknown, fidelityfx_sys::FFX_SURFACE_FORMAT_R32G32B32A32_FLOAT
             backBufferFormat: 0,
         }
@@ -108,6 +108,8 @@ impl From<&ContextDescription<'_>> for fidelityfx_sys::Fsr3ContextDescription {
 //         const ASYNC_WORKLOAD_SUPPORT = fidelityfx_sys::Fsr3InitializationFlagBits::FFX_FSR3_ENABLE_ASYNC_WORKLOAD_SUPPORT;
 //     }
 // }
+
+
 
 pub struct DispatchDescription {
     pub cmd_list: CommandList,
