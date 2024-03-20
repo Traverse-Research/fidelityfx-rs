@@ -45,11 +45,12 @@ pub fn generate_bindings(api_dir: &Path) {
         .new_type_alias("CommandList")
         .parse_callbacks(Box::new(CargoCallbacks::new()))
         .parse_callbacks(Box::new(Renamer))
-        .bitfield_enum("FfxResourceFlags")
-        .bitfield_enum("FfxResourceUsage")
         .bitfield_enum("FfxFsr3InitializationFlagBits")
-        .rustified_enum("FfxFsr3MsgType")
-        .rustified_enum("FfxResourceStates");
+        .bitfield_enum("FfxResourceUsage")
+        .bitfield_enum("FfxResourceStates")
+        .bitfield_enum("FfxResourceFlags")
+        .rustified_enum("FfxFsr3MsgType");
+        
 
     if cfg!(not(target_os = "windows")) {
         bindings = bindings.clang_args(["-DFFX_GCC"]);

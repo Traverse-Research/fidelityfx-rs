@@ -92,7 +92,7 @@ pub unsafe fn get_texture_resource(
 
     unsafe {
         fidelityfx_sys::vk::GetResourceVK(
-            // TODO: what pointer do they want? On dx12 it seems to be the ID3D12Resource. Is the Vulkan equivalent memory/buffer/image?
+            // TODO(YIGIT): what pointer do they want? On dx12 it seems to be the ID3D12Resource. Is the Vulkan equivalent memory/buffer/image?
             image.as_raw() as *mut _,
             resource_description,
             WideString::from_str(name).as_mut_ptr(),
