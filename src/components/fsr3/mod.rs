@@ -38,11 +38,11 @@
 //! fsr_context.dispatch(desc).expect("Failed to dispatch fsr");
 //! ```
 
+use crate::backends::{CommandList, Device};
 use crate::error::{Error, FfxError, Result};
 pub use crate::interface::Interface;
-use crate::CommandList;
 
-pub use fidelityfx_sys::Device;
+// pub use fidelityfx_sys::Device;
 pub use fidelityfx_sys::MsgType;
 pub use fidelityfx_sys::Resource;
 
@@ -57,7 +57,8 @@ pub struct ContextDescription<'a> {
     pub flags: fidelityfx_sys::Fsr3InitializationFlagBits,
     pub max_render_size: [u32; 2],
     pub display_size: [u32; 2],
-    pub device: &'a Device,
+    // pub device: &'a Device,
+    pub device: Device<'a>,
     pub message_callback: Option<unsafe extern "C" fn(MsgType, *const widestring::WideChar)>,
 }
 
@@ -109,10 +110,8 @@ impl From<&ContextDescription<'_>> for fidelityfx_sys::Fsr3ContextDescription {
 //     }
 // }
 
-
-
-pub struct DispatchDescription {
-    pub cmd_list: CommandList,
+pub struct DispatchDescription<'a> {
+    pub cmd_list: CommandList<'a>,
     pub output: Resource,
 
     pub color: Resource,
@@ -153,9 +152,9 @@ pub struct DispatchDescription {
     pub upscale_output: Resource,
 }
 
-impl DispatchDescription {
+impl<'a> DispatchDescription<'a> {
     pub fn new(
-        cmd_list: CommandList,
+        cmd_list: CommandList<'a>,
         color: Resource,
         depth: Resource,
         motion_vectors: Resource,
@@ -195,44 +194,44 @@ impl DispatchDescription {
         }
     }
 
-    pub fn camera(mut self, near: f32, far: f32, fov_y: f32) -> DispatchDescription {
+    pub fn camera(mut self, near: f32, far: f32, fov_y: f32) -> Self {
         self.camera_near = near;
         self.camera_far = far;
         self.camera_fov_y = fov_y;
         self
     }
 
-    pub fn pre_exposure(mut self, value: f32) -> DispatchDescription {
+    pub fn pre_exposure(mut self, value: f32) -> Self {
         self.pre_exposure = value;
         self
     }
 
-    pub fn view_space_to_meters_factor(mut self, value: f32) -> DispatchDescription {
+    pub fn view_space_to_meters_factor(mut self, value: f32) -> Self {
         self.view_space_to_meters_factor = value;
         self
     }
 
-    pub fn exposure(mut self, resource: Resource) -> DispatchDescription {
+    pub fn exposure(mut self, resource: Resource) -> Self {
         self.exposure = Some(resource);
         self
     }
 
-    pub fn reactive(mut self, resource: Resource) -> DispatchDescription {
+    pub fn reactive(mut self, resource: Resource) -> Self {
         self.reactive = Some(resource);
         self
     }
 
-    pub fn motion_vector_scale(mut self, value: [f32; 2]) -> DispatchDescription {
+    pub fn motion_vector_scale(mut self, value: [f32; 2]) -> Self {
         self.motion_vector_scale = value;
         self
     }
 
-    pub fn jitter_offset(mut self, value: [f32; 2]) -> DispatchDescription {
+    pub fn jitter_offset(mut self, value: [f32; 2]) -> Self {
         self.jitter_offset = value;
         self
     }
 
-    pub fn sharpness(mut self, sharpness: f32) -> DispatchDescription {
+    pub fn sharpness(mut self, sharpness: f32) -> Self {
         self.enable_sharpening = true;
         self.sharpness = sharpness;
         self
@@ -246,7 +245,7 @@ impl DispatchDescription {
         auto_tc_scale: f32,
         auto_reactive_scale: f32,
         auto_tc_threshold: f32,
-    ) -> DispatchDescription {
+    ) -> Self {
         self.color_opaque_only = Some(color_opaque_only);
         self.transparency_and_composition = Some(transparency_and_composition);
         self.enable_auto_reactive = true;
@@ -257,13 +256,13 @@ impl DispatchDescription {
         self
     }
 
-    pub fn reset(mut self, value: bool) -> DispatchDescription {
+    pub fn reset(mut self, value: bool) -> Self {
         self.reset = value;
         self
     }
 }
 
-impl From<DispatchDescription> for fidelityfx_sys::Fsr3DispatchUpscaleDescription {
+impl From<DispatchDescription<'_>> for fidelityfx_sys::Fsr3DispatchUpscaleDescription {
     fn from(val: DispatchDescription) -> Self {
         Self {
             commandList: val.cmd_list.0,
@@ -314,6 +313,7 @@ impl Context {
         if error != fidelityfx_sys::FFX_OK {
             return Err(FfxError::from_error_code(error).into());
         }
+        // TODO: ContextDescription contains a borrow of Device. Is that also held internally by the created context?
         Ok(Context {
             context,
             _interface: desc.interface,

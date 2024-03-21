@@ -3,16 +3,15 @@ pub mod interface;
 
 pub mod components;
 
+use std::marker::PhantomData;
+
 pub use fidelityfx_sys::Device;
 pub use fidelityfx_sys::Fsr3InitializationFlagBits;
+pub use fidelityfx_sys::MsgType;
+pub use fidelityfx_sys::Resource;
 pub use fidelityfx_sys::ResourceFlags;
 pub use fidelityfx_sys::ResourceStates;
 pub use fidelityfx_sys::ResourceUsage;
-pub use fidelityfx_sys::MsgType;
-pub use fidelityfx_sys::Resource;
-
-/// A typedef representing a command list or command buffer.
-pub struct CommandList(fidelityfx_sys::CommandList);
 
 pub mod error {
     #[repr(i32)]

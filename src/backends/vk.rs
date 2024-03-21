@@ -1,20 +1,26 @@
+use std::marker::PhantomData;
+
+use super::{CommandList, Device};
 use crate::{
     error::{Error, FfxError, Result},
     interface::{Interface, ScratchBuffer},
-    CommandList,
 };
 use ash::vk::{self, Handle};
 use widestring::WideString;
 
-impl From<vk::CommandBuffer> for CommandList {
+impl From<vk::CommandBuffer> for CommandList<'static> {
+    // Don't know a lifetime for a low-level ash::vk::CommandBuffer
     fn from(value: vk::CommandBuffer) -> Self {
-        unsafe { CommandList(fidelityfx_sys::vk::GetCommandListVK(value.as_raw())) }
+        CommandList(
+            unsafe { fidelityfx_sys::vk::GetCommandListVK(value.as_raw()) },
+            PhantomData,
+        )
     }
 }
 
 pub unsafe fn get_interface(
     // entry: &ash::Entry,
-    device: fidelityfx_sys::Device,
+    device: Device<'_>,
     instance: &ash::Instance,
     physical_device: vk::PhysicalDevice,
 ) -> Result<Interface> {
@@ -37,7 +43,8 @@ pub unsafe fn get_interface(
     let error = unsafe {
         fidelityfx_sys::vk::GetInterfaceVK(
             &mut retval.interface,
-            device,
+            // TODO: Is the returned Interface going to hold a lifetime-less handle to our lifetimed device?
+            device.0,
             retval.scratch_buffer.ptr().cast::<std::ffi::c_void>(),
             retval.scratch_buffer.len(),
             /* maxContexts */ 1,
@@ -54,13 +61,16 @@ pub unsafe fn get_device(
     instance: &ash::Instance,
     device: &ash::Device,
     physical_device: vk::PhysicalDevice,
-) -> fidelityfx_sys::Device {
+) -> Device<'static> {
     let mut device_context = fidelityfx_sys::vk::VkDeviceContext {
         vkDevice: device.handle().as_raw(),
         vkPhysicalDevice: physical_device.as_raw(),
         vkDeviceProcAddr: std::mem::transmute(Some(instance.fp_v1_0().get_device_proc_addr)),
     };
-    unsafe { fidelityfx_sys::vk::GetDeviceVK(&mut device_context) }
+    Device(
+        unsafe { fidelityfx_sys::vk::GetDeviceVK(&mut device_context) },
+        PhantomData,
+    )
 }
 
 pub unsafe fn get_texture_resource(
