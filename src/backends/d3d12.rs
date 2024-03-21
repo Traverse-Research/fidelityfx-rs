@@ -3,10 +3,10 @@ use crate::{
     interface::{Interface, ScratchBuffer},
     CommandList,
 };
-use fidelityfx_sys::{Device, ResourceStates};
+use fidelityfx_sys::Device;
 use widestring::U16String;
 use windows::Win32::Graphics::{
-    Direct3D12::{ID3D12CommandList, ID3D12Device, ID3D12Resource},
+    Direct3D12::{self, ID3D12CommandList, ID3D12Device, ID3D12Resource},
     Dxgi,
 };
 
@@ -51,17 +51,21 @@ pub unsafe fn get_device(device: &ID3D12Device) -> Device {
 
 pub unsafe fn get_texture_resource(
     resource: &mut ID3D12Resource,
-    type_: fidelityfx_sys::ResourceType,
+    type_: Direct3D12::D3D12_RESOURCE_DIMENSION,
     format: Dxgi::Common::DXGI_FORMAT,
     size: [u32; 3],
     mip_count: u32,
     flags: fidelityfx_sys::ResourceFlags,
     usage: fidelityfx_sys::ResourceUsage,
-    state: ResourceStates,
+    state: fidelityfx_sys::ResourceStates,
     name: &str,
-) {
+) -> fidelityfx_sys::Resource {
     let resource_description = fidelityfx_sys::ResourceDescription {
-        type_,
+        type_: match type_ {
+            Direct3D12::D3D12_RESOURCE_DIMENSION_TEXTURE1D => fidelityfx_sys::FFX_RESOURCE_DIMENSION_TEXTURE_1D,
+            Direct3D12::D3D12_RESOURCE_DIMENSION_TEXTURE2D => fidelityfx_sys::FFX_RESOURCE_DIMENSION_TEXTURE_2D,
+            _ => unimplemented!(),
+        },
         format: format.0,
         __bindgen_anon_1: fidelityfx_sys::ResourceDescription__bindgen_ty_1 { width: size[0] },
         __bindgen_anon_2: fidelityfx_sys::ResourceDescription__bindgen_ty_2 { height: size[1] },
@@ -76,5 +80,5 @@ pub unsafe fn get_texture_resource(
         resource_description,
         U16String::from_str(name).as_mut_ptr(),
         state,
-    );
+    )
 }
