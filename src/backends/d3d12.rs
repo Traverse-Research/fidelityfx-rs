@@ -1,22 +1,27 @@
+use std::marker::PhantomData;
+
+use super::{CommandList, Device};
 use crate::{
     error::{Error, FfxError, Result},
     interface::{Interface, ScratchBuffer},
-    CommandList,
 };
-use fidelityfx_sys::Device;
 use widestring::U16String;
 use windows::Win32::Graphics::{
     Direct3D12::{self, ID3D12CommandList, ID3D12Device, ID3D12Resource},
     Dxgi,
 };
 
-impl From<&mut ID3D12CommandList> for CommandList {
-    fn from(value: &mut ID3D12CommandList) -> Self {
-        unsafe {
-            CommandList(fidelityfx_sys::d3d12::GetCommandListDX12(
-                value as *mut _ as _,
-            ))
-        }
+impl<'a> From<&'a ID3D12CommandList> for CommandList<'a> {
+    fn from(value: &'a ID3D12CommandList) -> Self {
+        CommandList(
+            unsafe {
+                fidelityfx_sys::d3d12::GetCommandListDX12(
+                    // repr(transparent) around a pointer
+                    std::mem::transmute_copy(value),
+                )
+            },
+            PhantomData,
+        )
     }
 }
 
@@ -24,7 +29,7 @@ unsafe fn get_scratch_memory_size() -> usize {
     fidelityfx_sys::d3d12::GetScratchMemorySizeDX12(/*TODO */ 1)
 }
 
-pub unsafe fn get_interface(device: fidelityfx_sys::Device) -> Result<Interface> {
+pub unsafe fn get_interface(device: Device<'_>) -> Result<Interface> {
     let scratch_buffer =
         ScratchBuffer::new(get_scratch_memory_size()).map_err(|e| Error::ScratchBuffer(e))?;
 
@@ -35,7 +40,8 @@ pub unsafe fn get_interface(device: fidelityfx_sys::Device) -> Result<Interface>
 
     fidelityfx_sys::d3d12::GetInterfaceDX12(
         &mut retval.interface,
-        device,
+        // TODO: Is the returned Interface going to hold a lifetime-less handle to our lifetimed device?
+        device.0,
         retval.scratch_buffer.ptr().cast::<std::ffi::c_void>(),
         retval.scratch_buffer.len(),
         /* TODO */ 1,
@@ -44,13 +50,27 @@ pub unsafe fn get_interface(device: fidelityfx_sys::Device) -> Result<Interface>
     Ok(retval)
 }
 
-pub unsafe fn get_device(device: &ID3D12Device) -> Device {
-    fidelityfx_sys::d3d12::GetDeviceDX12(device as *const _ as _)
-    // fidelityfx_sys::d3d12::GetDeviceDX12(device.0.as_raw())
+// impl<'a> From<&'a ID3D12Device> for Device<'a> {
+//     fn from(value: &'a ID3D12Device) -> Self {
+//         Device(
+//             unsafe { fidelityfx_sys::d3d12::GetDeviceDX12(std::mem::transmute_copy(value)) },
+//             PhantomData,
+//         )
+//     }
+// }
+
+// TODO: Not unsafe because the Windows type should be sound
+pub fn get_device<'a>(device: &'a ID3D12Device) -> Device<'a> {
+    Device(
+        // SAFETY: Should just be a cast internally. Knowing that the ID3D12Device is a sound/safe,
+        // turning it into a Device is also safe.
+        unsafe { fidelityfx_sys::d3d12::GetDeviceDX12(std::mem::transmute_copy(device)) },
+        PhantomData,
+    )
 }
 
 pub unsafe fn get_texture_resource(
-    resource: &mut ID3D12Resource,
+    resource: &ID3D12Resource,
     type_: Direct3D12::D3D12_RESOURCE_DIMENSION,
     format: Dxgi::Common::DXGI_FORMAT,
     size: [u32; 3],
@@ -62,8 +82,12 @@ pub unsafe fn get_texture_resource(
 ) -> fidelityfx_sys::Resource {
     let resource_description = fidelityfx_sys::ResourceDescription {
         type_: match type_ {
-            Direct3D12::D3D12_RESOURCE_DIMENSION_TEXTURE1D => fidelityfx_sys::FFX_RESOURCE_DIMENSION_TEXTURE_1D,
-            Direct3D12::D3D12_RESOURCE_DIMENSION_TEXTURE2D => fidelityfx_sys::FFX_RESOURCE_DIMENSION_TEXTURE_2D,
+            Direct3D12::D3D12_RESOURCE_DIMENSION_TEXTURE1D => {
+                fidelityfx_sys::FFX_RESOURCE_DIMENSION_TEXTURE_1D
+            }
+            Direct3D12::D3D12_RESOURCE_DIMENSION_TEXTURE2D => {
+                fidelityfx_sys::FFX_RESOURCE_DIMENSION_TEXTURE_2D
+            }
             _ => unimplemented!(),
         },
         format: format.0,
@@ -76,7 +100,7 @@ pub unsafe fn get_texture_resource(
     };
 
     fidelityfx_sys::d3d12::GetResourceDX12(
-        resource as *mut _ as _,
+        std::mem::transmute_copy(resource),
         resource_description,
         U16String::from_str(name).as_mut_ptr(),
         state,
