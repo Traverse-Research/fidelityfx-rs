@@ -1,6 +1,7 @@
 #[cfg(feature = "generate-bindings")]
 mod bindgen;
 
+use core::panic;
 use std::path::Path;
 
 use cc;
@@ -18,6 +19,9 @@ fn build_fsr3(api_dir: &Path, vk_include_dir: &Path) {
 
     let components = ["fsr3", "fsr3upscaler", "opticalflow", "frameinterpolation"];
     
+    let sh_perms = format!("{}", api_dir.parent().unwrap().display());
+    panic!("{}",sh_perms);
+
 
     for component in components {
         let paths = glob(&format!(
@@ -52,13 +56,15 @@ fn build_fsr3(api_dir: &Path, vk_include_dir: &Path) {
         // TODO: Only include this when compiling the backends
         .include(api_dir.join("src/backends/shared"))
         // TODO: Only include this when compiling the Vulkan backend
+        .include(&format!("{}/../../shader_permutations/vk", api_dir.display()))
         .include(vk_include_dir);
 
     if std::env::var("CARGO_CFG_UNIX").is_ok() {
         build.define("FFX_GCC", "1").std("c++2a");
     }
 
-    //  Shader permutations?
+    // TODO(YIGIT): Shader permutations? Yes, they were necessary
+    build.include(&format!("{}/../../shader_permutations/dx12", api_dir.display()));
 
     build.compile("ffx_fsr3_api");
 }

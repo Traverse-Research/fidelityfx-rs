@@ -1,0 +1,1 @@
+src/backends/shaders/vk/ffx_cacao_prepare_downsampled_depths_and_mips_pass_wave64_permutations.h:

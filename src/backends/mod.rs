@@ -1,7 +1,5 @@
 use std::marker::PhantomData;
 
-use windows::Win32::Graphics::Direct3D12::ID3D12Device;
-
 #[cfg(feature = "d3d12")]
 pub mod d3d12;
 #[cfg(feature = "vulkan")]

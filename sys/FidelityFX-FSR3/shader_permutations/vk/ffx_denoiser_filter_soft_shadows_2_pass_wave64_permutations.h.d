@@ -1,0 +1,1 @@
+src/backends/shaders/vk/ffx_denoiser_filter_soft_shadows_2_pass_wave64_permutations.h:

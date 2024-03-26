@@ -5,8 +5,6 @@ pub mod interface;
 
 pub mod components;
 
-use std::marker::PhantomData;
-
 pub use fidelityfx_sys::Device;
 pub use fidelityfx_sys::Fsr3InitializationFlagBits;
 pub use fidelityfx_sys::MsgType;
