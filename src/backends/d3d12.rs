@@ -2,7 +2,7 @@ use std::marker::PhantomData;
 
 use super::{CommandList, Device};
 use crate::{
-    error::{Error, FfxError, Result},
+    error::{Error, Result},
     interface::{Interface, ScratchBuffer},
 };
 use widestring::U16String;

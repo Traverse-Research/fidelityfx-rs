@@ -39,7 +39,7 @@
 //! ```
 
 use crate::backends::{CommandList, Device};
-use crate::error::{Error, FfxError, Result};
+use crate::error::{FfxError, Result};
 pub use crate::interface::Interface;
 
 // pub use fidelityfx_sys::Device;
@@ -263,7 +263,7 @@ impl<'a> DispatchDescription<'a> {
 }
 
 impl From<DispatchDescription<'_>> for fidelityfx_sys::Fsr3DispatchUpscaleDescription {
-    fn from(val: DispatchDescription) -> Self {
+    fn from(val: DispatchDescription<'_>) -> Self {
         Self {
             commandList: val.cmd_list.0,
             // output: val.output,
@@ -320,7 +320,7 @@ impl Context {
         })
     }
 
-    pub unsafe fn dispatch(&mut self, desc: DispatchDescription) -> Result<()> {
+    pub unsafe fn dispatch(&mut self, desc: DispatchDescription<'_>) -> Result<()> {
         let error = unsafe {
             fidelityfx_sys::Fsr3ContextDispatchUpscale(self.context.as_mut(), &desc.into())
         };
