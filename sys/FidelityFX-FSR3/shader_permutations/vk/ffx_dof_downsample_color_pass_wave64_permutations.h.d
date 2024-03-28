@@ -1,1 +1,0 @@
-src/backends/shaders/vk/ffx_dof_downsample_color_pass_wave64_permutations.h:
