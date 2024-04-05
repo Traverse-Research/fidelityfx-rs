@@ -104,6 +104,7 @@ dependencies = [
  "ash",
  "bitflags",
  "fidelityfx-sys",
+ "log",
  "thiserror",
  "widestring",
  "windows",

@@ -41,10 +41,46 @@
 use crate::backends::{CommandList, Device};
 use crate::error::{FfxError, Result};
 pub use crate::interface::Interface;
+use fidelityfx_sys::FFX_MESSAGE_TYPE_WARNING;
+use log::{error, warn};
 
 // pub use fidelityfx_sys::Device;
 pub use fidelityfx_sys::MsgType;
 pub use fidelityfx_sys::Resource;
+
+use std::ffi::OsString;
+use std::os::windows::prelude::*;
+
+unsafe fn u16_ptr_to_string(ptr: *const u16) -> OsString {
+    let len = (0..).take_while(|&i| *ptr.offset(i) != 0).count();
+    let slice = std::slice::from_raw_parts(ptr, len);
+
+    OsString::from_wide(slice)
+}
+
+pub unsafe extern "C" fn msg_callback_func(
+    msg_type: MsgType,
+    message: *const widestring::WideChar,
+) {
+    unsafe {
+        let str_msg = u16_ptr_to_string(message);
+        match msg_type {
+            // TODO(YIGIT): Flags are not working here for some reason
+            0 => {
+                error!("FSR error with :\n {:?}", str_msg);
+            }
+            1 => {
+                warn!("FSR warning with :\n {:?}", str_msg);
+            }
+            2 => {
+               // warn!("FSR count with: \n {:?}", message)
+            }
+            _ => {
+                warn!("FSR3 message: callback unexpected type received!");
+            }
+        }
+    }
+}
 
 /// A structure encapsulating the FidelityFX Super Resolution 2 context.
 pub struct Context {
@@ -185,7 +221,7 @@ impl<'a> DispatchDescription<'a> {
             jitter_offset: [0.0, 0.0],
             render_size,
             camera_near: 0.01,
-            camera_far: 1000.0,
+            camera_far: 1.0,
             camera_fov_y: 1.0,
             sharpness: 0.0,
             view_space_to_meters_factor: 1.0,
@@ -197,6 +233,15 @@ impl<'a> DispatchDescription<'a> {
     pub fn camera(mut self, near: f32, far: f32, fov_y: f32) -> Self {
         self.camera_near = near;
         self.camera_far = far;
+
+        // TODO(YIGIT): For some reason FSR3 does not accept f32::MAX as FLT_MAX
+        if near == f32::MAX {
+            self.camera_near = 3.402823466e+38;
+        }
+        if far == f32::MAX {
+            self.camera_far = 3.402823466e+38;
+        }
+
         self.camera_fov_y = fov_y;
         self
     }
