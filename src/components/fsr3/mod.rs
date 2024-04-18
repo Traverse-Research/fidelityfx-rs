@@ -41,7 +41,6 @@
 use crate::backends::{CommandList, Device};
 use crate::error::{FfxError, Result};
 pub use crate::interface::Interface;
-use fidelityfx_sys::FFX_MESSAGE_TYPE_WARNING;
 use log::{error, warn};
 
 // pub use fidelityfx_sys::Device;
@@ -58,6 +57,8 @@ unsafe fn u16_ptr_to_string(ptr: *const u16) -> OsString {
     OsString::from_wide(slice)
 }
 
+/// # Safety
+///
 pub unsafe extern "C" fn msg_callback_func(
     msg_type: MsgType,
     message: *const widestring::WideChar,
@@ -148,7 +149,6 @@ impl From<&ContextDescription<'_>> for fidelityfx_sys::Fsr3ContextDescription {
 
 pub struct DispatchDescription<'a> {
     pub cmd_list: CommandList<'a>,
-    pub output: Resource,
 
     pub color: Resource,
     pub depth: Resource,
@@ -194,7 +194,6 @@ impl<'a> DispatchDescription<'a> {
         color: Resource,
         depth: Resource,
         motion_vectors: Resource,
-        output: Resource,
         frame_time_delta: f32,
         render_size: [u32; 2],
         upscale_output: Resource,
@@ -208,7 +207,6 @@ impl<'a> DispatchDescription<'a> {
             motion_vectors,
             reactive: None,
             transparency_and_composition: None,
-            output,
             enable_auto_reactive: false,
             enable_sharpening: false,
             auto_reactive_max: 0.0,
@@ -236,10 +234,10 @@ impl<'a> DispatchDescription<'a> {
 
         // TODO(YIGIT): For some reason FSR3 does not accept f32::MAX as FLT_MAX
         if near == f32::MAX {
-            self.camera_near = 3.402823466e+38;
+            self.camera_near = 3.402_823_5e38;
         }
         if far == f32::MAX {
-            self.camera_far = 3.402823466e+38;
+            self.camera_far = 3.402_823_5e38;
         }
 
         self.camera_fov_y = fov_y;
@@ -311,7 +309,6 @@ impl From<DispatchDescription<'_>> for fidelityfx_sys::Fsr3DispatchUpscaleDescri
     fn from(val: DispatchDescription<'_>) -> Self {
         Self {
             commandList: val.cmd_list.0,
-            // output: val.output,
             color: val.color,
             transparencyAndComposition: val.transparency_and_composition.unwrap_or_default(),
             // colorOpaqueOnly: val.color_opaque_only.unwrap_or_default(),
@@ -351,6 +348,8 @@ impl From<DispatchDescription<'_>> for fidelityfx_sys::Fsr3DispatchUpscaleDescri
 }
 
 impl Context {
+    /// # Safety
+    /// Context must be destroyed using the [`Self::destroy`] function.
     pub unsafe fn new(desc: ContextDescription<'_>) -> Result<Self> {
         let mut context = Box::<fidelityfx_sys::Fsr3Context>::default();
         let error =
@@ -365,6 +364,8 @@ impl Context {
         })
     }
 
+    /// # Safety
+    /// [`Context`]` and references resources must outlive usage on the GPU timeline.
     pub unsafe fn dispatch(&mut self, desc: DispatchDescription<'_>) -> Result<()> {
         let error = unsafe {
             fidelityfx_sys::Fsr3ContextDispatchUpscale(self.context.as_mut(), &desc.into())
@@ -375,6 +376,8 @@ impl Context {
         Ok(())
     }
 
+    /// # Safety
+    /// Must be called once after `new` and after all `dispatch` calls are finished on the GPU timeline.
     // TODO This should be in Drop
     pub unsafe fn destroy(&mut self) -> Result<()> {
         let error = unsafe { fidelityfx_sys::Fsr3ContextDestroy(self.context.as_mut()) };

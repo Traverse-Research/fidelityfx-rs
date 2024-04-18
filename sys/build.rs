@@ -3,7 +3,6 @@ mod bindgen;
 
 use std::path::Path;
 
-use cc;
 use glob::glob;
 
 fn build_fsr3(api_dir: &Path, vk_include_dir: &Path) {

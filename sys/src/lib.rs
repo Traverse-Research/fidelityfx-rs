@@ -3,8 +3,6 @@
 #![allow(non_snake_case)]
 #![allow(clippy::excessive_precision)]
 
-type widechar = widestring::WideChar;
-
 include!("bindings.rs");
 
 #[cfg(feature = "vulkan")]
