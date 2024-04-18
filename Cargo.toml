@@ -23,7 +23,7 @@ version = "0.37"
 optional = true
 
 [dependencies.windows]
-version = "0.52"
+version = "0.56"
 optional = true
 features = ["Win32_Graphics_Direct3D12", "Win32_Graphics_Dxgi_Common"]
 
