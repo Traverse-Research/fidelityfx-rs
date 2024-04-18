@@ -73,7 +73,7 @@ pub unsafe extern "C" fn msg_callback_func(
                 warn!("FSR warning with :\n {:?}", str_msg);
             }
             2 => {
-               // warn!("FSR count with: \n {:?}", message)
+                // warn!("FSR count with: \n {:?}", message)
             }
             _ => {
                 warn!("FSR3 message: callback unexpected type received!");
