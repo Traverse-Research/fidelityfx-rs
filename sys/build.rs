@@ -73,7 +73,8 @@ fn build_fsr3(api_dir: &Path, vk_include_dir: &Path) {
         // TODO: Shader permutations are only available for Dx12 currently
         // TODO: Generalize folder name
         .include("FidelityFX-FSR3/shader_permutations/dx12")
-        .include(vk_include_dir);
+        .include(vk_include_dir)
+        .warnings(false);
 
     if std::env::var("CARGO_CFG_UNIX").is_ok() {
         build.define("FFX_GCC", "1").std("c++2a");
