@@ -46,6 +46,10 @@
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
 
+#ifndef _countof
+#define _countof(x) (sizeof((x))/sizeof((*x)))
+#endif
+
 /// Interpret the bit layout of an IEEE-754 floating point value as an unsigned integer.
 ///
 /// @param [in] x               A 32bit floating value.
