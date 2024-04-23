@@ -23,6 +23,7 @@
 #include <string.h>     // for memset
 #include <stdlib.h>     // for _countof
 #include <cmath>        // for fabs, abs, sinf, sqrt, etc.
+#include <cwchar>       // for wcscmp, wcscpy_s
 
 #include <FidelityFX/host/ffx_fsr1.h>
 #include <FidelityFX/gpu/ffx_core.h>

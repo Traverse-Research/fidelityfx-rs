@@ -50,7 +50,6 @@ pub fn generate_bindings(api_dir: &Path) {
         .bitfield_enum("FfxResourceStates")
         .bitfield_enum("FfxResourceFlags")
         .rustified_enum("FfxFsr3MsgType");
-        
 
     if cfg!(not(target_os = "windows")) {
         bindings = bindings.clang_args(["-DFFX_GCC"]);
