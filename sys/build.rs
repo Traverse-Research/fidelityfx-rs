@@ -43,7 +43,7 @@ fn build_fsr3(api_dir: &Path, vk_include_dir: &Path) {
 
     // #[cfg(not(feature = "d3d12"))]
     // #[cfg(not(feature = "vulkan"))]
-    // TODO: The vk bindings won't fork for FSR3 yet
+    // TODO: The vk bindings won't work for FSR3 yet
     let backends = ["shared", "vk", "dx12", "dx12/FrameInterpolationSwapchain"];
     for backend in backends {
         let paths = glob(&format!(
