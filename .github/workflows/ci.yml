@@ -5,7 +5,7 @@ on:
 jobs:
   rust:
     name: Lint Rust code
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
       - name: Cargo fmt
@@ -17,7 +17,7 @@ jobs:
 
   rust-msrv:
     name: Build-test MSRV (1.74) with minimal crate dependencies
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@nightly
