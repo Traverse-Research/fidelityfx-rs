@@ -11,19 +11,15 @@ include = ["src", "LICENSE"]
 categories = ["rendering"] # https://crates.io/category_slugs
 keywords = ["fidelity", "fx", "fidelity-fx", "fidelityfx", "upscaling", "vulkan", "dx12", "directx12"]
 
-# Currently FidelityFX is not supported on Linux
-[target.'cfg(unix)'.dependencies]
+[dependencies]
 bitflags = "2"
 widestring = "1.0"
 thiserror = "1.0"
 log = "0.4.21"
 
 [target.'cfg(windows)'.dependencies]
-bitflags = "2"
-widestring = "1.0"
-thiserror = "1.0"
+# Currently FidelityFX is not supported on Linux
 fidelityfx-sys = { path = "sys", version = "0.1.0", default-features = false }
-log = "0.4.21"
 
 [dependencies.ash]
 version = "0.37"
