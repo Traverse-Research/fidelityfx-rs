@@ -39,8 +39,6 @@ pub fn generate_bindings(api_dir: &Path) {
         .clang_arg(format!("-I{}/include", api_dir.display()))
         .trust_clang_mangling(false)
         .default_non_copy_union_style(bindgen::NonCopyUnionStyle::ManuallyDrop)
-        // .allowlist_file(r".*(/|\\)ffx-fsr3-api(/|\\)[^/\\]+\.h")
-        //.allowlist_file(r".*(/|\\)fsr3(/|\\)[^/\\]+\.h")
         .blocklist_type("widechar")
         .new_type_alias("CommandList")
         .parse_callbacks(Box::new(CargoCallbacks::new()))

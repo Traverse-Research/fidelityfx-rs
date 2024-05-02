@@ -84,7 +84,7 @@ fn build_fsr3(api_dir: &Path, vk_include_dir: &Path) {
 }
 
 fn main() {
-    let api_dir = Path::new("./FidelityFX/src/ffx-fsr3-api");
+    let api_dir = Path::new("./FidelityFX/");
     let vk_include_dir = Path::new(env!("CARGO_MANIFEST_DIR")).join("Vulkan-Headers/include");
 
     build_fsr3(api_dir, &vk_include_dir);
