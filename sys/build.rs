@@ -73,7 +73,7 @@ fn build_fsr3(api_dir: &Path, vk_include_dir: &Path) {
         .include(api_dir.join("src/components"))
         // TODO: Shader permutations are only available for Dx12 currently
         // TODO: Generalize folder name
-        .include("FidelityFX-FSR3/shader_permutations/dx12")
+        .include("FidelityFX/shader_permutations/dx12")
         .include(vk_include_dir);
 
     if std::env::var("CARGO_CFG_UNIX").is_ok() {
@@ -84,7 +84,7 @@ fn build_fsr3(api_dir: &Path, vk_include_dir: &Path) {
 }
 
 fn main() {
-    let api_dir = Path::new("./FidelityFX-FSR3/src/ffx-fsr3-api");
+    let api_dir = Path::new("./FidelityFX/");
     let vk_include_dir = Path::new(env!("CARGO_MANIFEST_DIR")).join("Vulkan-Headers/include");
 
     build_fsr3(api_dir, &vk_include_dir);

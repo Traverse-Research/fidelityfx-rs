@@ -13,10 +13,10 @@ keywords = ["fidelity", "fx", "fidelity-fx", "fidelityfx", "upscaling", "vulkan"
 
 [dependencies]
 bitflags = "2"
-widestring = "1.0"
-thiserror = "1.0"
 fidelityfx-sys = { path = "sys", version = "0.1.0", default-features = false }
 log = "0.4.21"
+thiserror = "1.0"
+widestring = "1.0"
 
 [dependencies.ash]
 version = "0.37"
