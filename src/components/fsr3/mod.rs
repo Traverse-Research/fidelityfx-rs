@@ -41,7 +41,6 @@
 use crate::backends::{CommandList, Device};
 use crate::error::{FfxError, Result};
 pub use crate::interface::Interface;
-use fidelityfx_sys::FFX_MESSAGE_TYPE_WARNING;
 use log::{error, warn};
 
 // pub use fidelityfx_sys::Device;
@@ -57,7 +56,10 @@ unsafe fn u16_ptr_to_string(ptr: *const u16) -> OsString {
 
     OsString::from_wide(slice)
 }
-
+/// # Safety
+///
+/// The message variable can be a null pointer depending on
+/// what the FidelityFX backend decides to chuck our way.
 pub unsafe extern "C" fn msg_callback_func(
     msg_type: MsgType,
     message: *const widestring::WideChar,
@@ -67,16 +69,16 @@ pub unsafe extern "C" fn msg_callback_func(
         match msg_type {
             // TODO(YIGIT): Flags are not working here for some reason
             0 => {
-                error!("FSR error with :\n {:?}", str_msg);
+                error!("FidelityFX error with :\n {:?}", str_msg);
             }
             1 => {
-                warn!("FSR warning with :\n {:?}", str_msg);
+                warn!("FidelityFX warning with :\n {:?}", str_msg);
             }
             2 => {
-                // warn!("FSR count with: \n {:?}", message)
+                warn!("FidelityFX count with: \n {:?}", message)
             }
             _ => {
-                warn!("FSR3 message: callback unexpected type received!");
+                warn!("FidelityFX message: callback unexpected type received!");
             }
         }
     }
@@ -188,6 +190,7 @@ pub struct DispatchDescription<'a> {
     pub upscale_output: Resource,
 }
 
+#[allow(clippy::too_many_arguments)]
 impl<'a> DispatchDescription<'a> {
     pub fn new(
         cmd_list: CommandList<'a>,
@@ -236,10 +239,10 @@ impl<'a> DispatchDescription<'a> {
 
         // TODO(YIGIT): For some reason FSR3 does not accept f32::MAX as FLT_MAX
         if near == f32::MAX {
-            self.camera_near = 3.402823466e+38;
+            self.camera_near = 3.402_823_5e38;
         }
         if far == f32::MAX {
-            self.camera_far = 3.402823466e+38;
+            self.camera_far = 3.402_823_5e38;
         }
 
         self.camera_fov_y = fov_y;
@@ -351,6 +354,9 @@ impl From<DispatchDescription<'_>> for fidelityfx_sys::Fsr3DispatchUpscaleDescri
 }
 
 impl Context {
+    /// # Safety
+    ///
+    /// You must ensure that the parameters of Fsr3ContextCreate are properly provided.
     pub unsafe fn new(desc: ContextDescription<'_>) -> Result<Self> {
         let mut context = Box::<fidelityfx_sys::Fsr3Context>::default();
         let error =
@@ -365,6 +371,9 @@ impl Context {
         })
     }
 
+    /// # Safety
+    ///
+    /// You shouldn't call dispatch on a Context that had destroy called upon.
     pub unsafe fn dispatch(&mut self, desc: DispatchDescription<'_>) -> Result<()> {
         let error = unsafe {
             fidelityfx_sys::Fsr3ContextDispatchUpscale(self.context.as_mut(), &desc.into())
@@ -374,13 +383,13 @@ impl Context {
         }
         Ok(())
     }
+}
 
-    // TODO This should be in Drop
-    pub unsafe fn destroy(&mut self) -> Result<()> {
+impl Drop for Context {
+    fn drop(&mut self) {
         let error = unsafe { fidelityfx_sys::Fsr3ContextDestroy(self.context.as_mut()) };
         if error != fidelityfx_sys::FFX_OK {
-            return Err(FfxError::from_error_code(error).into());
+            panic!("{}", FfxError::from_error_code(error));
         }
-        Ok(())
     }
 }
