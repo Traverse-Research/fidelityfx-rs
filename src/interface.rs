@@ -28,6 +28,10 @@ impl ScratchBuffer {
     pub fn len(&self) -> usize {
         self.layout.size()
     }
+
+    pub fn is_empty(&self) -> bool {
+        self.layout.size() == 0
+    }
 }
 
 unsafe impl Send for ScratchBuffer {}
