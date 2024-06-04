@@ -20,11 +20,11 @@
 // THE SOFTWARE.
 
 
-#include <FidelityFX/host/ffx_FrameInterpolation.h>
+#include <FidelityFX/host/ffx_frameinterpolation.h>
 #include <FidelityFX/host/backends/dx12/ffx_dx12.h>
 
 
-#include "FrameInterpolationSwapchainDX12_Helpers.h"
+#include "frameinterpolationswapchaindx12_helpers.h"
 
 #include <dwmapi.h>
 #pragma comment(lib, "Dwmapi.lib")

@@ -21,11 +21,11 @@
 
 
 #include "d3d12.h"
-#include "FrameInterpolationSwapchainDX12_Helpers.h"
-#include "FrameInterpolationSwapchainDX12_UiComposition.h"
+#include "frameinterpolationswapchaindx12_helpers.h"
+#include "frameinterpolationswapchaindx12_uicomposition.h"
 
-#include "FrameInterpolationSwapchainUiCompositionVS.h"
-#include "FrameInterpolationSwapchainUiCompositionPS.h"
+#include "frameinterpolationswapchainuicompositionvs.h"
+#include "frameinterpolationswapchainuicompositionps.h"
 
 typedef HRESULT(__stdcall* D3D12SerializeVersionedRootSignatureType)(const D3D12_VERSIONED_ROOT_SIGNATURE_DESC* pRootSignature,
                                                                      ID3DBlob**                                 ppBlob,

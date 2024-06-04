@@ -68,6 +68,8 @@ fn build_fsr3(api_dir: &Path, vk_include_dir: &Path) {
         .include(api_dir.join("src/shared"))
         // TODO: Only include this when compiling the backends
         .include(api_dir.join("src/backends/shared"))
+        // For FrameInterpolation headers to show up during linking
+        .include(api_dir.join("src/backends/dx12/FrameInterpolationSwapchain/"))
         // For the shader headers
         .include(api_dir.join("src/components"))
         // TODO: Shader permutations are only available for Dx12 currently

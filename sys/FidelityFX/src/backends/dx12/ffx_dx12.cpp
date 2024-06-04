@@ -225,7 +225,8 @@ void TIF(HRESULT result)
 #ifdef _DEBUG
         int32_t msgboxID = MessageBoxW(NULL, errorMessage, L"Error", MB_OK);
 #endif
-        throw 1;
+        // TODO(YIGIT): The compiler does not allow us to throw errors
+        // throw 1;
     }
 }
 
@@ -2698,7 +2699,7 @@ IDXGISwapChain4* ffxGetDX12SwapchainPtr(FfxSwapchain ffxSwapchain)
 
 #include <FidelityFX/host/ffx_fsr2.h>
 #include <FidelityFX/host/ffx_fsr3.h>
-#include "FrameInterpolationSwapchain/FrameInterpolationSwapchainDX12.h"
+#include "FrameInterpolationSwapchain/frameinterpolationswapchaindx12.h"
 
 
 // fix up format in case resource passed to FSR2 was created as typeless

@@ -28,7 +28,7 @@
 #include <comdef.h>
 #include <synchapi.h>
 
-#include "FrameInterpolationSwapchainDX12_Helpers.h"
+#include "frameinterpolationswapchaindx12_helpers.h"
 
 #include <FidelityFX/host/backends/dx12/ffx_dx12.h>
 #include <FidelityFX/host/ffx_fsr3.h>

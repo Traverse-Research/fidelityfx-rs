@@ -21,10 +21,11 @@
 
 
 #include <initguid.h>
-#include "FrameInterpolationSwapChainDX12.h"
+#include "frameinterpolationswapchaindx12.h"
 
 #include <FidelityFX/host/backends/dx12/ffx_dx12.h>
-#include "FrameInterpolationSwapchainDX12_UiComposition.h"
+#include "frameinterpolationswapchainuicompositionvs.h"
+#include "frameinterpolationswapchaindx12_uicomposition.h"
 
 FfxErrorCode ffxRegisterFrameinterpolationUiResourceDX12(FfxSwapchain gameSwapChain, FfxResource uiResource)
 {
