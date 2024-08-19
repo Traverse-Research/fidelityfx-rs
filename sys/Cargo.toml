@@ -9,7 +9,7 @@ glob = "0.3"
 widestring = "1.0"
 
 [build-dependencies]
-bindgen = { version = "0.69", optional = true }
+bindgen = { version = "0.70", optional = true }
 cc = "1.0.83"
 glob = "0.3"
 
