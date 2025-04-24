@@ -20,14 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@master
-        with:
-          # Use a nightly version that is known to generate v3 lockfile
-          # versions, this is only supported since Rust 1.78 and will be the
-          # default starting with Rust 1.83:
-          # https://doc.rust-lang.org/nightly/cargo/CHANGELOG.html#cargo-178-2024-05-02
-          # https://doc.rust-lang.org/nightly/cargo/CHANGELOG.html#cargo-183-2024-11-28
-          toolchain: nightly-2024-09-01
+      - uses: dtolnay/rust-toolchain@nightly
       - name: Generate minimal-version dependencies
         run: cargo -Zminimal-versions generate-lockfile
       - uses: dtolnay/rust-toolchain@1.74.0
