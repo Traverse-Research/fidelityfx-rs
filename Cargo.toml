@@ -10,3 +10,4 @@ description = "A useful description"
 include = ["src", "LICENSE"]
 categories = [] # https://crates.io/category_slugs
 keywords = []
+rust-version = "1.74"
