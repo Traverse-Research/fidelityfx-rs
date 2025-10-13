@@ -19,7 +19,7 @@ thiserror = "1.0.16"
 widestring = "1.0"
 
 [dependencies.ash]
-version = "0.37"
+version = "0.38"
 optional = true
 
 [dependencies.windows]
