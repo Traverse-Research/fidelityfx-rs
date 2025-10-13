@@ -10,6 +10,7 @@ description = "Rust Bindings for the AMD FidelityFX SDK"
 include = ["src", "LICENSE"]
 categories = ["rendering"] # https://crates.io/category_slugs
 keywords = ["fidelity", "fx", "fidelity-fx", "fidelityfx", "upscaling", "vulkan", "dx12", "directx12"]
+rust-version = "1.74"
 
 [dependencies]
 bitflags = "2"
@@ -23,7 +24,7 @@ version = "0.38"
 optional = true
 
 [dependencies.windows]
-version = "0.58"
+version = ">=0.58, <= 0.62"
 optional = true
 features = ["Win32_Graphics_Direct3D12", "Win32_Graphics_Dxgi_Common"]
 
