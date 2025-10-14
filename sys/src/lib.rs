@@ -3,6 +3,9 @@
 #![allow(non_snake_case)]
 #![allow(clippy::excessive_precision)]
 
+mod error;
+pub use error::ErrorCode;
+
 include!("bindings.rs");
 
 pub mod frameinterpolation {

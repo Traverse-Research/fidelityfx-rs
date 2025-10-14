@@ -1,5 +1,7 @@
 use std::{env, path::Path};
 
+use heck::{AsShoutySnekCase, ToShoutySnekCase};
+
 #[derive(Debug)]
 struct Renamer;
 impl bindgen::callbacks::ParseCallbacks for Renamer {
@@ -26,12 +28,61 @@ impl bindgen::callbacks::ParseCallbacks for Renamer {
     // Remove enum prefixes
     fn enum_variant_name(
         &self,
-        _enum_name: Option<&str>,
+        enum_name: Option<&str>,
         original_variant_name: &str,
         _variant_value: bindgen::callbacks::EnumVariantValue,
     ) -> Option<String> {
-        // TODO: This is wholly incomplete, there are many more enum prefix names
-        Some(original_variant_name.replace("FFX_RESOURCE_STATE_", ""))
+        let enum_name = enum_name?;
+
+        if enum_name.starts_with("Ffx") {
+            // Exceptions
+            let common_prefix = match enum_name {
+                "FfxBindStage" => "FFX_BIND".to_owned(), // TODO: Also strip _SHADER_STAGE suffix?
+                "FfxMsgType" => "FFX_MESSAGE_TYPE".to_owned(),
+                "FfxErrorCodes" => "FFX".to_owned(),
+                e => {
+                    // Fix broken CamelCase -> SNAKE_CASE conventions in FFX headers:
+                    if let Some(e) = e.strip_prefix("FfxFsr3Upscaler") {
+                        format!("FFX_FSR3UPSCALER_{}", AsShoutySnekCase(e))
+                    } else if let Some(e) = e.strip_prefix("FfxFrameInterpolation") {
+                        format!("FFX_FRAMEINTERPOLATION_{}", AsShoutySnekCase(e))
+                    } else {
+                        e.TO_SHOUTY_SNEK_CASE()
+                    }
+                }
+            };
+            let variant_name = original_variant_name
+                .strip_prefix(&common_prefix)
+                .unwrap_or_else(|| {
+                    for common_suffix in [
+                        // TODO: Strip _ENABLE_ too?
+                        "_INITIALIZATION_FLAG_BITS",
+                        "_FLAGS",
+                        // Sometimes the `Type` suffix of the enum name is not repeated
+                        // in the variant prefix.
+                        "_TYPE",
+                        // Sometimes the plural `S` suffix of the enum name (`Resources`) is not
+                        // repeated in the variant prefix (`_RESOURCE_...`).
+                        "S",
+                    ] {
+                        if let Some(common_prefix) = common_prefix.strip_suffix(common_suffix) {
+                            return original_variant_name
+                                .strip_prefix(common_prefix)
+                                .expect(common_prefix);
+                        }
+                    }
+                    panic!("Could not strip {common_prefix} from {original_variant_name}");
+                });
+            let no_prefix = variant_name.strip_prefix("_").expect(variant_name);
+            // Keep the leading _ if the variant otherwise starts with a number, which is invalid
+            if no_prefix.chars().next().is_some_and(|c| c.is_ascii_digit()) {
+                Some(variant_name.to_owned())
+            } else {
+                Some(no_prefix.to_owned())
+            }
+        } else {
+            None
+        }
     }
 }
 
@@ -39,14 +90,17 @@ fn bindgen(api_dir: &Path) -> bindgen::Builder {
     let mut bindings = bindgen::Builder::default()
         .layout_tests(false)
         .derive_default(true)
-        .prepend_enum_name(false)
+        .prepend_enum_name(false) // Not the default, but changes nothing
         .clang_arg("-xc++")
         .clang_arg(format!("-I{}/include", api_dir.display()))
         .trust_clang_mangling(false)
         .default_non_copy_union_style(bindgen::NonCopyUnionStyle::ManuallyDrop)
         .allowlist_recursively(false)
         .parse_callbacks(Box::new(bindgen::CargoCallbacks::new()))
-        .parse_callbacks(Box::new(Renamer));
+        .parse_callbacks(Box::new(Renamer))
+        .default_enum_style(bindgen::EnumVariation::Rust {
+            non_exhaustive: true,
+        });
 
     if cfg!(not(target_os = "windows")) {
         // TODO: TARGET_OS env var
@@ -71,6 +125,9 @@ pub fn generate_bindings(api_dir: &Path) {
         .bitfield_enum("FfxResourceStates")
         .bitfield_enum("FfxResourceFlags")
         .newtype_enum("FfxMsgType")
+        // Hand-written to debug-print ErrorCode with defined ErrorCodes
+        .blocklist_type("FfxErrorCode")
+        .newtype_enum("FfxErrorCodes")
         .generate()
         .expect("Unable to generate bindings");
 

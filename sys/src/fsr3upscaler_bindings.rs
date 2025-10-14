@@ -5,67 +5,75 @@ pub const FSR3UPSCALER_VERSION_MINOR: u32 = 0;
 pub const FSR3UPSCALER_VERSION_PATCH: u32 = 3;
 pub const FSR3UPSCALER_CONTEXT_COUNT: u32 = 1;
 pub const FSR3UPSCALER_CONTEXT_SIZE: u32 = 131072;
-#[doc = "< A pass which performs depth clipping."]
-pub const FFX_FSR3UPSCALER_PASS_DEPTH_CLIP: Fsr3UpscalerPass = 0;
-#[doc = "< A pass which performs reconstruction of previous frame's depth."]
-pub const FFX_FSR3UPSCALER_PASS_RECONSTRUCT_PREVIOUS_DEPTH: Fsr3UpscalerPass = 1;
-#[doc = "< A pass which calculates pixel locks."]
-pub const FFX_FSR3UPSCALER_PASS_LOCK: Fsr3UpscalerPass = 2;
-#[doc = "< A pass which performs upscaling."]
-pub const FFX_FSR3UPSCALER_PASS_ACCUMULATE: Fsr3UpscalerPass = 3;
-#[doc = "< A pass which performs upscaling when sharpening is used."]
-pub const FFX_FSR3UPSCALER_PASS_ACCUMULATE_SHARPEN: Fsr3UpscalerPass = 4;
-#[doc = "< A pass which performs sharpening."]
-pub const FFX_FSR3UPSCALER_PASS_RCAS: Fsr3UpscalerPass = 5;
-#[doc = "< A pass which generates the luminance mipmap chain for the current frame."]
-pub const FFX_FSR3UPSCALER_PASS_COMPUTE_LUMINANCE_PYRAMID: Fsr3UpscalerPass = 6;
-#[doc = "< An optional pass to generate a reactive mask."]
-pub const FFX_FSR3UPSCALER_PASS_GENERATE_REACTIVE: Fsr3UpscalerPass = 7;
-#[doc = "< DEPRECATED - NO LONGER SUPPORTED"]
-pub const FFX_FSR3UPSCALER_PASS_TCR_AUTOGENERATE: Fsr3UpscalerPass = 8;
-#[doc = "< The number of passes performed by FSR3."]
-pub const FFX_FSR3UPSCALER_PASS_COUNT: Fsr3UpscalerPass = 9;
+#[repr(i32)]
+#[non_exhaustive]
 #[doc = " An enumeration of all the passes which constitute the FSR3 algorithm.\n\n FSR3 is implemented as a composite of several compute passes each\n computing a key part of the final result. Each call to the\n <c><i>FfxFsr3UpscalerScheduleGpuJobFunc</i></c> callback function will\n correspond to a single pass included in <c><i>FfxFsr3UpscalerPass</i></c>. For a\n more comprehensive description of each pass, please refer to the FSR3\n reference documentation.\n\n Please note in some cases e.g.: <c><i>FFX_FSR3UPSCALER_PASS_ACCUMULATE</i></c>\n and <c><i>FFX_FSR3UPSCALER_PASS_ACCUMULATE_SHARPEN</i></c> either one pass or the\n other will be used (they are mutually exclusive). The choice of which will\n depend on the way the <c><i>FfxFsr3UpscalerContext</i></c> is created and the\n precise contents of <c><i>FfxFsr3UpscalerDispatchParamters</i></c> each time a call\n is made to <c><i>ffxFsr3UpscalerContextDispatch</i></c>.\n\n @ingroup ffxFsr3Upscaler"]
-pub type Fsr3UpscalerPass = ::std::os::raw::c_int;
-#[doc = "< Perform upscaling with a per-dimension upscaling ratio of 1.0x."]
-pub const FFX_FSR3UPSCALER_QUALITY_MODE_NATIVEAA: Fsr3UpscalerQualityMode = 0;
-#[doc = "< Perform upscaling with a per-dimension upscaling ratio of 1.5x."]
-pub const FFX_FSR3UPSCALER_QUALITY_MODE_QUALITY: Fsr3UpscalerQualityMode = 1;
-#[doc = "< Perform upscaling with a per-dimension upscaling ratio of 1.7x."]
-pub const FFX_FSR3UPSCALER_QUALITY_MODE_BALANCED: Fsr3UpscalerQualityMode = 2;
-#[doc = "< Perform upscaling with a per-dimension upscaling ratio of 2.0x."]
-pub const FFX_FSR3UPSCALER_QUALITY_MODE_PERFORMANCE: Fsr3UpscalerQualityMode = 3;
-#[doc = "< Perform upscaling with a per-dimension upscaling ratio of 3.0x."]
-pub const FFX_FSR3UPSCALER_QUALITY_MODE_ULTRA_PERFORMANCE: Fsr3UpscalerQualityMode = 4;
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub enum Fsr3UpscalerPass {
+    #[doc = "< A pass which performs depth clipping."]
+    DEPTH_CLIP = 0,
+    #[doc = "< A pass which performs reconstruction of previous frame's depth."]
+    RECONSTRUCT_PREVIOUS_DEPTH = 1,
+    #[doc = "< A pass which calculates pixel locks."]
+    LOCK = 2,
+    #[doc = "< A pass which performs upscaling."]
+    ACCUMULATE = 3,
+    #[doc = "< A pass which performs upscaling when sharpening is used."]
+    ACCUMULATE_SHARPEN = 4,
+    #[doc = "< A pass which performs sharpening."]
+    RCAS = 5,
+    #[doc = "< A pass which generates the luminance mipmap chain for the current frame."]
+    COMPUTE_LUMINANCE_PYRAMID = 6,
+    #[doc = "< An optional pass to generate a reactive mask."]
+    GENERATE_REACTIVE = 7,
+    #[doc = "< DEPRECATED - NO LONGER SUPPORTED"]
+    TCR_AUTOGENERATE = 8,
+    #[doc = "< The number of passes performed by FSR3."]
+    COUNT = 9,
+}
+#[repr(i32)]
+#[non_exhaustive]
 #[doc = " An enumeration of all the quality modes supported by FidelityFX Super\n Resolution 3 upscaling.\n\n In order to provide a consistent user experience across multiple\n applications which implement FSR3. It is strongly recommended that the\n following preset scaling factors are made available through your\n application's user interface.\n\n If your application does not expose the notion of preset scaling factors\n for upscaling algorithms (perhaps instead implementing a fixed ratio which\n is immutable) or implementing a more dynamic scaling scheme (such as\n dynamic resolution scaling), then there is no need to use these presets.\n\n Please note that <c><i>FFX_FSR3UPSCALER_QUALITY_MODE_ULTRA_PERFORMANCE</i></c> is\n an optional mode which may introduce significant quality degradation in the\n final image. As such it is recommended that you evaluate the final results\n of using this scaling mode before deciding if you should include it in your\n application.\n\n @ingroup ffxFsr3Upscaler"]
-pub type Fsr3UpscalerQualityMode = ::std::os::raw::c_int;
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub enum Fsr3UpscalerQualityMode {
+    #[doc = "< Perform upscaling with a per-dimension upscaling ratio of 1.0x."]
+    NATIVEAA = 0,
+    #[doc = "< Perform upscaling with a per-dimension upscaling ratio of 1.5x."]
+    QUALITY = 1,
+    #[doc = "< Perform upscaling with a per-dimension upscaling ratio of 1.7x."]
+    BALANCED = 2,
+    #[doc = "< Perform upscaling with a per-dimension upscaling ratio of 2.0x."]
+    PERFORMANCE = 3,
+    #[doc = "< Perform upscaling with a per-dimension upscaling ratio of 3.0x."]
+    ULTRA_PERFORMANCE = 4,
+}
 impl Fsr3UpscalerInitializationFlagBits {
     #[doc = "< A bit indicating if the input color data provided is using a high-dynamic range."]
-    pub const FFX_FSR3UPSCALER_ENABLE_HIGH_DYNAMIC_RANGE: Fsr3UpscalerInitializationFlagBits =
+    pub const ENABLE_HIGH_DYNAMIC_RANGE: Fsr3UpscalerInitializationFlagBits =
         Fsr3UpscalerInitializationFlagBits(1);
     #[doc = "< A bit indicating if the motion vectors are rendered at display resolution."]
-    pub const FFX_FSR3UPSCALER_ENABLE_DISPLAY_RESOLUTION_MOTION_VECTORS:
-        Fsr3UpscalerInitializationFlagBits = Fsr3UpscalerInitializationFlagBits(2);
+    pub const ENABLE_DISPLAY_RESOLUTION_MOTION_VECTORS: Fsr3UpscalerInitializationFlagBits =
+        Fsr3UpscalerInitializationFlagBits(2);
     #[doc = "< A bit indicating that the motion vectors have the jittering pattern applied to them."]
-    pub const FFX_FSR3UPSCALER_ENABLE_MOTION_VECTORS_JITTER_CANCELLATION:
-        Fsr3UpscalerInitializationFlagBits = Fsr3UpscalerInitializationFlagBits(4);
+    pub const ENABLE_MOTION_VECTORS_JITTER_CANCELLATION: Fsr3UpscalerInitializationFlagBits =
+        Fsr3UpscalerInitializationFlagBits(4);
     #[doc = "< A bit indicating that the input depth buffer data provided is inverted [1..0]."]
-    pub const FFX_FSR3UPSCALER_ENABLE_DEPTH_INVERTED: Fsr3UpscalerInitializationFlagBits =
+    pub const ENABLE_DEPTH_INVERTED: Fsr3UpscalerInitializationFlagBits =
         Fsr3UpscalerInitializationFlagBits(8);
     #[doc = "< A bit indicating that the input depth buffer data provided is using an infinite far plane."]
-    pub const FFX_FSR3UPSCALER_ENABLE_DEPTH_INFINITE: Fsr3UpscalerInitializationFlagBits =
+    pub const ENABLE_DEPTH_INFINITE: Fsr3UpscalerInitializationFlagBits =
         Fsr3UpscalerInitializationFlagBits(16);
     #[doc = "< A bit indicating if automatic exposure should be applied to input color data."]
-    pub const FFX_FSR3UPSCALER_ENABLE_AUTO_EXPOSURE: Fsr3UpscalerInitializationFlagBits =
+    pub const ENABLE_AUTO_EXPOSURE: Fsr3UpscalerInitializationFlagBits =
         Fsr3UpscalerInitializationFlagBits(32);
     #[doc = "< A bit indicating that the application uses dynamic resolution scaling."]
-    pub const FFX_FSR3UPSCALER_ENABLE_DYNAMIC_RESOLUTION: Fsr3UpscalerInitializationFlagBits =
+    pub const ENABLE_DYNAMIC_RESOLUTION: Fsr3UpscalerInitializationFlagBits =
         Fsr3UpscalerInitializationFlagBits(64);
     #[doc = "< A bit indicating that the backend should use 1D textures."]
-    pub const FFX_FSR3UPSCALER_ENABLE_TEXTURE1D_USAGE: Fsr3UpscalerInitializationFlagBits =
+    pub const ENABLE_TEXTURE1D_USAGE: Fsr3UpscalerInitializationFlagBits =
         Fsr3UpscalerInitializationFlagBits(128);
     #[doc = "< A bit indicating that the runtime should check some API values and report issues."]
-    pub const FFX_FSR3UPSCALER_ENABLE_DEBUG_CHECKING: Fsr3UpscalerInitializationFlagBits =
+    pub const ENABLE_DEBUG_CHECKING: Fsr3UpscalerInitializationFlagBits =
         Fsr3UpscalerInitializationFlagBits(256);
 }
 impl ::std::ops::BitOr<Fsr3UpscalerInitializationFlagBits> for Fsr3UpscalerInitializationFlagBits {
