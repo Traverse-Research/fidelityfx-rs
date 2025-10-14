@@ -1,8 +1,16 @@
 [package]
 name = "fidelityfx-sys"
 version = "0.1.0"
+authors = ["Traverse Research <support@traverseresearch.nl>"]
 edition = "2021"
 license = "MIT"
+homepage = "https://traverseresearch.nl"
+repository = "https://github.com/Traverse-Research/fidelityfx-rs"
+description = "Low-level sys bindings for AMD's FidelityFX SDK"
+include = ["src", "LICENSE"]
+categories = ["rendering", "graphics", "external-ffi-bindings"] # https://crates.io/category_slugs
+keywords = ["fidelityfx", "fsr", "upscaling", "vulkan", "d3d12"]
+rust-version = "1.74"
 
 [dependencies]
 glob = "0.3"
