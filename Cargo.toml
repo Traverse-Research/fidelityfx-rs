@@ -29,7 +29,7 @@ optional = true
 features = ["Win32_Graphics_Direct3D12", "Win32_Graphics_Dxgi_Common"]
 
 [features]
-default = []
+default = ["vulkan", "dx12"]
 vulkan = ["fidelityfx-sys/vulkan", "dep:ash"]
 dx12 = ["fidelityfx-sys/dx12", "dep:windows"]
 

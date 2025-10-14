@@ -13,7 +13,7 @@ jobs:
       - name: Cargo fmt
         run: cargo fmt --all -- --check
       - name: Cargo clippy
-        run: cargo clippy --workspace --all-targets -- -D warnings
+        run: cargo clippy --workspace --all-targets --all-features -- -D warnings
 # TODO(YIGIT): We currently do not have tests
 #      - name: Cargo test
 #        run: cargo test --workspace
@@ -30,7 +30,7 @@ jobs:
         run: cargo -Zminimal-versions generate-lockfile
       - uses: dtolnay/rust-toolchain@1.74.0
       - name: Cargo check
-        run: cargo check --workspace --all-targets
+        run: cargo check --workspace --all-targets --all-features
 
   generate-rust:
     name: Generate Rust crate
