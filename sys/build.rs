@@ -5,7 +5,7 @@ use std::path::Path;
 
 use glob::glob;
 
-fn build_fsr3(api_dir: &Path, vk_include_dir: &Path) {
+fn compile_fidelityfx(api_dir: &Path, vk_include_dir: &Path) {
     let mut sources = vec![];
 
     let paths =
@@ -86,7 +86,7 @@ fn main() {
     let api_dir = Path::new("./FidelityFX/");
     let vk_include_dir = Path::new(env!("CARGO_MANIFEST_DIR")).join("Vulkan-Headers/include");
 
-    build_fsr3(api_dir, &vk_include_dir);
+    compile_fidelityfx(api_dir, &vk_include_dir);
 
     #[cfg(feature = "generate-bindings")]
     {

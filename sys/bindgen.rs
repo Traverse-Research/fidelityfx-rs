@@ -1,9 +1,4 @@
-use std::{
-    env,
-    path::{Path, PathBuf},
-};
-
-use bindgen::CargoCallbacks;
+use std::{env, path::Path};
 
 #[derive(Debug)]
 struct Renamer;
@@ -41,7 +36,7 @@ pub fn generate_bindings(api_dir: &Path) {
         .default_non_copy_union_style(bindgen::NonCopyUnionStyle::ManuallyDrop)
         .blocklist_type("widechar")
         .new_type_alias("CommandList")
-        .parse_callbacks(Box::new(CargoCallbacks::new()))
+        .parse_callbacks(Box::new(bindgen::CargoCallbacks::new()))
         .parse_callbacks(Box::new(Renamer))
         .bitfield_enum("FfxFsr3InitializationFlagBits")
         .bitfield_enum("FfxResourceUsage")
@@ -76,7 +71,7 @@ pub fn generate_vk_bindings(api_dir: &Path, vk_include_dir: &Path) {
         .clang_arg("-xc++")
         .clang_arg(format!("-I{}/include", api_dir.display()))
         .trust_clang_mangling(false)
-        .parse_callbacks(Box::new(bindgen::CargoCallbacks))
+        .parse_callbacks(Box::new(bindgen::CargoCallbacks::new()))
         .parse_callbacks(Box::new(Renamer))
         .clang_arg(format!("-I{}", vk_include_dir.display()))
         .allowlist_recursively(false)
@@ -109,7 +104,7 @@ pub fn generate_d3d12_bindings(api_dir: &Path) {
         .clang_arg("-xc++")
         .clang_arg(format!("-I{}/include", api_dir.display()))
         .trust_clang_mangling(false)
-        .parse_callbacks(Box::new(bindgen::CargoCallbacks))
+        .parse_callbacks(Box::new(bindgen::CargoCallbacks::new()))
         .parse_callbacks(Box::new(Renamer))
         .allowlist_recursively(false)
         .allowlist_file(&wrapper)
