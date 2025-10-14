@@ -3,11 +3,24 @@ use std::{env, path::Path};
 #[derive(Debug)]
 struct Renamer;
 impl bindgen::callbacks::ParseCallbacks for Renamer {
-    fn item_name(&self, name: &str) -> Option<String> {
-        // Remove ffx/ffxfsr2 prefixes.
-        let name = name.replace("ffx", "").replace("Ffx", "");
-
-        Some(name)
+    fn item_name(&self, item_info: bindgen::callbacks::ItemInfo) -> Option<String> {
+        // Remove ffx prefixes
+        match item_info.kind {
+            bindgen::callbacks::ItemKind::Module => None,
+            bindgen::callbacks::ItemKind::Type => item_info
+                .name
+                .strip_prefix("Ffx")
+                .or_else(|| item_info.name.strip_prefix("ffx")),
+            bindgen::callbacks::ItemKind::Function => item_info.name.strip_prefix("ffx"),
+            bindgen::callbacks::ItemKind::Var => {
+                if let Some(i) = item_info.name.strip_prefix("s_Ffx") {
+                    return Some(format!("s_{i}"));
+                }
+                item_info.name.strip_prefix("FFX_")
+            }
+            _ => None,
+        }
+        .map(str::to_owned)
     }
 
     // Remove enum prefixes
@@ -17,6 +30,7 @@ impl bindgen::callbacks::ParseCallbacks for Renamer {
         original_variant_name: &str,
         _variant_value: bindgen::callbacks::EnumVariantValue,
     ) -> Option<String> {
+        // TODO: This is wholly incomplete, there are many more enum prefix names
         Some(original_variant_name.replace("FFX_RESOURCE_STATE_", ""))
     }
 }
