@@ -20,7 +20,7 @@
 // THE SOFTWARE.
 
 
-#include <FidelityFX/host/ffx_FrameInterpolation.h>
+#include <FidelityFX/host/ffx_frameinterpolation.h>
 #include <FidelityFX/host/backends/dx12/ffx_dx12.h>
 
 

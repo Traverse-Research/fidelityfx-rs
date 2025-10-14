@@ -31,7 +31,7 @@ features = ["Win32_Graphics_Direct3D12", "Win32_Graphics_Dxgi_Common"]
 [features]
 default = []
 vulkan = ["fidelityfx-sys/vulkan", "dep:ash"]
-d3d12 = ["fidelityfx-sys/d3d12", "dep:windows"]
+dx12 = ["fidelityfx-sys/dx12", "dep:windows"]
 
 [workspace]
 members = ["sys"]

@@ -25,8 +25,8 @@ pub mod vk {
     include!("vk_bindings.rs");
 }
 
-#[cfg(feature = "d3d12")]
-pub mod d3d12 {
+#[cfg(feature = "dx12")]
+pub mod dx12 {
 
     use crate::*;
     type ID3D12CommandList = std::ffi::c_void;
@@ -43,5 +43,5 @@ pub mod d3d12 {
     type HWND = UINT;
     type DXGI_FORMAT = u32;
 
-    include!("d3d12_bindings.rs");
+    include!("dx12_bindings.rs");
 }

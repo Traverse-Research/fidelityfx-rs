@@ -45,6 +45,7 @@ pub fn generate_bindings(api_dir: &Path) {
         .rustified_enum("FfxFsr3MsgType");
 
     if cfg!(not(target_os = "windows")) {
+        // TODO: TARGET_OS env var
         bindings = bindings.clang_args(["-DFFX_GCC"]);
     }
 
@@ -78,6 +79,7 @@ pub fn generate_vk_bindings(api_dir: &Path, vk_include_dir: &Path) {
         .allowlist_file(&wrapper);
 
     if cfg!(not(target_os = "windows")) {
+        // TODO: TARGET_OS env var
         bindings = bindings.clang_args(["-DFFX_GCC"]).clang_arg("-std=c++2a");
     }
 
@@ -89,7 +91,7 @@ pub fn generate_vk_bindings(api_dir: &Path, vk_include_dir: &Path) {
         .expect("Couldn't write bindings!");
 }
 
-pub fn generate_d3d12_bindings(api_dir: &Path) {
+pub fn generate_dx12_bindings(api_dir: &Path) {
     let wrapper = format!(
         "{}/include/FidelityFX/host/backends/dx12/ffx_dx12.h",
         api_dir.display()
@@ -113,6 +115,6 @@ pub fn generate_d3d12_bindings(api_dir: &Path) {
 
     let out_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("src");
     bindings
-        .write_to_file(out_path.join("d3d12_bindings.rs"))
+        .write_to_file(out_path.join("dx12_bindings.rs"))
         .expect("Couldn't write bindings!");
 }

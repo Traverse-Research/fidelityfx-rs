@@ -21,7 +21,7 @@
 
 
 #include <initguid.h>
-#include "FrameInterpolationSwapChainDX12.h"
+#include "FrameInterpolationSwapchainDX12.h"
 
 #include <FidelityFX/host/backends/dx12/ffx_dx12.h>
 #include "FrameInterpolationSwapchainDX12_UiComposition.h"
