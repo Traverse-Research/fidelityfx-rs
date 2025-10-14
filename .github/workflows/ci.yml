@@ -13,7 +13,7 @@ jobs:
       - name: Cargo fmt
         run: cargo fmt --all -- --check
       - name: Cargo clippy
-        run: cargo clippy --workspace --all-targets -- -D warnings
+        run: cargo clippy --workspace --all-targets --all-features -- -D warnings
 # TODO(YIGIT): We currently do not have tests
 #      - name: Cargo test
 #        run: cargo test --workspace
@@ -28,9 +28,12 @@ jobs:
       - uses: dtolnay/rust-toolchain@nightly
       - name: Generate minimal-version dependencies
         run: cargo -Zminimal-versions generate-lockfile
+      - name: Bump invalid dependencies
+        # https://github.com/rust-lang/regex/pull/771/files
+        run: cargo update -p regex-syntax --precise 0.6.25
       - uses: dtolnay/rust-toolchain@1.74.0
       - name: Cargo check
-        run: cargo check --workspace --all-targets
+        run: cargo check --workspace --all-targets --all-features
 
   generate-rust:
     name: Generate Rust crate
