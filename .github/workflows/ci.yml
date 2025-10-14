@@ -7,7 +7,7 @@ jobs:
     name: Lint Rust code
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           submodules: true
       - name: Cargo fmt
@@ -22,7 +22,7 @@ jobs:
     name: Build-test MSRV (1.74) with minimal crate dependencies
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           submodules: true
       - uses: dtolnay/rust-toolchain@nightly
@@ -36,7 +36,7 @@ jobs:
     name: Generate Rust crate
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           submodules: true
       - name: Clean
