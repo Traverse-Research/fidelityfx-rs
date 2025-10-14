@@ -24,3 +24,15 @@ rust-template = "0.0.0"
 ```rust
 // A code example
 ```
+
+## Template usage
+
+> [!WARNING]
+> Delete this section after inheriting from the template. It only explains how to utilize and configure this template effectively.
+
+### Publishing strategy
+
+The [publish workflow] relies on crates.io's [Trusted Publishing] to publish releases from GitHub Actions as soon as a tag is pushed.  To set this up, ensure your repository has a `release` environment.  After publishing an initial crate version to crates.io, add the repository as a Trusted Publisher using the `publish.yaml` filename and `release` environment for your GitHub repository.
+
+[publish workflow]: ./.github/workflows/publish.yaml
+[Trusted Publishing]: https://crates.io/docs/trusted-publishing

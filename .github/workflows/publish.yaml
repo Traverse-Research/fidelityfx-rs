@@ -9,7 +9,15 @@ jobs:
   Publish:
     if: github.repository_owner == 'Traverse-Research'
     runs-on: ubuntu-latest
+    # https://crates.io/docs/trusted-publishing
+    environment: release  # Optional: for enhanced security
+    permissions:
+      id-token: write     # Required for OIDC token exchange
     steps:
       - uses: actions/checkout@v4
+      - uses: rust-lang/crates-io-auth-action@v1
+        id: auth
       - name: Publish
-        run: cargo publish --token ${{ secrets.cratesio_token }}
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ steps.auth.outputs.token }}
+        run: cargo publish
