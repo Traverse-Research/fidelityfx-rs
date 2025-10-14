@@ -22,7 +22,7 @@
 
 #pragma once
 
-#include <stddef.h>
+#include <stddef.h> // TODO: Port upstream?
 #include <stdint.h>
 
 ///

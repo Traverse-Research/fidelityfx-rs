@@ -41,8 +41,6 @@ fn compile_fidelityfx(api_dir: &Path, vk_include_dir: &Path) {
         }
     }
 
-    // #[cfg(not(feature = "d3d12"))]
-    // #[cfg(not(feature = "vulkan"))]
     // TODO: The vk bindings won't work for FSR3 yet
     let backends = ["shared", "vk", "dx12", "dx12/FrameInterpolationSwapchain"];
     for backend in backends {
@@ -92,7 +90,7 @@ fn main() {
     {
         bindgen::generate_bindings(api_dir);
         bindgen::generate_vk_bindings(api_dir, &vk_include_dir);
-        bindgen::generate_d3d12_bindings(api_dir);
+        bindgen::generate_dx12_bindings(api_dir);
     }
 
     // TODO: FidelityFX is given Vulkan loader functions. It should _not have to_ link
