@@ -31,3 +31,26 @@ jobs:
       - uses: dtolnay/rust-toolchain@1.74.0
       - name: Cargo check
         run: cargo check --workspace --all-targets
+
+  generate-rust:
+    name: Generate Rust crate
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+      - name: Clean
+        run: rm sys/src/*bindings.rs
+      - name: Generate
+        run: cargo b -p fidelityfx-sys -Fgenerate-bindings
+      - name: Upload crate source
+        uses: actions/upload-artifact@v4
+        with:
+          name: crate-source
+          path: sys/src/*bindings.rs
+      - name: Diff generated Rust code
+        shell: bash
+        run: |
+          # Somehow bindgen seems to output LF on Windows, and that confuses our status checks which expect CRLF
+          unix2dos sys/src/*bindings.rs
+          test -z "$(git status --porcelain)" || (echo "::error::Generated files are different, please regenerate with 'cargo b -p fidelityfx-sys -Fgenerate-bindings'!"; git diff; false)
