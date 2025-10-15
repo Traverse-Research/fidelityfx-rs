@@ -15,7 +15,7 @@ impl<'a> From<&'a ID3D12CommandList> for CommandList<'a> {
     fn from(value: &'a ID3D12CommandList) -> Self {
         CommandList(
             unsafe {
-                fidelityfx_sys::d3d12::GetCommandListDX12(
+                fidelityfx_sys::dx12::GetCommandListDX12(
                     // repr(transparent) around a pointer
                     std::mem::transmute_copy(value),
                 )
@@ -26,7 +26,7 @@ impl<'a> From<&'a ID3D12CommandList> for CommandList<'a> {
 }
 
 unsafe fn get_scratch_memory_size() -> usize {
-    fidelityfx_sys::d3d12::GetScratchMemorySizeDX12(/*TODO */ 1)
+    fidelityfx_sys::dx12::GetScratchMemorySizeDX12(/*TODO */ 1)
 }
 
 pub unsafe fn get_interface(device: Device<'_>) -> Result<Interface> {
@@ -38,7 +38,7 @@ pub unsafe fn get_interface(device: Device<'_>) -> Result<Interface> {
         scratch_buffer,
     };
 
-    fidelityfx_sys::d3d12::GetInterfaceDX12(
+    fidelityfx_sys::dx12::GetInterfaceDX12(
         &mut retval.interface,
         // TODO: Is the returned Interface going to hold a lifetime-less handle to our lifetimed device?
         device.0,
@@ -53,7 +53,7 @@ pub unsafe fn get_interface(device: Device<'_>) -> Result<Interface> {
 // impl<'a> From<&'a ID3D12Device> for Device<'a> {
 //     fn from(value: &'a ID3D12Device) -> Self {
 //         Device(
-//             unsafe { fidelityfx_sys::d3d12::GetDeviceDX12(std::mem::transmute_copy(value)) },
+//             unsafe { fidelityfx_sys::dx12::GetDeviceDX12(std::mem::transmute_copy(value)) },
 //             PhantomData,
 //         )
 //     }
@@ -64,7 +64,7 @@ pub fn get_device<'a>(device: &'a ID3D12Device) -> Device<'a> {
     Device(
         // SAFETY: Should just be a cast internally. Knowing that the ID3D12Device is a sound/safe,
         // turning it into a Device is also safe.
-        unsafe { fidelityfx_sys::d3d12::GetDeviceDX12(std::mem::transmute_copy(device)) },
+        unsafe { fidelityfx_sys::dx12::GetDeviceDX12(std::mem::transmute_copy(device)) },
         PhantomData,
     )
 }
@@ -99,7 +99,7 @@ pub unsafe fn get_texture_resource(
         usage,
     };
 
-    fidelityfx_sys::d3d12::GetResourceDX12(
+    fidelityfx_sys::dx12::GetResourceDX12(
         std::mem::transmute_copy(resource),
         resource_description,
         U16String::from_str(name).as_mut_ptr(),
