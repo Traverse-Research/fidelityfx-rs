@@ -38,7 +38,7 @@
 //! fsr_context.dispatch(desc).expect("Failed to dispatch fsr");
 //! ```
 
-use crate::backends::{CommandList, Device};
+use crate::backends::CommandList;
 use crate::error::{FfxError, Result};
 pub use crate::interface::Interface;
 use log::{error, warn};
@@ -90,18 +90,16 @@ pub struct Context {
     _interface: Interface,
 }
 
-pub struct ContextDescription<'a> {
+pub struct ContextDescription {
     pub interface: Interface,
     pub flags: fidelityfx_sys::Fsr3InitializationFlagBits,
     pub max_render_size: [u32; 2],
     pub display_size: [u32; 2],
-    // pub device: &'a Device,
-    pub device: Device<'a>,
     pub message_callback: Option<unsafe extern "C" fn(MsgType, *const widestring::WideChar)>,
 }
 
-impl From<&ContextDescription<'_>> for fidelityfx_sys::Fsr3ContextDescription {
-    fn from(val: &ContextDescription<'_>) -> Self {
+impl From<&ContextDescription> for fidelityfx_sys::Fsr3ContextDescription {
+    fn from(val: &ContextDescription) -> Self {
         Self {
             flags: val.flags.0 as u32,
             maxRenderSize: fidelityfx_sys::Dimensions2D {
@@ -356,8 +354,8 @@ impl From<DispatchDescription<'_>> for fidelityfx_sys::Fsr3DispatchUpscaleDescri
 impl Context {
     /// # Safety
     ///
-    /// You must ensure that the parameters of Fsr3ContextCreate are properly provided.
-    pub unsafe fn new(desc: ContextDescription<'_>) -> Result<Self> {
+    /// User is responsible for ensuring that [Interface] outlives the lifetime of [Context].
+    pub unsafe fn new(desc: ContextDescription) -> Result<Self> {
         let mut context = Box::<fidelityfx_sys::Fsr3Context>::default();
         let error =
             unsafe { fidelityfx_sys::Fsr3ContextCreate(context.as_mut(), &mut (&desc).into()) };
@@ -373,7 +371,8 @@ impl Context {
 
     /// # Safety
     ///
-    /// You shouldn't call dispatch on a Context that had destroy called upon.
+    /// User is responsible for ensuring that all [Resource] and [CommandList] outlive the lifetime of [Context].
+    /// Additionally synchronization is expected to be handled externally.
     pub unsafe fn dispatch(&mut self, desc: DispatchDescription<'_>) -> Result<()> {
         let error = unsafe {
             fidelityfx_sys::Fsr3ContextDispatchUpscale(self.context.as_mut(), &desc.into())
