@@ -354,7 +354,7 @@ impl From<DispatchDescription<'_>> for fidelityfx_sys::Fsr3DispatchUpscaleDescri
 impl Context {
     /// # Safety
     ///
-    /// User is responsible for ensuring that [Interface] outlives the lifetime of [Context].
+    /// The provided [`Interface`] must not be destroyed before the returned [`Context`] is destroyed.
     pub unsafe fn new(desc: ContextDescription) -> Result<Self> {
         let mut context = Box::<fidelityfx_sys::Fsr3Context>::default();
         let error =
@@ -371,8 +371,7 @@ impl Context {
 
     /// # Safety
     ///
-    /// User is responsible for ensuring that all [Resource] and [CommandList] outlive the lifetime of [Context].
-    /// Additionally synchronization is expected to be handled externally.
+    /// [`Context`] and all of the [`Resource`]s passed in [`DispatchDescription`] must not be destroyed before the supplied [`CommandList`] has finished executing.
     pub unsafe fn dispatch(&mut self, desc: DispatchDescription<'_>) -> Result<()> {
         let error = unsafe {
             fidelityfx_sys::Fsr3ContextDispatchUpscale(self.context.as_mut(), &desc.into())
