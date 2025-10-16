@@ -8,8 +8,11 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v5
-        with:
-          submodules: true
+      # TODO: Remove because we do not need the submodules for BUILDING
+      # when a DLL is used.
+      - name: Checkout submodule
+        # Manually update submodules with --checkout because they are configured with update=none and will be skipped otherwise
+        run: git submodule update --recursive --init --force --checkout
       - name: Cargo fmt
         run: cargo fmt --all -- --check
       - name: Cargo clippy
@@ -23,8 +26,11 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v5
-        with:
-          submodules: true
+      # TODO: Remove because we do not need the submodules for BUILDING
+      # when a DLL is used.
+      - name: Checkout submodule
+        # Manually update submodules with --checkout because they are configured with update=none and will be skipped otherwise
+        run: git submodule update --recursive --init --force --checkout
       - uses: dtolnay/rust-toolchain@nightly
       - name: Generate minimal-version dependencies
         run: cargo -Zminimal-versions generate-lockfile
@@ -40,8 +46,9 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v5
-        with:
-          submodules: true
+      - name: Checkout submodule
+        # Manually update submodules with --checkout because they are configured with update=none and will be skipped otherwise
+        run: git submodule update --recursive --init --force --checkout
       - name: Clean
         run: rm sys/src/*bindings.rs
       - name: Generate
