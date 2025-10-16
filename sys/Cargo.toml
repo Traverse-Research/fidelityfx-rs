@@ -1,20 +1,20 @@
 [package]
 name = "fidelityfx-sys"
-version = "0.1.0"
+version = "0.1.0+probably-fsr3-3.0.4-or-ffx-1.1.x"
 authors = ["Traverse Research <support@traverseresearch.nl>"]
 edition = "2021"
 license = "MIT"
 homepage = "https://traverseresearch.nl"
 repository = "https://github.com/Traverse-Research/fidelityfx-rs"
-description = "Low-level sys bindings for AMD's FidelityFX SDK"
-include = ["src", "LICENSE"]
+description = "AMD's FidelityFX SDK with low-level `sys` bindings"
+include = [
+  "src", # Recursively includes stuff from ./FidelityFX and its shader compiler source.  Those won't compile without including Vulkan-Headers or referencing it from VULKAN_SDK though
+  "/LICENSE",
+  "/FidelityFX/LICENSE.txt", # MIT
+]
 categories = ["rendering", "graphics", "external-ffi-bindings"] # https://crates.io/category_slugs
 keywords = ["fidelityfx", "fsr", "upscaling", "vulkan", "d3d12"]
 rust-version = "1.74"
-
-[dependencies]
-glob = "0.3"
-widestring = "1.0"
 
 [build-dependencies]
 # Pin version to have control over how everything is generated (there is a CI

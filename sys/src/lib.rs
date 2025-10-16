@@ -27,8 +27,8 @@ pub mod vk {
 
 #[cfg(feature = "dx12")]
 pub mod dx12 {
-
     use crate::*;
+
     type ID3D12CommandList = std::ffi::c_void;
     type ID3D12Device = std::ffi::c_void;
     type ID3D12Resource = std::ffi::c_void;
