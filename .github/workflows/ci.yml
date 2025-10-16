@@ -31,7 +31,7 @@ jobs:
       - name: Bump invalid dependencies
         # https://github.com/rust-lang/regex/pull/771/files
         run: cargo update -p regex-syntax --precise 0.6.25
-      - uses: dtolnay/rust-toolchain@1.74.0
+      - uses: dtolnay/rust-toolchain@1.100.0
       - name: Cargo check
         run: cargo check --workspace --all-targets --all-features
 
