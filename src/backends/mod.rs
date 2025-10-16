@@ -5,10 +5,14 @@ pub mod dx12;
 #[cfg(feature = "vulkan")]
 pub mod vk;
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub struct Device<'a>(fidelityfx_sys::Device, PhantomData<&'a ()>);
+
 #[derive(Clone, Copy, Debug)]
 pub struct CommandList<'a>(pub(crate) fidelityfx_sys::CommandList, PhantomData<&'a ()>);
+
+#[derive(Clone, Copy)]
+pub struct Resource<'a>(pub(crate) fidelityfx_sys::Resource, PhantomData<&'a ()>);
 
 // pub enum Device<'a> {
 //     // D3d12(ID3D12Device),

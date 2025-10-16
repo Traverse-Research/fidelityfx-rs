@@ -38,14 +38,12 @@
 //! fsr_context.dispatch(desc).expect("Failed to dispatch fsr");
 //! ```
 
-use crate::backends::{CommandList, Device};
+use crate::backends::{CommandList, Device, Resource};
 use crate::error::{FfxError, Result};
 pub use crate::interface::Interface;
 use log::{error, warn};
 
-// pub use fidelityfx_sys::Device;
 pub use fidelityfx_sys::MsgType;
-pub use fidelityfx_sys::Resource;
 
 use std::ffi::OsString;
 use std::os::windows::prelude::*;
@@ -128,37 +126,17 @@ impl From<&ContextDescription<'_>> for fidelityfx_sys::Fsr3ContextDescription {
     }
 }
 
-// bitflags::bitflags! {
-//     #[repr(transparent)]
-//     #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-//     pub struct Fsr3InitializationFlagBits: 32 {
-//         const HIGH_DYNAMIC_RANGE = fidelityfx_sys::Fsr3InitializationFlagBits::FFX_FSR3_ENABLE_HIGH_DYNAMIC_RANGE;
-//         const DISPLAY_RESOLUTION_MOTION_VECTORS = fidelityfx_sys::Fsr3InitializationFlagBits::FFX_FSR3_ENABLE_DISPLAY_RESOLUTION_MOTION_VECTORS;
-//         const MOTION_VECTORS_JITTER_CANCELLATION = fidelityfx_sys::Fsr3InitializationFlagBits::FFX_FSR3_ENABLE_MOTION_VECTORS_JITTER_CANCELLATION;
-//         const DEPTH_INVERTED = fidelityfx_sys::Fsr3InitializationFlagBits::FFX_FSR3_ENABLE_DEPTH_INVERTED;
-//         const DEPTH_INFINITE = fidelityfx_sys::Fsr3InitializationFlagBits::FFX_FSR3_ENABLE_DEPTH_INFINITE;
-//         const AUTO_EXPOSURE = fidelityfx_sys::Fsr3InitializationFlagBits::FFX_FSR3_ENABLE_AUTO_EXPOSURE;
-//         const DYNAMIC_RESOLUTION = fidelityfx_sys::Fsr3InitializationFlagBits::FFX_FSR3_ENABLE_DYNAMIC_RESOLUTION;
-//         const TEXTURE1D_USAGE = fidelityfx_sys::Fsr3InitializationFlagBits::FFX_FSR3_ENABLE_TEXTURE1D_USAGE;
-//         const DEBUG_CHECKING = fidelityfx_sys::Fsr3InitializationFlagBits::FFX_FSR3_ENABLE_DEBUG_CHECKING;
-//         const UPSCALING_ONLY = fidelityfx_sys::Fsr3InitializationFlagBits::FFX_FSR3_ENABLE_UPSCALING_ONLY;
-//         const HDR_UPSCALE_SDR_FINALOUTPUT = fidelityfx_sys::Fsr3InitializationFlagBits::FFX_FSR3_ENABLE_HDR_UPSCALE_SDR_FINALOUTPUT;
-//         const SDR_UPSCALE_HDR_FINALOUTPUT = fidelityfx_sys::Fsr3InitializationFlagBits::FFX_FSR3_ENABLE_SDR_UPSCALE_HDR_FINALOUTPUT;
-//         const ASYNC_WORKLOAD_SUPPORT = fidelityfx_sys::Fsr3InitializationFlagBits::FFX_FSR3_ENABLE_ASYNC_WORKLOAD_SUPPORT;
-//     }
-// }
-
 pub struct DispatchDescription<'a> {
     pub cmd_list: CommandList<'a>,
-    pub output: Resource,
+    pub output: Resource<'a>,
 
-    pub color: Resource,
-    pub depth: Resource,
-    pub motion_vectors: Resource,
-    pub color_opaque_only: Option<Resource>,
-    pub exposure: Option<Resource>,
-    pub reactive: Option<Resource>,
-    pub transparency_and_composition: Option<Resource>,
+    pub color: Resource<'a>,
+    pub depth: Resource<'a>,
+    pub motion_vectors: Resource<'a>,
+    pub color_opaque_only: Option<Resource<'a>>,
+    pub exposure: Option<Resource<'a>>,
+    pub reactive: Option<Resource<'a>>,
+    pub transparency_and_composition: Option<Resource<'a>>,
 
     pub enable_auto_reactive: bool,
     pub enable_sharpening: bool,
@@ -187,20 +165,20 @@ pub struct DispatchDescription<'a> {
 
     pub reset: bool,
 
-    pub upscale_output: Resource,
+    pub upscale_output: Resource<'a>,
 }
 
 #[allow(clippy::too_many_arguments)]
 impl<'a> DispatchDescription<'a> {
     pub fn new(
         cmd_list: CommandList<'a>,
-        color: Resource,
-        depth: Resource,
-        motion_vectors: Resource,
-        output: Resource,
+        color: Resource<'a>,
+        depth: Resource<'a>,
+        motion_vectors: Resource<'a>,
+        output: Resource<'a>,
         frame_time_delta: f32,
         render_size: [u32; 2],
-        upscale_output: Resource,
+        upscale_output: Resource<'a>,
     ) -> Self {
         Self {
             cmd_list,
@@ -259,12 +237,12 @@ impl<'a> DispatchDescription<'a> {
         self
     }
 
-    pub fn exposure(mut self, resource: Resource) -> Self {
+    pub fn exposure(mut self, resource: Resource<'a>) -> Self {
         self.exposure = Some(resource);
         self
     }
 
-    pub fn reactive(mut self, resource: Resource) -> Self {
+    pub fn reactive(mut self, resource: Resource<'a>) -> Self {
         self.reactive = Some(resource);
         self
     }
@@ -287,8 +265,8 @@ impl<'a> DispatchDescription<'a> {
 
     pub fn auto_reactive(
         mut self,
-        color_opaque_only: Resource,
-        transparency_and_composition: Resource,
+        color_opaque_only: Resource<'a>,
+        transparency_and_composition: Resource<'a>,
         auto_reactive_max: f32,
         auto_tc_scale: f32,
         auto_reactive_scale: f32,
@@ -310,18 +288,21 @@ impl<'a> DispatchDescription<'a> {
     }
 }
 
+// TODO: This should not be a public conversion, because it drops the lifetime boundary on various fields
 impl From<DispatchDescription<'_>> for fidelityfx_sys::Fsr3DispatchUpscaleDescription {
     fn from(val: DispatchDescription<'_>) -> Self {
         Self {
             commandList: val.cmd_list.0,
             // output: val.output,
-            color: val.color,
-            transparencyAndComposition: val.transparency_and_composition.unwrap_or_default(),
-            // colorOpaqueOnly: val.color_opaque_only.unwrap_or_default(),
-            depth: val.depth,
-            exposure: val.exposure.unwrap_or_default(),
-            reactive: val.reactive.unwrap_or_default(),
-            motionVectors: val.motion_vectors,
+            color: val.color.0,
+            transparencyAndComposition: val
+                .transparency_and_composition
+                .map_or(Default::default(), |r| r.0),
+            // colorOpaqueOnly: val.color_opaque_only.map_or(Default::default(), |r|r.0),
+            depth: val.depth.0,
+            exposure: val.exposure.map_or(Default::default(), |r| r.0),
+            reactive: val.reactive.map_or(Default::default(), |r| r.0),
+            motionVectors: val.motion_vectors.0,
             // autoReactiveMax: val.auto_reactive_max,
             // autoTcScale: val.auto_tc_scale,
             enableSharpening: val.enable_sharpening,
@@ -348,7 +329,7 @@ impl From<DispatchDescription<'_>> for fidelityfx_sys::Fsr3DispatchUpscaleDescri
             cameraFovAngleVertical: val.camera_fov_y,
             sharpness: val.sharpness,
             reset: val.reset,
-            upscaleOutput: val.upscale_output,
+            upscaleOutput: val.upscale_output.0,
         }
     }
 }
