@@ -1,16 +1,17 @@
 // This file is part of the FidelityFX SDK.
-// 
-// Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
+//
+// Copyright (C) 2024 Advanced Micro Devices, Inc.
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to deal
+// of this software and associated documentation files(the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// to use, copy, modify, merge, publish, distribute, sublicense, and /or sell
 // copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
+// furnished to do so, subject to the following conditions :
+//
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -18,7 +19,6 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-
 
 #include <FidelityFX/host/ffx_util.h>
 #include "ffx_opticalflow_shaderblobs.h"
@@ -69,7 +69,7 @@
     key.index                                   = 0; \
     key.FFX_OPTICALFLOW_OPTION_HDR_COLOR_INPUT = FFX_CONTAINS_FLAG(options, OPTICALFLOW_HDR_COLOR_INPUT);
 
-static FfxShaderBlob opticalflowGetComputeLuminancePyramidPassPermutationBlobByIndex(uint32_t permutationOptions, bool isWave64, bool is16bit)
+static FfxShaderBlob opticalflowGetComputeLuminancePyramidPassPermutationBlobByIndex(uint32_t permutationOptions, bool isWave64, bool)
 {
     ffx_opticalflow_compute_luminance_pyramid_pass_PermutationKey key;
 
@@ -87,7 +87,7 @@ static FfxShaderBlob opticalflowGetComputeLuminancePyramidPassPermutationBlobByI
     }
 }
 
-static FfxShaderBlob opticalflowGetComputeScdDivergencePassPermutationBlobByIndex(uint32_t permutationOptions, bool isWave64, bool is16bit)
+static FfxShaderBlob opticalflowGetComputeScdDivergencePassPermutationBlobByIndex(uint32_t permutationOptions, bool isWave64, bool)
 {
     ffx_opticalflow_compute_scd_divergence_pass_PermutationKey key;
 
@@ -105,7 +105,7 @@ static FfxShaderBlob opticalflowGetComputeScdDivergencePassPermutationBlobByInde
     }
 }
 
-static FfxShaderBlob opticalflowGetGenerateScdHistogramPassPermutationBlobByIndex(uint32_t permutationOptions, bool isWave64, bool is16bit)
+static FfxShaderBlob opticalflowGetGenerateScdHistogramPassPermutationBlobByIndex(uint32_t permutationOptions, bool isWave64, bool)
 {
     ffx_opticalflow_generate_scd_histogram_pass_PermutationKey key;
 
@@ -123,7 +123,7 @@ static FfxShaderBlob opticalflowGetGenerateScdHistogramPassPermutationBlobByInde
     }
 }
 
-static FfxShaderBlob opticalflowGetPrepareLumaPassPermutationBlobByIndex(uint32_t permutationOptions, bool isWave64, bool is16bit)
+static FfxShaderBlob opticalflowGetPrepareLumaPassPermutationBlobByIndex(uint32_t permutationOptions, bool isWave64, bool)
 {
     ffx_opticalflow_prepare_luma_pass_PermutationKey key;
 
@@ -141,9 +141,9 @@ static FfxShaderBlob opticalflowGetPrepareLumaPassPermutationBlobByIndex(uint32_
     }
 }
 
-static FfxShaderBlob opticalflowGetComputeOpticalFlowAdvancedPassV5PermutationBlobByIndex(uint32_t permutationOptions, bool isWave64, bool is16bit)
+static FfxShaderBlob opticalflowGetComputeOpticalFlowAdvancedPassV5PermutationBlobByIndex(uint32_t permutationOptions, bool isWave64, bool)
 {
-    ffx_opticalflow_prepare_luma_pass_PermutationKey key;
+    ffx_opticalflow_compute_optical_flow_advanced_pass_v5_PermutationKey key;
 
     POPULATE_PERMUTATION_KEY(permutationOptions, key);
 
@@ -159,9 +159,9 @@ static FfxShaderBlob opticalflowGetComputeOpticalFlowAdvancedPassV5PermutationBl
     }
 }
  
-static FfxShaderBlob opticalflowGetFilterOpticalFlowPassV5PermutationBlobByIndex(uint32_t permutationOptions, bool isWave64, bool is16bit)
+static FfxShaderBlob opticalflowGetFilterOpticalFlowPassV5PermutationBlobByIndex(uint32_t permutationOptions, bool isWave64, bool)
 {
-    ffx_opticalflow_prepare_luma_pass_PermutationKey key;
+    ffx_opticalflow_filter_optical_flow_pass_v5_PermutationKey key;
 
     POPULATE_PERMUTATION_KEY(permutationOptions, key);
 
@@ -177,9 +177,9 @@ static FfxShaderBlob opticalflowGetFilterOpticalFlowPassV5PermutationBlobByIndex
     }
 }
 
-static FfxShaderBlob opticalflowGetScaleOpticalFlowAdvancedPassV5PermutationBlobByIndex(uint32_t permutationOptions, bool isWave64, bool is16bit)
+static FfxShaderBlob opticalflowGetScaleOpticalFlowAdvancedPassV5PermutationBlobByIndex(uint32_t permutationOptions, bool isWave64, bool)
 {
-    ffx_opticalflow_prepare_luma_pass_PermutationKey key;
+    ffx_opticalflow_scale_optical_flow_advanced_pass_v5_PermutationKey key;
 
     POPULATE_PERMUTATION_KEY(permutationOptions, key);
 
@@ -261,5 +261,11 @@ FfxErrorCode opticalflowGetPermutationBlobByIndex(
 
     // return an empty blob
     memset(outBlob, 0, sizeof(FfxShaderBlob));
+    return FFX_OK;
+}
+
+FfxErrorCode opticalflowIsWave64(uint32_t permutationOptions, bool& isWave64)
+{
+    isWave64 = FFX_CONTAINS_FLAG(permutationOptions, OPTICALFLOW_SHADER_PERMUTATION_FORCE_WAVE64);
     return FFX_OK;
 }

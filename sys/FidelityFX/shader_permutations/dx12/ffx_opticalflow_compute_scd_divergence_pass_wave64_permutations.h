@@ -1,4 +1,4 @@
-#include "ffx_opticalflow_compute_scd_divergence_pass_wave64_3af942c4a28b7a46436037afb5cc3838.h"
+#include "ffx_opticalflow_compute_scd_divergence_pass_wave64_90e35ef50630d69ed9b4d309c60f9164.h"
 
 typedef union ffx_opticalflow_compute_scd_divergence_pass_wave64_PermutationKey {
     struct {
@@ -61,6 +61,6 @@ static const uint32_t g_ffx_opticalflow_compute_scd_divergence_pass_wave64_Indir
 };
 
 static const ffx_opticalflow_compute_scd_divergence_pass_wave64_PermutationInfo g_ffx_opticalflow_compute_scd_divergence_pass_wave64_PermutationInfo[] = {
-    { g_ffx_opticalflow_compute_scd_divergence_pass_wave64_3af942c4a28b7a46436037afb5cc3838_size, g_ffx_opticalflow_compute_scd_divergence_pass_wave64_3af942c4a28b7a46436037afb5cc3838_data, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, g_ffx_opticalflow_compute_scd_divergence_pass_wave64_3af942c4a28b7a46436037afb5cc3838_TextureUAVResourceNames, g_ffx_opticalflow_compute_scd_divergence_pass_wave64_3af942c4a28b7a46436037afb5cc3838_TextureUAVResourceBindings, g_ffx_opticalflow_compute_scd_divergence_pass_wave64_3af942c4a28b7a46436037afb5cc3838_TextureUAVResourceCounts, g_ffx_opticalflow_compute_scd_divergence_pass_wave64_3af942c4a28b7a46436037afb5cc3838_TextureUAVResourceSpaces, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
+    { g_ffx_opticalflow_compute_scd_divergence_pass_wave64_90e35ef50630d69ed9b4d309c60f9164_size, g_ffx_opticalflow_compute_scd_divergence_pass_wave64_90e35ef50630d69ed9b4d309c60f9164_data, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, g_ffx_opticalflow_compute_scd_divergence_pass_wave64_90e35ef50630d69ed9b4d309c60f9164_TextureUAVResourceNames, g_ffx_opticalflow_compute_scd_divergence_pass_wave64_90e35ef50630d69ed9b4d309c60f9164_TextureUAVResourceBindings, g_ffx_opticalflow_compute_scd_divergence_pass_wave64_90e35ef50630d69ed9b4d309c60f9164_TextureUAVResourceCounts, g_ffx_opticalflow_compute_scd_divergence_pass_wave64_90e35ef50630d69ed9b4d309c60f9164_TextureUAVResourceSpaces, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
 };
 

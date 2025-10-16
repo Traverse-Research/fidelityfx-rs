@@ -68,8 +68,8 @@ fn compile_fidelityfx(api_dir: &Path, vk_include_dir: &Path) {
         .include(api_dir.join("src/backends/shared"))
         // For the shader headers
         .include(api_dir.join("src/components"))
-        // TODO: Shader permutations are only available for Dx12 currently
         // TODO: Generalize folder name
+        .include("FidelityFX/libs")
         .include("FidelityFX/shader_permutations/dx12")
         .include(vk_include_dir);
 

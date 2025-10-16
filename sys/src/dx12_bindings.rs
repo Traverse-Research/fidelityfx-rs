@@ -18,7 +18,7 @@ extern "C" {
         device: Device,
         scratchBuffer: *mut ::std::os::raw::c_void,
         scratchBufferSize: usize,
-        maxContexts: u32,
+        maxContexts: usize,
     ) -> ErrorCode;
 }
 extern "C" {
@@ -27,36 +27,60 @@ extern "C" {
     pub fn GetCommandListDX12(cmdList: *mut ID3D12CommandList) -> CommandList;
 }
 extern "C" {
+    #[doc = " Create a <c><i>FfxPipeline</i></c> from a <c><i>ID3D12PipelineState</i></c>.\n\n @param [in] pipelineState               A pointer to the DirectX12 pipeline state.\n\n @returns\n An abstract FidelityFX pipeline.\n\n @ingroup DX12Backend"]
+    #[link_name = "\u{1}ffxGetPipelineDX12"]
+    pub fn GetPipelineDX12(pipelineState: *mut ID3D12PipelineState) -> Pipeline;
+}
+extern "C" {
     #[doc = " Fetch a <c><i>FfxResource</i></c> from a <c><i>GPUResource</i></c>.\n\n @param [in] dx12Resource                A pointer to the DX12 resource.\n @param [in] ffxResDescription           An <c><i>FfxResourceDescription</i></c> for the resource representation.\n @param [in] ffxResName                  (optional) A name string to identify the resource in debug mode.\n @param [in] state                       The state the resource is currently in.\n\n @returns\n An abstract FidelityFX resources.\n\n @ingroup DX12Backend"]
     #[link_name = "\u{1}ffxGetResourceDX12"]
     pub fn GetResourceDX12(
         dx12Resource: *const ID3D12Resource,
         ffxResDescription: ResourceDescription,
-        ffxResName: *mut u16,
+        ffxResName: *const u16,
         state: ResourceStates,
     ) -> Resource;
 }
 extern "C" {
+    #[doc = " Loads PIX runtime dll to allow SDK calls to show up in Microsoft PIX.\n\n @param [in] pixDllPath                  The path to the DLL to load.\n\n @retval\n FFX_OK                                  The operation completed successfully.\n @retval\n FFX_ERROR_INVALID_PATH                  Could not load the DLL using the provided path.\n @retval\n FFX_ERROR_BACKEND_API_ERROR             Could not get proc addresses for PIXBeginEvent and/or PIXEndEvent\n\n @ingroup DX12Backend"]
+    #[link_name = "\u{1}ffxLoadPixDll"]
+    pub fn LoadPixDll(pixDllPath: *const u16) -> ErrorCode;
+}
+extern "C" {
+    #[doc = " Fetch a <c><i>FfxSurfaceFormat</i></c> from a DXGI_FORMAT.\n\n @param [in] format              The DXGI_FORMAT to convert to <c><i>FfxSurfaceFormat</i></c>.\n\n @returns\n An <c><i>FfxSurfaceFormat</i></c>.\n\n @ingroup DX12Backend"]
     #[link_name = "\u{1}ffxGetSurfaceFormatDX12"]
     pub fn GetSurfaceFormatDX12(format: DXGI_FORMAT) -> SurfaceFormat;
 }
 extern "C" {
-    #[link_name = "\u{1}GetFfxResourceDescriptionDX12"]
-    pub fn GetResourceDescriptionDX12(pResource: *mut ID3D12Resource) -> ResourceDescription;
+    #[doc = " Fetch a DXGI_FORMAT from a <c><i>FfxSurfaceFormat</i></c>.\n\n @param [in] surfaceFormat       The <c><i>FfxSurfaceFormat</i></c> to convert to DXGI_FORMAT.\n\n @returns\n An DXGI_FORMAT.\n\n @ingroup DX12Backend"]
+    #[link_name = "\u{1}ffxGetDX12FormatFromSurfaceFormat"]
+    pub fn GetDX12FormatFromSurfaceFormat(surfaceFormat: SurfaceFormat) -> DXGI_FORMAT;
 }
 extern "C" {
+    #[doc = " Fetch a <c><i>FfxResourceDescription</i></c> from an existing ID3D12Resource.\n\n @param [in] pResource           The ID3D12Resource resource to create a <c><i>FfxResourceDescription</i></c> for.\n @param [in] additionalUsages    Optional <c><i>FfxResourceUsage</i></c> flags needed for select resource mapping.\n\n @returns\n An <c><i>FfxResourceDescription</i></c>.\n\n @ingroup DX12Backend"]
+    #[link_name = "\u{1}ffxGetResourceDescriptionDX12"]
+    pub fn GetResourceDescriptionDX12(
+        pResource: *const ID3D12Resource,
+        additionalUsages: ResourceUsage,
+    ) -> ResourceDescription;
+}
+extern "C" {
+    #[doc = " Fetch a <c><i>FfxCommandQueue</i></c> from an existing ID3D12CommandQueue.\n\n @param [in] pCommandQueue       The ID3D12CommandQueue to create a <c><i>FfxCommandQueue</i></c> from.\n\n @returns\n An <c><i>FfxCommandQueue</i></c>.\n\n @ingroup DX12Backend"]
     #[link_name = "\u{1}ffxGetCommandQueueDX12"]
     pub fn GetCommandQueueDX12(pCommandQueue: *mut ID3D12CommandQueue) -> CommandQueue;
 }
 extern "C" {
+    #[doc = " Fetch a <c><i>FfxSwapchain</i></c> from an existing IDXGISwapChain4.\n\n @param [in] pSwapchain          The IDXGISwapChain4 to create a <c><i>FfxSwapchain</i></c> from.\n\n @returns\n An <c><i>FfxSwapchain</i></c>.\n\n @ingroup DX12Backend"]
     #[link_name = "\u{1}ffxGetSwapchainDX12"]
     pub fn GetSwapchainDX12(pSwapchain: *mut IDXGISwapChain4) -> Swapchain;
 }
 extern "C" {
+    #[doc = " Fetch a IDXGISwapChain4 from an existing <c><i>FfxSwapchain</i></c>.\n\n @param [in] ffxSwapchain          The <c><i>FfxSwapchain</i></c> to fetch an IDXGISwapChain4 from.\n\n @returns\n An IDXGISwapChain4 object.\n\n @ingroup DX12Backend"]
     #[link_name = "\u{1}ffxGetDX12SwapchainPtr"]
     pub fn GetDX12SwapchainPtr(ffxSwapchain: Swapchain) -> *mut IDXGISwapChain4;
 }
 extern "C" {
+    #[doc = " Replaces the current swapchain with the provided <c><i>FfxSwapchain</i></c>.\n\n @param [in] gameQueue               The <c><i>FfxCommandQueue</i></c> presentation will occur on.\n @param [in] gameSwapChain           The <c><i>FfxSwapchain</i></c> to use for frame interpolation presentation.\n\n @retval\n FFX_OK                              The operation completed successfully.\n @retval\n FFX_ERROR_INVALID_ARGUMENT          One of the parameters is invalid.\n\n @ingroup DX12FrameInterpolation"]
     #[link_name = "\u{1}ffxReplaceSwapchainForFrameinterpolationDX12"]
     pub fn ReplaceSwapchainForFrameinterpolationDX12(
         gameQueue: CommandQueue,
@@ -64,6 +88,7 @@ extern "C" {
     ) -> ErrorCode;
 }
 extern "C" {
+    #[doc = " Creates a <c><i>FfxSwapchain</i></c> from passed in parameters.\n\n @param [in] desc                    The DXGI_SWAP_CHAIN_DESC describing the swapchain creation parameters from the calling application.\n @param [in] queue                   The ID3D12CommandQueue to use for frame interpolation presentation.\n @param [in] dxgiFactory             The IDXGIFactory to use for DX12 swapchain creation.\n @param [out] outGameSwapChain       The created <c><i>FfxSwapchain</i></c>.\n\n @retval\n FFX_OK                              The operation completed successfully.\n @retval\n FFX_ERROR_INVALID_ARGUMENT          One of the parameters is invalid.\n FFX_ERROR_OUT_OF_MEMORY             Insufficient memory available to allocate <c><i>FfxSwapchain</i></c> or underlying component.\n\n @ingroup DX12FrameInterpolation"]
     #[link_name = "\u{1}ffxCreateFrameinterpolationSwapchainDX12"]
     pub fn CreateFrameinterpolationSwapchainDX12(
         desc: *const DXGI_SWAP_CHAIN_DESC,
@@ -73,6 +98,7 @@ extern "C" {
     ) -> ErrorCode;
 }
 extern "C" {
+    #[doc = " Creates a <c><i>FfxSwapchain</i></c> from passed in parameters.\n\n @param [in] hWnd                    The HWND handle for the calling application.\n @param [in] desc1                   The DXGI_SWAP_CHAIN_DESC1 describing the swapchain creation parameters from the calling application.\n @param [in] fullscreenDesc          The DXGI_SWAP_CHAIN_FULLSCREEN_DESC describing the full screen swapchain creation parameters from the calling application.\n @param [in] queue                   The ID3D12CommandQueue to use for frame interpolation presentation.\n @param [in] dxgiFactory             The IDXGIFactory to use for DX12 swapchain creation.\n @param [out] outGameSwapChain       The created <c><i>FfxSwapchain</i></c>.\n\n @retval\n FFX_OK                              The operation completed successfully.\n @retval\n FFX_ERROR_INVALID_ARGUMENT          One of the parameters is invalid.\n FFX_ERROR_OUT_OF_MEMORY             Insufficient memory available to allocate <c><i>FfxSwapchain</i></c> or underlying component.\n\n @ingroup DX12FrameInterpolation"]
     #[link_name = "\u{1}ffxCreateFrameinterpolationSwapchainForHwndDX12"]
     pub fn CreateFrameinterpolationSwapchainForHwndDX12(
         hWnd: HWND,
@@ -84,17 +110,21 @@ extern "C" {
     ) -> ErrorCode;
 }
 extern "C" {
+    #[doc = " Waits for the <c><i>FfxSwapchain</i></c> to complete presentation.\n\n @param [in] gameSwapChain           The <c><i>FfxSwapchain</i></c> to wait on.\n\n @retval\n FFX_OK                              The operation completed successfully.\n @retval\n FFX_ERROR_INVALID_ARGUMENT          Could not query the interface for the frame interpolation swap chain.\n\n @ingroup DX12FrameInterpolation"]
     #[link_name = "\u{1}ffxWaitForPresents"]
     pub fn WaitForPresents(gameSwapChain: Swapchain) -> ErrorCode;
 }
 extern "C" {
+    #[doc = " Registers a <c><i>FfxResource</i></c> to use for UI with the provided <c><i>FfxSwapchain</i></c>.\n\n @param [in] gameSwapChain           The <c><i>FfxSwapchain</i></c> to to register the UI resource with.\n @param [in] uiResource              The <c><i>FfxResource</i></c> representing the UI resource.\n @param [in] flags                   A set of <c><i>FfxUiCompositionFlags</i></c>.\n\n @retval\n FFX_OK                              The operation completed successfully.\n @retval\n FFX_ERROR_INVALID_ARGUMENT          Could not query the interface for the frame interpolation swap chain.\n\n @ingroup DX12FrameInterpolation"]
     #[link_name = "\u{1}ffxRegisterFrameinterpolationUiResourceDX12"]
     pub fn RegisterFrameinterpolationUiResourceDX12(
         gameSwapChain: Swapchain,
         uiResource: Resource,
+        flags: u32,
     ) -> ErrorCode;
 }
 extern "C" {
+    #[doc = " Fetches a <c><i>FfxCommandList</i></c> from the <c><i>FfxSwapchain</i></c>.\n\n @param [in] gameSwapChain           The <c><i>FfxSwapchain</i></c> to get a <c><i>FfxCommandList</i></c> from.\n @param [out] gameCommandlist        The <c><i>FfxCommandList</i></c> from the provided <c><i>FfxSwapchain</i></c>.\n\n @retval\n FFX_OK                              The operation completed successfully.\n @retval\n FFX_ERROR_INVALID_ARGUMENT          Could not query the interface for the frame interpolation swap chain.\n\n @ingroup DX12FrameInterpolation"]
     #[link_name = "\u{1}ffxGetFrameinterpolationCommandlistDX12"]
     pub fn GetFrameinterpolationCommandlistDX12(
         gameSwapChain: Swapchain,
@@ -102,23 +132,41 @@ extern "C" {
     ) -> ErrorCode;
 }
 extern "C" {
+    #[doc = " Fetches a <c><i>FfxResource</i></c>  representing the backbuffer from the <c><i>FfxSwapchain</i></c>.\n\n @param [in] gameSwapChain           The <c><i>FfxSwapchain</i></c> to get a <c><i>FfxResource</i></c> backbuffer from.\n\n @returns\n An abstract FidelityFX resources for the swapchain backbuffer.\n\n @ingroup DX12FrameInterpolation"]
     #[link_name = "\u{1}ffxGetFrameinterpolationTextureDX12"]
     pub fn GetFrameinterpolationTextureDX12(gameSwapChain: Swapchain) -> Resource;
 }
 extern "C" {
+    #[doc = " Sets a <c><i>FfxFrameGenerationConfig</i></c> to the internal FrameInterpolationSwapChain (in the backend).\n\n @param [in] config                  The <c><i>FfxFrameGenerationConfig</i></c> to set.\n\n @retval\n FFX_OK                              The operation completed successfully.\n @retval\n FFX_ERROR_INVALID_ARGUMENT          Could not query the interface for the frame interpolation swap chain.\n\n @ingroup DX12FrameInterpolation"]
     #[link_name = "\u{1}ffxSetFrameGenerationConfigToSwapchainDX12"]
     pub fn SetFrameGenerationConfigToSwapchainDX12(
         config: *const FrameGenerationConfig,
     ) -> ErrorCode;
 }
-#[repr(C)]
-#[derive(Debug, Copy, Clone)]
-pub struct FrameInterpolationContext {
-    _unused: [u8; 0],
+pub const FFX_FI_SWAPCHAIN_CONFIGURE_KEY_WAITCALLBACK: FrameInterpolationSwapchainConfigureKey = 0;
+pub const FFX_FI_SWAPCHAIN_CONFIGURE_KEY_FRAMEPACINGTUNING:
+    FrameInterpolationSwapchainConfigureKey = 2;
+pub type FrameInterpolationSwapchainConfigureKey = ::std::os::raw::c_int;
+extern "C" {
+    #[doc = " Configures <c><i>FfxSwapchain</i></c> via KeyValue API post <c><i>FfxSwapchain</i></c> context creation\n\n @param [in] gameSwapChain           The <c><i>FfxSwapchain</i></c> to configure via KeyValue API\n @param [in] key                     The <c><i>FfxFrameInterpolationSwapchainConfigureKey</i></c> is key\n @param [in] valuePtr                The <c><i><void *></i></c> pointer to value. What this pointer deference to depends on key.\n\n @retval\n FFX_OK                              The operation completed successfully.\n @retval\n FFX_ERROR_INVALID_ARGUMENT          Could not query the interface for the frame interpolation swap chain.\n\n @ingroup DX12FrameInterpolation"]
+    #[link_name = "\u{1}ffxConfigureFrameInterpolationSwapchainDX12"]
+    pub fn ConfigureFrameInterpolationSwapchainDX12(
+        gameSwapChain: Swapchain,
+        key: FrameInterpolationSwapchainConfigureKey,
+        valuePtr: *mut ::std::os::raw::c_void,
+    ) -> ErrorCode;
+}
+extern "C" {
+    #[doc = " Query how much GPU memory created by <c><i>FfxSwapchain</i></c>. This excludes GPU memory created by DXGI (ie. size of DXGI swapchaim backbuffers).\n\n @param [in] gameSwapChain           The <c><i>FfxSwapchain</i></c> to configure via KeyValue API\n @param [in out] vramUsage           The <c><i>FfxEffectMemoryUsage</i></c> is the GPU memory created by FrameInterpolationSwapchain\n\n @retval\n FFX_OK                              The operation completed successfully.\n @retval\n FFX_ERROR_INVALID_ARGUMENT          Could not query the interface for the frame interpolation swap chain.\n\n @ingroup DX12FrameInterpolation"]
+    #[link_name = "\u{1}ffxFrameInterpolationSwapchainGetGpuMemoryUsageDX12"]
+    pub fn FrameInterpolationSwapchainGetGpuMemoryUsageDX12(
+        gameSwapChain: Swapchain,
+        vramUsage: *mut EffectMemoryUsage,
+    ) -> ErrorCode;
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
-pub struct Fsr2Context {
+pub struct FrameInterpolationContext {
     _unused: [u8; 0],
 }
 pub type CreateFiSwapchain = ::std::option::Option<

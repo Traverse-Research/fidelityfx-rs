@@ -1,16 +1,17 @@
 // This file is part of the FidelityFX SDK.
-// 
-// Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
+//
+// Copyright (C) 2024 Advanced Micro Devices, Inc.
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to deal
+// of this software and associated documentation files(the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// to use, copy, modify, merge, publish, distribute, sublicense, and /or sell
 // copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
+// furnished to do so, subject to the following conditions :
+//
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -19,12 +20,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-
 #pragma once
 
 // Include the interface for the backend of the FSR3 API.
 #include <FidelityFX/host/ffx_interface.h>
-#include <FidelityFX/gpu/fsr3upscaler/ffx_fsr3upscaler_resources.h>
 
 /// @defgroup ffxFsr3Upscaler FidelityFX FSR3
 /// FidelityFX Super Resolution 3 runtime library
@@ -39,12 +38,12 @@
 /// FidelityFX Super Resolution 3 minor version.
 ///
 /// @ingroup ffxFsr3Upscaler
-#define FFX_FSR3UPSCALER_VERSION_MINOR      (0)
+#define FFX_FSR3UPSCALER_VERSION_MINOR      (1)
 
 /// FidelityFX Super Resolution 3 patch version.
 ///
 /// @ingroup ffxFsr3Upscaler
-#define FFX_FSR3UPSCALER_VERSION_PATCH      (3)
+#define FFX_FSR3UPSCALER_VERSION_PATCH      (4)
 
 /// FidelityFX Super Resolution 3 context count
 /// 
@@ -81,17 +80,19 @@ extern "C" {
 /// @ingroup ffxFsr3Upscaler
 typedef enum FfxFsr3UpscalerPass
 {
+    FFX_FSR3UPSCALER_PASS_PREPARE_INPUTS,                           ///< A pass which prepares game inputs for later passes
+    FFX_FSR3UPSCALER_PASS_LUMA_PYRAMID,                             ///< A pass which generates the luminance mipmap chain for the current frame. 
+    FFX_FSR3UPSCALER_PASS_SHADING_CHANGE_PYRAMID,                   ///< A pass which generates the shading change detection mipmap chain for the current frame.
+    FFX_FSR3UPSCALER_PASS_SHADING_CHANGE,                           ///< A pass which estimates shading changes for the current frame
+    FFX_FSR3UPSCALER_PASS_PREPARE_REACTIVITY,                       ///< A pass which prepares accumulation relevant information
+    FFX_FSR3UPSCALER_PASS_LUMA_INSTABILITY,                         ///< A pass which estimates temporal instability of the luminance changes.
+    FFX_FSR3UPSCALER_PASS_ACCUMULATE,                               ///< A pass which performs upscaling.
+    FFX_FSR3UPSCALER_PASS_ACCUMULATE_SHARPEN,                       ///< A pass which performs upscaling when sharpening is used.
+    FFX_FSR3UPSCALER_PASS_RCAS,                                     ///< A pass which performs sharpening.
+    FFX_FSR3UPSCALER_PASS_DEBUG_VIEW,                               ///< A pass which draws some internal resources, for debugging purposes
 
-    FFX_FSR3UPSCALER_PASS_DEPTH_CLIP,                   ///< A pass which performs depth clipping.
-    FFX_FSR3UPSCALER_PASS_RECONSTRUCT_PREVIOUS_DEPTH,   ///< A pass which performs reconstruction of previous frame's depth.
-    FFX_FSR3UPSCALER_PASS_LOCK,                         ///< A pass which calculates pixel locks.
-    FFX_FSR3UPSCALER_PASS_ACCUMULATE,                   ///< A pass which performs upscaling.
-    FFX_FSR3UPSCALER_PASS_ACCUMULATE_SHARPEN,           ///< A pass which performs upscaling when sharpening is used.
-    FFX_FSR3UPSCALER_PASS_RCAS,                         ///< A pass which performs sharpening.
-    FFX_FSR3UPSCALER_PASS_COMPUTE_LUMINANCE_PYRAMID,    ///< A pass which generates the luminance mipmap chain for the current frame.
-    FFX_FSR3UPSCALER_PASS_GENERATE_REACTIVE,            ///< An optional pass to generate a reactive mask.
-    FFX_FSR3UPSCALER_PASS_TCR_AUTOGENERATE,             ///< DEPRECATED - NO LONGER SUPPORTED
-
+    FFX_FSR3UPSCALER_PASS_GENERATE_REACTIVE,                        ///< An optional pass to generate a reactive mask.
+    FFX_FSR3UPSCALER_PASS_TCR_AUTOGENERATE,                         ///< DEPRECATED - NO LONGER SUPPORTED
     FFX_FSR3UPSCALER_PASS_COUNT  ///< The number of passes performed by FSR3.
 } FfxFsr3UpscalerPass;
 
@@ -136,7 +137,7 @@ typedef enum FfxFsr3UpscalerInitializationFlagBits {
     FFX_FSR3UPSCALER_ENABLE_DEPTH_INFINITE                      = (1<<4),   ///< A bit indicating that the input depth buffer data provided is using an infinite far plane.
     FFX_FSR3UPSCALER_ENABLE_AUTO_EXPOSURE                       = (1<<5),   ///< A bit indicating if automatic exposure should be applied to input color data.
     FFX_FSR3UPSCALER_ENABLE_DYNAMIC_RESOLUTION                  = (1<<6),   ///< A bit indicating that the application uses dynamic resolution scaling.
-    FFX_FSR3UPSCALER_ENABLE_TEXTURE1D_USAGE                     = (1<<7),   ///< A bit indicating that the backend should use 1D textures.
+    FFX_FSR3UPSCALER_ENABLE_TEXTURE1D_USAGE                     = (1<<7),   ///< This value is deprecated, but remains in order to aid upgrading from older versions of FSR3.
     FFX_FSR3UPSCALER_ENABLE_DEBUG_CHECKING                      = (1<<8),   ///< A bit indicating that the runtime should check some API values and report issues.
 } FfxFsr3UpscalerInitializationFlagBits;
 
@@ -161,10 +162,25 @@ typedef struct FfxFsr3UpscalerContextDescription {
 
     uint32_t                    flags;                              ///< A collection of <c><i>FfxFsr3UpscalerInitializationFlagBits</i></c>.
     FfxDimensions2D             maxRenderSize;                      ///< The maximum size that rendering will be performed at.
-    FfxDimensions2D             displaySize;                        ///< The size of the presentation resolution targeted by the upscaling process.
+    FfxDimensions2D             maxUpscaleSize;                     ///< The size of the output resolution targeted by the upscaling process.
+    FfxFsr3UpscalerMessage      fpMessage;                          ///< A pointer to a function that can receive messages from the runtime.
     FfxInterface                backendInterface;                   ///< A set of pointers to the backend implementation for FidelityFX SDK
-    FfxFsr3UpscalerMessage              fpMessage;                          ///< A pointer to a function that can receive messages from the runtime.
+    
 } FfxFsr3UpscalerContextDescription;
+
+typedef enum FfxFsr3UpscalerDispatchFlags
+{
+    FFX_FSR3UPSCALER_DISPATCH_DRAW_DEBUG_VIEW = (1 << 0),  ///< A bit indicating that the interpolated output resource will contain debug views with relevant information.
+} FfxFsr3UpscalerDispatchFlags;
+
+typedef enum FfxFsr3UpscalerConfigureKey
+{
+    FFX_FSR3UPSCALER_CONFIGURE_UPSCALE_KEY_FVELOCITYFACTOR = 0, //Override constant buffer fVelocityFactor. The float value is casted from void * ptr. Value of 0.0f can improve temporal stability of bright pixels. Default value is 1.0f. Value is clamped to [0.0f, 1.0f].
+    FFX_FSR3UPSCALER_CONFIGURE_UPSCALE_KEY_FREACTIVENESSSCALE = 1, //Override constant buffer fReactivenessScale. The float value is casted from void * ptr. Meant for development purpose to test if writing a larger value to reactive mask, reduces ghosting. Default value is 1.0f. Value is clamped to [0.0f, +infinity].
+    FFX_FSR3UPSCALER_CONFIGURE_UPSCALE_KEY_FSHADINGCHANGESCALE =2, //Override fShadingChangeScale. Increasing this scales fsr3.1 computed shading change value at read to have higher reactiveness. Default value is 1.0f. Value is clamped to [0.0f, +infinity].
+    FFX_FSR3UPSCALER_CONFIGURE_UPSCALE_KEY_FACCUMULATIONADDEDPERFRAME = 3, // Override constant buffer fAccumulationAddedPerFrame. Corresponds to amount of accumulation added per frame at pixel coordinate where disocclusion occured or when reactive mask value is > 0.0f. Decreasing this and drawing the ghosting object (IE no mv) to reactive mask with value close to 1.0f can decrease temporal ghosting. Decreasing this value could result in more thin feature pixels flickering. Default value is 0.333. Value is clamped to [0.0f, 1.0f].
+    FFX_FSR3UPSCALER_CONFIGURE_UPSCALE_KEY_FMINDISOCCLUSIONACCUMULATION = 4, //Override constant buffer fMinDisocclusionAccumulation. Increasing this value may reduce white pixel temporal flickering around swaying thin objects that are disoccluding one another often. Too high value may increase ghosting. Default value is -0.333. A sufficiently negative value means for pixel coordinate at frame N that is disoccluded, add fAccumulationAddedPerFrame starting at frame N+2. Default value is -0.333. Value is clamped to [-1.0f, 1.0f].
+} FfxFsr3UpscalerConfigureKey;
 
 /// A structure encapsulating the parameters for dispatching the various passes
 /// of FidelityFX Super Resolution 3.
@@ -179,13 +195,14 @@ typedef struct FfxFsr3UpscalerDispatchDescription {
     FfxResource                 exposure;                           ///< A optional <c><i>FfxResource</i></c> containing a 1x1 exposure value.
     FfxResource                 reactive;                           ///< A optional <c><i>FfxResource</i></c> containing alpha value of reactive objects in the scene.
     FfxResource                 transparencyAndComposition;         ///< A optional <c><i>FfxResource</i></c> containing alpha value of special objects in the scene.
-	FfxResource					dilatedDepth;						///< A <c><i>FfxResource</i></c> allocated as described in <c><i>FfxFsr3UpscalerSharedResourceDescriptions</i></c> that is used to emit dilated depth and share with following effects.
-	FfxResource					dilatedMotionVectors;				///< A <c><i>FfxResource</i></c> allocated as described in <c><i>FfxFsr3UpscalerSharedResourceDescriptions</i></c> that is used to emit dilated motion vectors and share with following effects.
-	FfxResource					reconstructedPrevNearestDepth;		///< A <c><i>FfxResource</i></c> allocated as described in <c><i>FfxFsr3UpscalerSharedResourceDescriptions</i></c> that is used to emit reconstructed previous nearest depth and share with following effects.
+    FfxResource                 dilatedDepth;                       ///< A <c><i>FfxResource</i></c> allocated as described in <c><i>FfxFsr3UpscalerSharedResourceDescriptions</i></c> that is used to emit dilated depth and share with following effects.
+    FfxResource                 dilatedMotionVectors;               ///< A <c><i>FfxResource</i></c> allocated as described in <c><i>FfxFsr3UpscalerSharedResourceDescriptions</i></c> that is used to emit dilated motion vectors and share with following effects.
+    FfxResource                 reconstructedPrevNearestDepth;      ///< A <c><i>FfxResource</i></c> allocated as described in <c><i>FfxFsr3UpscalerSharedResourceDescriptions</i></c> that is used to emit reconstructed previous nearest depth and share with following effects.
     FfxResource                 output;                             ///< A <c><i>FfxResource</i></c> containing the output color buffer for the current frame (at presentation resolution).
     FfxFloatCoords2D            jitterOffset;                       ///< The subpixel jitter offset applied to the camera.
     FfxFloatCoords2D            motionVectorScale;                  ///< The scale factor to apply to motion vectors.
     FfxDimensions2D             renderSize;                         ///< The resolution that was used for rendering the input resources.
+    FfxDimensions2D             upscaleSize;                        ///< The resolution that the upscaler will output.
     bool                        enableSharpening;                   ///< Enable an additional sharpening pass.
     float                       sharpness;                          ///< The sharpness value between 0 and 1, where 0 is no additional sharpness and 1 is maximum additional sharpness.
     float                       frameTimeDelta;                     ///< The time elapsed since the last frame (expressed in milliseconds).
@@ -195,6 +212,7 @@ typedef struct FfxFsr3UpscalerDispatchDescription {
     float                       cameraFar;                          ///< The distance to the far plane of the camera.
     float                       cameraFovAngleVertical;             ///< The camera angle field of view in the vertical direction (expressed in radians).
     float                       viewSpaceToMetersFactor;            ///< The scale factor to convert view space units to meters
+    uint32_t                    flags;                              ///< combination of FfxFsr3UpscalerDispatchFlags
 } FfxFsr3UpscalerDispatchDescription;
 
 /// A structure encapsulating the parameters for automatic generation of a reactive mask
@@ -299,6 +317,19 @@ FFX_API FfxErrorCode ffxFsr3UpscalerContextCreate(FfxFsr3UpscalerContext* pConte
 ///
 /// @ingroup ffxFsr3Upscaler
 FFX_API FfxErrorCode ffxFsr3UpscalerGetSharedResourceDescriptions(FfxFsr3UpscalerContext* context, FfxFsr3UpscalerSharedResourceDescriptions* SharedResources);
+
+/// Get GPU memory usage of the FidelityFX Super Resolution context.
+///
+/// @param [in]  pContext                A pointer to a <c><i>FfxFsr3UpscalerContext</i></c> structure.
+/// @param [out] pVramUsage              A pointer to a <c><i>FfxEffectMemoryUsage</i></c> structure.
+///
+/// @retval
+/// FFX_OK                              The operation completed successfully.
+/// @retval
+/// FFX_ERROR_CODE_NULL_POINTER         The operation failed because either <c><i>context</i></c> or <c><i>vramUsage</i></c> were <c><i>NULL</i></c>.
+///
+/// @ingroup ffxFsr3Upscaler
+FFX_API FfxErrorCode ffxFsr3UpscalerContextGetGpuMemoryUsage(FfxFsr3UpscalerContext* pContext, FfxEffectMemoryUsage* pVramUsage);
 
 /// Dispatch the various passes that constitute FidelityFX Super Resolution 3.
 ///
@@ -521,6 +552,40 @@ FFX_API FfxErrorCode ffxFsr3UpscalerGetJitterOffset(float* pOutX, float* pOutY, 
 ///
 /// @ingroup ffxFsr3Upscaler
 FFX_API bool ffxFsr3UpscalerResourceIsNull(FfxResource resource);
+
+/// Queries the effect version number.
+///
+/// @returns
+/// The SDK version the effect was built with.
+///
+/// @ingroup ffxFsr3Upscaler
+FFX_API FfxVersionNumber ffxFsr3UpscalerGetEffectVersion();
+
+/// Override upscaler constant buffer value after upscaler context creation.
+///
+/// @param [in] context                  A pointer to a <c><i>FfxFsr3UpscalerContext</i></c> structure.
+/// @param [in] key                      A key from <c><i>FfxFsr3UpscalerConfigureKey</i></c> enum
+/// @param [in] valuePtr                 A pointer to value to pass to shader in Constant Buffer. See Fsr3UpscalerConstants
+///
+/// @retval
+/// FFX_OK                              The operation completed successfully.
+/// @retval
+/// FFX_ERROR_INVALID_ENUM              An invalid FfxFsr3UpscalerConfigureKey was specified.
+/// @retval
+/// FFX_ERROR_INVALID_POINTER           <c><i>pContext</c></i> was NULL.
+///
+/// @ingroup ffxFsr3Upscaler
+FFX_API FfxErrorCode ffxFsr3UpscalerSetConstant(FfxFsr3UpscalerContext* context, FfxFsr3UpscalerConfigureKey key, void* valuePtr);
+
+/// Set global debug message settings
+///
+/// @param [in] fpMessage                A <c><i>ffxMessageCallback</i></ci>
+/// @param [in] debugLevel               An unsigned integer. Unimplemented.
+/// @retval
+/// FFX_OK                               The operation completed successfully.
+///
+/// @ingroup FRAMEINTERPOLATION
+FFX_API FfxErrorCode ffxFsr3UpscalerSetGlobalDebugMessage(ffxMessageCallback fpMessage, uint32_t debugLevel);
 
 #if defined(__cplusplus)
 }

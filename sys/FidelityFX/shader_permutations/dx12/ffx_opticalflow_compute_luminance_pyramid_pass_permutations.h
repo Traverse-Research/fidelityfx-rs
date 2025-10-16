@@ -1,4 +1,4 @@
-#include "ffx_opticalflow_compute_luminance_pyramid_pass_987c152b33b0e321005d4527d87be56b.h"
+#include "ffx_opticalflow_compute_luminance_pyramid_pass_f0dedf1429071e07a81b83e865ad7978.h"
 
 typedef union ffx_opticalflow_compute_luminance_pyramid_pass_PermutationKey {
     struct {
@@ -61,6 +61,6 @@ static const uint32_t g_ffx_opticalflow_compute_luminance_pyramid_pass_Indirecti
 };
 
 static const ffx_opticalflow_compute_luminance_pyramid_pass_PermutationInfo g_ffx_opticalflow_compute_luminance_pyramid_pass_PermutationInfo[] = {
-    { g_ffx_opticalflow_compute_luminance_pyramid_pass_987c152b33b0e321005d4527d87be56b_size, g_ffx_opticalflow_compute_luminance_pyramid_pass_987c152b33b0e321005d4527d87be56b_data, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, g_ffx_opticalflow_compute_luminance_pyramid_pass_987c152b33b0e321005d4527d87be56b_TextureUAVResourceNames, g_ffx_opticalflow_compute_luminance_pyramid_pass_987c152b33b0e321005d4527d87be56b_TextureUAVResourceBindings, g_ffx_opticalflow_compute_luminance_pyramid_pass_987c152b33b0e321005d4527d87be56b_TextureUAVResourceCounts, g_ffx_opticalflow_compute_luminance_pyramid_pass_987c152b33b0e321005d4527d87be56b_TextureUAVResourceSpaces, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
+    { g_ffx_opticalflow_compute_luminance_pyramid_pass_f0dedf1429071e07a81b83e865ad7978_size, g_ffx_opticalflow_compute_luminance_pyramid_pass_f0dedf1429071e07a81b83e865ad7978_data, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, g_ffx_opticalflow_compute_luminance_pyramid_pass_f0dedf1429071e07a81b83e865ad7978_TextureUAVResourceNames, g_ffx_opticalflow_compute_luminance_pyramid_pass_f0dedf1429071e07a81b83e865ad7978_TextureUAVResourceBindings, g_ffx_opticalflow_compute_luminance_pyramid_pass_f0dedf1429071e07a81b83e865ad7978_TextureUAVResourceCounts, g_ffx_opticalflow_compute_luminance_pyramid_pass_f0dedf1429071e07a81b83e865ad7978_TextureUAVResourceSpaces, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
 };
 

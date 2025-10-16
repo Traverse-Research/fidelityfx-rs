@@ -1,16 +1,17 @@
 // This file is part of the FidelityFX SDK.
-// 
-// Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
+//
+// Copyright (C) 2024 Advanced Micro Devices, Inc.
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to deal
+// of this software and associated documentation files(the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// to use, copy, modify, merge, publish, distribute, sublicense, and /or sell
 // copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
+// furnished to do so, subject to the following conditions :
+//
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -19,10 +20,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-
 #include <string.h>     // for memset
 #include <stdlib.h>     // for _countof
 #include <cmath>        // for fabs, abs, sinf, sqrt, etc.
+
+#ifdef __clang__
+#pragma clang diagnostic ignored "-Wsign-compare"
+#pragma clang diagnostic ignored "-Wunused-function"
+#endif
 
 #include <FidelityFX/host/ffx_vrs.h>
 #include <FidelityFX/gpu/ffx_core.h>
@@ -103,7 +108,7 @@ static FfxErrorCode patchResourceBindings(FfxPipelineState* inoutPipeline)
     return FFX_OK;
 }
 
-static uint32_t getPipelinePermutationFlags(uint32_t contextFlags, FfxVrsPass passId, uint32_t tileSize, bool fp16, bool force64)
+static uint32_t getPipelinePermutationFlags(uint32_t contextFlags, FfxVrsPass, uint32_t tileSize, bool, bool force64)
 {
     // work out what permutation to load.
     uint32_t flags = 0;
@@ -148,13 +153,13 @@ static FfxErrorCode createPipelineState(FfxVrsContext_Private* context)
     context->contextDescription.backendInterface.fpGetDeviceCapabilities(&context->contextDescription.backendInterface, &capabilities);
 
     // Setup a few options used to determine permutation flags
-    bool haveShaderModel66 = capabilities.minimumSupportedShaderModel >= FFX_SHADER_MODEL_6_6;
+    bool haveShaderModel66 = capabilities.maximumSupportedShaderModel >= FFX_SHADER_MODEL_6_6;
     bool supportedFP16     = capabilities.fp16Supported;
     bool canForceWave64    = false;
 
     const uint32_t waveLaneCountMin = capabilities.waveLaneCountMin;
     const uint32_t waveLaneCountMax = capabilities.waveLaneCountMax;
-    if (waveLaneCountMin == 32 && waveLaneCountMax == 64)
+    if (waveLaneCountMin <= 64 && waveLaneCountMax >= 64)
         canForceWave64 = haveShaderModel66;
     else
         canForceWave64 = false;
@@ -188,11 +193,15 @@ static FfxErrorCode vrsCreate(FfxVrsContext_Private* context, const FfxVrsContex
 
     memcpy(&context->contextDescription, contextDescription, sizeof(FfxVrsContextDescription));
 
+    // Check version info - make sure we are linked with the right backend version
+    FfxVersionNumber version = context->contextDescription.backendInterface.fpGetSDKVersion(&context->contextDescription.backendInterface);
+    FFX_RETURN_ON_ERROR(version == FFX_SDK_MAKE_VERSION(1, 1, 4), FFX_ERROR_INVALID_VERSION);
+
     context->constantBuffer.num32BitEntries = sizeof(VrsConstants) / sizeof(uint32_t);
 
     // Create the context.
     FfxErrorCode errorCode =
-        context->contextDescription.backendInterface.fpCreateBackendContext(&context->contextDescription.backendInterface, &context->effectContextId);
+        context->contextDescription.backendInterface.fpCreateBackendContext(&context->contextDescription.backendInterface, FFX_EFFECT_VARIABLE_SHADING, nullptr, &context->effectContextId);
     FFX_RETURN_ON_ERROR(errorCode == FFX_OK, errorCode);
 
     // Call out for device caps.
@@ -220,6 +229,7 @@ FFX_API FfxErrorCode ffxVrsContextCreate(FfxVrsContext* context, const FfxVrsCon
     FFX_RETURN_ON_ERROR(contextDescription, FFX_ERROR_INVALID_POINTER);
 
     // Validate that all callbacks are set for the interface
+    FFX_RETURN_ON_ERROR(contextDescription->backendInterface.fpGetSDKVersion, FFX_ERROR_INCOMPLETE_INTERFACE);
     FFX_RETURN_ON_ERROR(contextDescription->backendInterface.fpGetDeviceCapabilities, FFX_ERROR_INCOMPLETE_INTERFACE);
     FFX_RETURN_ON_ERROR(contextDescription->backendInterface.fpCreateBackendContext, FFX_ERROR_INCOMPLETE_INTERFACE);
     FFX_RETURN_ON_ERROR(contextDescription->backendInterface.fpDestroyBackendContext, FFX_ERROR_INCOMPLETE_INTERFACE);
@@ -241,32 +251,36 @@ FFX_API FfxErrorCode ffxVrsContextCreate(FfxVrsContext* context, const FfxVrsCon
 }
 
 static void scheduleDispatch(FfxVrsContext_Private*           context,
-                             const FfxVrsDispatchDescription* params,
+                             const FfxVrsDispatchDescription*,
                              const FfxPipelineState*          pipeline,
                              uint32_t                         dispatchX,
                              uint32_t                         dispatchY,
                              uint32_t                         dispatchZ)
 {
     FfxGpuJobDescription     dispatchJob   = {FFX_GPU_JOB_COMPUTE};
+    wcscpy_s(dispatchJob.jobLabel, pipeline->name);
 
     for (uint32_t currentShaderResourceViewIndex = 0; currentShaderResourceViewIndex < pipeline->srvTextureCount; ++currentShaderResourceViewIndex)
     {
         const uint32_t            currentResourceId               = pipeline->srvTextureBindings[currentShaderResourceViewIndex].resourceIdentifier;
         const FfxResourceInternal currentResource                 = context->srvResources[currentResourceId];
-        dispatchJob.computeJobDescriptor.srvTextures[currentShaderResourceViewIndex] = currentResource;
-        wcscpy_s(dispatchJob.computeJobDescriptor.srvTextureNames[currentShaderResourceViewIndex],
+        dispatchJob.computeJobDescriptor.srvTextures[currentShaderResourceViewIndex].resource = currentResource;
+#ifdef FFX_DEBUG
+        wcscpy_s(dispatchJob.computeJobDescriptor.srvTextures[currentShaderResourceViewIndex].name,
                  pipeline->srvTextureBindings[currentShaderResourceViewIndex].name);
+#endif
     }
 
     for (uint32_t currentUnorderedAccessViewIndex = 0; currentUnorderedAccessViewIndex < pipeline->uavTextureCount; ++currentUnorderedAccessViewIndex)
     {
         const uint32_t currentResourceId = pipeline->uavTextureBindings[currentUnorderedAccessViewIndex].resourceIdentifier;
-        wcscpy_s(dispatchJob.computeJobDescriptor.uavTextureNames[currentUnorderedAccessViewIndex],
+#ifdef FFX_DEBUG
+        wcscpy_s(dispatchJob.computeJobDescriptor.uavTextures[currentUnorderedAccessViewIndex].name,
                  pipeline->uavTextureBindings[currentUnorderedAccessViewIndex].name);
-
+#endif
         const FfxResourceInternal currentResource                     = context->uavResources[currentResourceId];
-        dispatchJob.computeJobDescriptor.uavTextures[currentUnorderedAccessViewIndex] = currentResource;
-        dispatchJob.computeJobDescriptor.uavTextureMips[currentUnorderedAccessViewIndex] = 0;
+        dispatchJob.computeJobDescriptor.uavTextures[currentUnorderedAccessViewIndex].resource = currentResource;
+        dispatchJob.computeJobDescriptor.uavTextures[currentUnorderedAccessViewIndex].mip = 0;
     }
 
     dispatchJob.computeJobDescriptor.dimensions[0] = dispatchX;
@@ -274,7 +288,9 @@ static void scheduleDispatch(FfxVrsContext_Private*           context,
     dispatchJob.computeJobDescriptor.dimensions[2] = dispatchZ;
     dispatchJob.computeJobDescriptor.pipeline      = *pipeline;
 
+#ifdef FFX_DEBUG
     wcscpy_s(dispatchJob.computeJobDescriptor.cbNames[0], pipeline->constantBufferBindings[0].name);
+#endif
     dispatchJob.computeJobDescriptor.cbs[0] = context->constantBuffer;
 
     context->contextDescription.backendInterface.fpScheduleGpuJob(&context->contextDescription.backendInterface, &dispatchJob);
@@ -313,11 +329,12 @@ static FfxErrorCode vrsDispatch(FfxVrsContext_Private* context, const FfxVrsDisp
     bool allowAdditionalVRSRates = context->contextDescription.flags & FFX_VRS_ALLOW_ADDITIONAL_SHADING_RATES;
     ffxVariableShadingGetDispatchInfo(params->renderSize, params->tileSize, allowAdditionalVRSRates, dispatchX, dispatchY);
 
-    memcpy(&context->constantBuffer.data, &constants, sizeof(VrsConstants));
+    context->contextDescription.backendInterface.fpStageConstantBufferDataFunc(
+        &context->contextDescription.backendInterface, &constants, sizeof(VrsConstants), &context->constantBuffer);
     scheduleDispatch(context, params, &context->pipelineImageGen, dispatchX, dispatchY, dispatchZ);
 
     // Execute all the work for the frame
-    context->contextDescription.backendInterface.fpExecuteGpuJobs(&context->contextDescription.backendInterface, commandList);
+    context->contextDescription.backendInterface.fpExecuteGpuJobs(&context->contextDescription.backendInterface, commandList, context->effectContextId);
 
     // Release dynamic resources
     context->contextDescription.backendInterface.fpUnregisterResources(&context->contextDescription.backendInterface, commandList, context->effectContextId);
@@ -330,7 +347,7 @@ FFX_API FfxErrorCode ffxVrsContextDispatch(FfxVrsContext* context, const FfxVrsD
     // check pointers are valid
     FFX_RETURN_ON_ERROR(context, FFX_ERROR_INVALID_POINTER);
     FFX_RETURN_ON_ERROR(dispatchDescription, FFX_ERROR_INVALID_POINTER);
-
+    
     FfxVrsContext_Private* contextPrivate = (FfxVrsContext_Private*)(context);
 
     FFX_RETURN_ON_ERROR(contextPrivate->device, FFX_ERROR_NULL_DEVICE);
@@ -338,8 +355,6 @@ FFX_API FfxErrorCode ffxVrsContextDispatch(FfxVrsContext* context, const FfxVrsD
     // dispatch the VRS pass
     const FfxErrorCode errorCode = vrsDispatch(contextPrivate, dispatchDescription);
     return errorCode;
-
-    return FFX_OK;
 }
 
 static FfxErrorCode vrsRelease(FfxVrsContext_Private* context)
@@ -381,4 +396,9 @@ FFX_API FfxErrorCode ffxVrsGetImageSizeFromeRenderResolution(
     *imageHeight = FFX_DIVIDE_ROUNDING_UP(renderHeight, shadingRateImageTileSize);
 
     return FFX_OK;
+}
+
+FFX_API FfxVersionNumber ffxVrsGetEffectVersion()
+{
+    return FFX_SDK_MAKE_VERSION(FFX_VRS_VERSION_MAJOR, FFX_VRS_VERSION_MINOR, FFX_VRS_VERSION_PATCH);
 }

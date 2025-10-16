@@ -1,16 +1,17 @@
 // This file is part of the FidelityFX SDK.
-// 
-// Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
+//
+// Copyright (C) 2024 Advanced Micro Devices, Inc.
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to deal
+// of this software and associated documentation files(the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// to use, copy, modify, merge, publish, distribute, sublicense, and /or sell
 // copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
+// furnished to do so, subject to the following conditions :
+//
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -18,7 +19,6 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-
 
 #pragma once
 
@@ -34,9 +34,11 @@
 /// @ingroup FRAMEINTERPOLATION
 typedef enum FrameInterpolationShaderPermutationOptions
 {
-    FRAMEINTERPOLATION_SHADER_PERMUTATION_DEPTH_INVERTED         = (1 << 1),  ///< Indicates input resources were generated with inverted depth
-    FRAMEINTERPOLATION_SHADER_PERMUTATION_FORCE_WAVE64           = (1 << 2),  ///< doesn't map to a define, selects different table
-    FRAMEINTERPOLATION_SHADER_PERMUTATION_ALLOW_FP16             = (1 << 3),  ///< Enables fast math computations where possible
+    FRAMEINTERPOLATION_SHADER_PERMUTATION_LOW_RES_MOTION_VECTORS = (1 << 0),
+    FRAMEINTERPOLATION_SHADER_PERMUTATION_JITTER_MOTION_VECTORS  = (1 << 1),
+    FRAMEINTERPOLATION_SHADER_PERMUTATION_DEPTH_INVERTED         = (1 << 2),  ///< Indicates input resources were generated with inverted depth
+    FRAMEINTERPOLATION_SHADER_PERMUTATION_FORCE_WAVE64           = (1 << 3),  ///< doesn't map to a define, selects different table
+    FRAMEINTERPOLATION_SHADER_PERMUTATION_ALLOW_FP16             = (1 << 4),  ///< Enables fast math computations where possible
 } FrameInterpolationShaderPermutationOptions;
 
 typedef struct FrameInterpolationConstants
@@ -55,15 +57,15 @@ typedef struct FrameInterpolationConstants
     float   deviceToViewDepth[4];
 
     float   deltaTime;
-    float   UNUSED__[2];
     int     HUDLessAttachedFactor;
+    int32_t distortionFieldSize[2];
 
     float   opticalFlowScale[2];
     int32_t opticalFlowBlockSize;
     uint32_t dispatchFlags;
 
-    int     opticalFlowHalfResMode;
     int32_t maxRenderSize[2];
+    int     opticalFlowHalfResMode;
     int     numInstances;
 
     int32_t interpolationRectBase[2];
@@ -75,6 +77,9 @@ typedef struct FrameInterpolationConstants
     float    minMaxLuminance[2];
     float    fTanHalfFOV;
     float   _pad1;
+
+    float   jitter[2];
+    float   motionVectorScale[2];
 } FrameInterpolationConstants;
 
 typedef struct InpaintingPyramidConstants {
@@ -114,6 +119,7 @@ typedef struct FfxFrameInterpolationContext_Private {
     FfxDeviceCapabilities                       deviceCapabilities;
 
     // FrameInterpolation Pipelines
+    FfxPipelineState                            pipelineFiReconstructAndDilate;
     FfxPipelineState                            pipelineFiSetup;
     FfxPipelineState                            pipelineFiReconstructPreviousDepth;
     FfxPipelineState                            pipelineFiGameMotionVectorField;
@@ -125,11 +131,17 @@ typedef struct FfxFrameInterpolationContext_Private {
     FfxPipelineState                            pipelineGameVectorFieldInpaintingPyramid;
     FfxPipelineState                            pipelineDebugView;
 
+    FfxConstantBuffer                           constantBuffers[FFX_FRAMEINTERPOLATION_CONSTANTBUFFER_COUNT];
+
     // 2 arrays of resources, as e.g. FFX_FSR3_RESOURCE_IDENTIFIER_LOCK_STATUS will use different resources when bound as SRV vs when bound as UAV
     FfxResourceInternal                         srvResources[FFX_FRAMEINTERPOLATION_RESOURCE_IDENTIFIER_COUNT];
     FfxResourceInternal                         uavResources[FFX_FRAMEINTERPOLATION_RESOURCE_IDENTIFIER_COUNT];
 
     bool                                        firstExecution;
     bool                                        refreshPipelineStates;
+
+    bool                                        asyncSupported;
+    uint64_t                                    previousFrameID;
+    uint64_t                                    dispatchCount;
 
 } FfxFrameInterpolationContext_Private;

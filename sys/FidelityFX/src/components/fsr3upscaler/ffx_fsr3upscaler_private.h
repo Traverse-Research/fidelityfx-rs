@@ -1,16 +1,17 @@
 // This file is part of the FidelityFX SDK.
-// 
-// Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
+//
+// Copyright (C) 2024 Advanced Micro Devices, Inc.
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to deal
+// of this software and associated documentation files(the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// to use, copy, modify, merge, publish, distribute, sublicense, and /or sell
 // copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
+// furnished to do so, subject to the following conditions :
+//
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -18,7 +19,6 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-
 
 #pragma once
 #include <FidelityFX/gpu/fsr3upscaler/ffx_fsr3upscaler_resources.h>
@@ -47,25 +47,36 @@ typedef enum Fs3UpscalerShaderPermutationOptions
 typedef struct Fsr3UpscalerConstants {
 
     int32_t                     renderSize[2];
-    int32_t                     maxRenderSize[2];
-    int32_t                     displaySize[2];
-    int32_t                     inputColorResourceDimensions[2];
-    int32_t                     lumaMipDimensions[2];
-    int32_t                     lumaMipLevelToUse;
-    int32_t                     frameIndex;
+    int32_t                     previousFrameRenderSize[2];
     
+    int32_t                     upscaleSize[2];
+    int32_t                     previousFrameUpscaleSize[2];
+    
+    int32_t                     maxRenderSize[2];
+    int32_t                     maxUpscaleSize[2];
+
     float                       deviceToViewDepth[4];
+
     float                       jitterOffset[2];
+    float                       previousFrameJitterOffset[2];
+
     float                       motionVectorScale[2];
     float                       downscaleFactor[2];
+
     float                       motionVectorJitterCancellation[2];
-    float                       preExposure;
-    float                       previousFramePreExposure;
     float                       tanHalfFOV;
     float                       jitterPhaseCount;
+
     float                       deltaTime;
-    float                       dynamicResChangeFactor;
-    float                       viewSpaceToMetersFactor;
+    float                       deltaPreExposure;
+    float                       viewSpaceToMetersFactor;    
+    float                       frameIndex;
+
+    float                       velocityFactor;
+    float                       reactivenessScale;
+    float                       shadingChangeScale;
+    float                       accumulationAddedPerFrame;
+    float                       minDisocclusionAccumulation;
 } Fsr3UpscalerConstants;
 
 struct FfxFsr3UpscalerContextDescription;
@@ -81,15 +92,19 @@ typedef struct FfxFsr3UpscalerContext_Private {
     Fsr3UpscalerConstants               constants;
     FfxDevice                           device;
     FfxDeviceCapabilities               deviceCapabilities;
-    FfxPipelineState                    pipelineDepthClip;
-    FfxPipelineState                    pipelineReconstructPreviousDepth;
-    FfxPipelineState                    pipelineLock;
+    FfxPipelineState                    pipelinePrepareInputs;
+    FfxPipelineState                    pipelinePrepareReactivity;
+    FfxPipelineState                    pipelineShadingChange;
     FfxPipelineState                    pipelineAccumulate;
     FfxPipelineState                    pipelineAccumulateSharpen;
     FfxPipelineState                    pipelineRCAS;
-    FfxPipelineState                    pipelineComputeLuminancePyramid;
+    FfxPipelineState                    pipelineLumaPyramid;
     FfxPipelineState                    pipelineGenerateReactive;
     FfxPipelineState                    pipelineTcrAutogenerate;
+    FfxPipelineState                    pipelineShadingChangePyramid;
+    FfxPipelineState                    pipelineLumaInstability;
+    FfxPipelineState                    pipelineDebugView;
+    FfxConstantBuffer                   constantBuffers[FFX_FSR3UPSCALER_CONSTANTBUFFER_COUNT];
 
     // 2 arrays of resources, as e.g. FFX_FSR3UPSCALER_RESOURCE_IDENTIFIER_LOCK_STATUS will use different resources when bound as SRV vs when bound as UAV
     FfxResourceInternal                 srvResources[FFX_FSR3UPSCALER_RESOURCE_IDENTIFIER_COUNT];
@@ -98,7 +113,8 @@ typedef struct FfxFsr3UpscalerContext_Private {
     bool                                firstExecution;
     uint32_t                            resourceFrameIndex;
     float                               previousJitterOffset[2];
-    int32_t                             jitterPhaseCountRemaining;
+    float                               preExposure;
+    float                               previousFramePreExposure;
 
 } FfxFsr3UpscalerContext_Private;
 
