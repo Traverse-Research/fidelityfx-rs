@@ -70,6 +70,7 @@ pub fn generate_bindings(api_dir: &Path) {
         .bitfield_enum("FfxResourceUsage")
         .bitfield_enum("FfxResourceStates")
         .bitfield_enum("FfxResourceFlags")
+        .newtype_enum("FfxMsgType")
         .generate()
         .expect("Unable to generate bindings");
 
@@ -79,21 +80,27 @@ pub fn generate_bindings(api_dir: &Path) {
         .expect("Couldn't write bindings!");
 }
 
-pub fn generate_fsr3_bindings(api_dir: &Path) {
-    let wrapper = api_dir.join("include/FidelityFX/host/ffx_fsr3.h");
+pub fn generate_component_bindings(component: &str, api_dir: &Path) {
+    let wrapper = api_dir.join(format!("include/FidelityFX/host/ffx_{component}.h"));
 
     let bindings = bindgen(api_dir)
         .header(wrapper.to_string_lossy())
-        // Even though it's a separate component, place fsr3upscaler bindings into the same bindings file:
-        .allowlist_file(".*/host/ffx_fsr3\\w*.h")
+        .allowlist_file(wrapper.to_string_lossy())
+        // These are specific per component, but it's harmless to pass them to other bindgen instances
+        .bitfield_enum("FfxOpticalflowInitializationFlagBits")
+        .bitfield_enum("FfxFrameInterpolationInitializationFlagBits")
+        .bitfield_enum("FfxFrameInterpolationDispatchFlags")
+        .bitfield_enum("FfxFsr1InitializationFlagBits")
+        .bitfield_enum("FfxFsr2InitializationFlagBits")
         .bitfield_enum("FfxFsr3InitializationFlagBits")
-        .rustified_enum("FfxFsr3MsgType")
+        .bitfield_enum("FfxFsr3UpscalerInitializationFlagBits")
+        .bitfield_enum("FfxFsr3FrameGenerationFlags")
         .generate()
         .expect("Unable to generate bindings");
 
     let out_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("src");
     bindings
-        .write_to_file(out_path.join("fsr3_bindings.rs"))
+        .write_to_file(out_path.join(format!("{component}_bindings.rs")))
         .expect("Couldn't write bindings!");
 }
 
