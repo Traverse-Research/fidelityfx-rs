@@ -92,28 +92,4 @@ fn main() {
         bindgen::generate_vk_bindings(api_dir, &vk_include_dir);
         bindgen::generate_dx12_bindings(api_dir);
     }
-
-    // TODO: FidelityFX is given Vulkan loader functions. It should _not have to_ link
-    // against vulkan _again_ **manually** in any way. Use static linking in the mean time.
-    {
-        use std::env;
-
-        let target_family = env::var("CARGO_CFG_TARGET_FAMILY").unwrap();
-        let target_pointer_width = env::var("CARGO_CFG_TARGET_POINTER_WIDTH").unwrap();
-
-        println!("cargo:rerun-if-env-changed=VULKAN_SDK");
-        if let Ok(var) = env::var("VULKAN_SDK") {
-            let suffix = match (&*target_family, &*target_pointer_width) {
-                ("windows", "32") => "Lib32",
-                ("windows", "64") => "Lib",
-                _ => "lib",
-            };
-            println!("cargo:rustc-link-search={var}/{suffix}");
-        }
-        let lib = match &*target_family {
-            "windows" => "vulkan-1",
-            _ => "vulkan",
-        };
-        println!("cargo:rustc-link-lib={lib}");
-    }
 }
