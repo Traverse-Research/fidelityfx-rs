@@ -13,6 +13,7 @@ keywords = ["fidelityfx", "fsr", "upscaling", "vulkan", "d3d12"]
 rust-version = "1.74"
 
 [dependencies]
+ash = { version = "0.38", optional = true, default-features = false }
 glob = "0.3"
 widestring = "1.0"
 
@@ -25,6 +26,6 @@ glob = "0.3"
 
 [features]
 default = ["vulkan", "dx12"]
-vulkan = []
+vulkan = ["dep:ash"]
 dx12 = []
 generate-bindings = ["dep:bindgen"]
