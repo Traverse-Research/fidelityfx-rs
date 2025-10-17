@@ -12,10 +12,10 @@ include!("bindings.rs");
 pub mod vk {
     use crate::*;
 
-    type VkPhysicalDevice = u64;
-    type VkDevice = u64;
-    type VkCommandBuffer = u64;
-    type PFN_vkGetDeviceProcAddr = *const std::ffi::c_void;
+    use ash::vk::{
+        CommandBuffer as VkCommandBuffer, Device as VkDevice, PFN_vkGetDeviceProcAddr,
+        PhysicalDevice as VkPhysicalDevice,
+    };
 
     include!("vk_bindings.rs");
 }
