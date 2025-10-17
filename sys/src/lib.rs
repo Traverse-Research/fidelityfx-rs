@@ -4,6 +4,7 @@
 #![allow(clippy::excessive_precision)]
 #![allow(clippy::missing_safety_doc)]
 #![allow(clashing_extern_declarations)]
+#![allow(improper_ctypes)]
 
 include!("bindings.rs");
 
