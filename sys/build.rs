@@ -89,6 +89,7 @@ fn main() {
     #[cfg(feature = "generate-bindings")]
     {
         bindgen::generate_bindings(api_dir);
+        bindgen::generate_fsr3_bindings(api_dir);
         bindgen::generate_vk_bindings(api_dir, &vk_include_dir);
         bindgen::generate_dx12_bindings(api_dir);
     }

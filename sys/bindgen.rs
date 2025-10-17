@@ -21,39 +21,43 @@ impl bindgen::callbacks::ParseCallbacks for Renamer {
     }
 }
 
-pub fn generate_bindings(api_dir: &Path) {
-    let wrapper = api_dir.join("include/FidelityFX/host/ffx_fsr3.h");
-
-    // Generate bindings
+fn bindgen(api_dir: &Path) -> bindgen::Builder {
     let mut bindings = bindgen::Builder::default()
         .layout_tests(false)
         .derive_default(true)
         .prepend_enum_name(false)
-        .header(wrapper.to_string_lossy())
         .clang_arg("-xc++")
         .clang_arg(format!("-I{}/include", api_dir.display()))
         .trust_clang_mangling(false)
         .default_non_copy_union_style(bindgen::NonCopyUnionStyle::ManuallyDrop)
         .allowlist_recursively(false)
-        // TODO: This should be split between FidelityFX bindings and FSR3 component bindings
-        .allowlist_function("ffx\\w+")
-        .allowlist_type("[fF]fx\\w+")
-        .allowlist_var("s_Ffx\\w+")
-        .allowlist_var("FFX\\w+")
         .parse_callbacks(Box::new(bindgen::CargoCallbacks::new()))
-        .parse_callbacks(Box::new(Renamer))
-        .bitfield_enum("FfxFsr3InitializationFlagBits")
-        .bitfield_enum("FfxResourceUsage")
-        .bitfield_enum("FfxResourceStates")
-        .bitfield_enum("FfxResourceFlags")
-        .rustified_enum("FfxFsr3MsgType");
+        .parse_callbacks(Box::new(Renamer));
 
     if cfg!(not(target_os = "windows")) {
         // TODO: TARGET_OS env var
         bindings = bindings.clang_args(["-DFFX_GCC"]);
+        // .clang_arg("-std=c++2a")
     }
 
-    let bindings = bindings.generate().expect("Unable to generate bindings");
+    bindings
+}
+
+pub fn generate_bindings(api_dir: &Path) {
+    let wrapper = api_dir.join("include/FidelityFX/host/ffx_interface.h");
+
+    let bindings = bindgen(api_dir)
+        .header(wrapper.to_string_lossy())
+        // Unlike all other bindings
+        .allowlist_function("ffx\\w+")
+        .allowlist_type("[fF]fx\\w+")
+        .allowlist_var("s_Ffx\\w+")
+        .allowlist_var("FFX\\w+")
+        .bitfield_enum("FfxResourceUsage")
+        .bitfield_enum("FfxResourceStates")
+        .bitfield_enum("FfxResourceFlags")
+        .generate()
+        .expect("Unable to generate bindings");
 
     let out_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("src");
     bindings
@@ -61,33 +65,33 @@ pub fn generate_bindings(api_dir: &Path) {
         .expect("Couldn't write bindings!");
 }
 
+pub fn generate_fsr3_bindings(api_dir: &Path) {
+    let wrapper = api_dir.join("include/FidelityFX/host/ffx_fsr3.h");
+
+    let bindings = bindgen(api_dir)
+        .header(wrapper.to_string_lossy())
+        // Even though it's a separate component, place fsr3upscaler bindings into the same bindings file:
+        .allowlist_file(".*/host/ffx_fsr3\\w*.h")
+        .bitfield_enum("FfxFsr3InitializationFlagBits")
+        .rustified_enum("FfxFsr3MsgType")
+        .generate()
+        .expect("Unable to generate bindings");
+
+    let out_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("src");
+    bindings
+        .write_to_file(out_path.join("fsr3_bindings.rs"))
+        .expect("Couldn't write bindings!");
+}
+
 pub fn generate_vk_bindings(api_dir: &Path, vk_include_dir: &Path) {
-    let wrapper = format!(
-        "{}/include/FidelityFX/host/backends/vk/ffx_vk.h",
-        api_dir.display()
-    );
+    let wrapper = api_dir.join("include/FidelityFX/host/backends/vk/ffx_vk.h");
 
-    // Generate bindings
-    let mut bindings = bindgen::Builder::default()
-        .layout_tests(false)
-        .derive_default(true)
-        .prepend_enum_name(false)
-        .header(&wrapper)
-        .clang_arg("-xc++")
-        .clang_arg(format!("-I{}/include", api_dir.display()))
-        .trust_clang_mangling(false)
-        .parse_callbacks(Box::new(bindgen::CargoCallbacks::new()))
-        .parse_callbacks(Box::new(Renamer))
+    let bindings = bindgen(api_dir)
         .clang_arg(format!("-I{}", vk_include_dir.display()))
-        .allowlist_recursively(false)
-        .allowlist_file(&wrapper);
-
-    if cfg!(not(target_os = "windows")) {
-        // TODO: TARGET_OS env var
-        bindings = bindings.clang_args(["-DFFX_GCC"]).clang_arg("-std=c++2a");
-    }
-
-    let bindings = bindings.generate().expect("Unable to generate bindings");
+        .header(wrapper.to_string_lossy())
+        .allowlist_file(wrapper.to_string_lossy())
+        .generate()
+        .expect("Unable to generate bindings");
 
     let out_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("src");
     bindings
@@ -96,24 +100,11 @@ pub fn generate_vk_bindings(api_dir: &Path, vk_include_dir: &Path) {
 }
 
 pub fn generate_dx12_bindings(api_dir: &Path) {
-    let wrapper = format!(
-        "{}/include/FidelityFX/host/backends/dx12/ffx_dx12.h",
-        api_dir.display()
-    );
+    let wrapper = api_dir.join("include/FidelityFX/host/backends/dx12/ffx_dx12.h");
 
-    // Generate bindings
-    let bindings = bindgen::Builder::default()
-        .layout_tests(false)
-        .derive_default(true)
-        .prepend_enum_name(false)
-        .header(&wrapper)
-        .clang_arg("-xc++")
-        .clang_arg(format!("-I{}/include", api_dir.display()))
-        .trust_clang_mangling(false)
-        .parse_callbacks(Box::new(bindgen::CargoCallbacks::new()))
-        .parse_callbacks(Box::new(Renamer))
-        .allowlist_recursively(false)
-        .allowlist_file(&wrapper)
+    let bindings = bindgen(api_dir)
+        .header(wrapper.to_string_lossy())
+        .allowlist_file(wrapper.to_string_lossy())
         .generate()
         .expect("Unable to generate bindings");
 

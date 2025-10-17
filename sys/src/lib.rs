@@ -5,6 +5,12 @@
 
 include!("bindings.rs");
 
+pub mod fsr3 {
+    use crate::*;
+
+    include!("fsr3_bindings.rs");
+}
+
 // TODO(Marijn): Use `ash` and `windows` to provide the right types for
 // Vulkan handles and D3D12 structures?
 
