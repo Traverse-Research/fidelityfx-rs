@@ -2,6 +2,9 @@
 #![allow(non_camel_case_types)]
 #![allow(non_snake_case)]
 #![allow(clippy::excessive_precision)]
+#![allow(clippy::missing_safety_doc)]
+#![allow(clashing_extern_declarations)]
+#![allow(improper_ctypes)]
 
 include!("bindings.rs");
 
@@ -50,9 +53,15 @@ pub mod vk {
     use crate::*;
 
     use ash::vk::{
-        CommandBuffer as VkCommandBuffer, Device as VkDevice, PFN_vkGetDeviceProcAddr,
-        PhysicalDevice as VkPhysicalDevice,
+        Buffer as VkBuffer, BufferCreateInfo as VkBufferCreateInfo,
+        CommandBuffer as VkCommandBuffer, Device as VkDevice, Fence as VkFence, Format as VkFormat,
+        Image as VkImage, ImageCreateInfo as VkImageCreateInfo, PFN_vkAcquireNextImageKHR,
+        PFN_vkDestroySwapchainKHR, PFN_vkGetDeviceProcAddr, PFN_vkGetSwapchainImagesKHR,
+        PFN_vkQueuePresentKHR, PFN_vkSetHdrMetadataEXT, PhysicalDevice as VkPhysicalDevice,
+        Pipeline as VkPipeline, Queue as VkQueue, Result as VkResult, SubmitInfo as VkSubmitInfo,
+        SwapchainCreateInfoKHR as VkSwapchainCreateInfoKHR, SwapchainKHR as VkSwapchainKHR,
     };
+    type VkAllocationCallbacks = ash::vk::AllocationCallbacks<'static>;
 
     include!("vk_bindings.rs");
 }
@@ -70,6 +79,7 @@ pub mod dx12 {
     type IDXGISwapChain4 = std::ffi::c_void;
     type ID3D12CommandQueue = std::ffi::c_void;
     type IDXGIFactory = std::ffi::c_void;
+    type ID3D12PipelineState = std::ffi::c_void;
 
     type DXGI_SWAP_CHAIN_DESC = std::ffi::c_void;
     type DXGI_SWAP_CHAIN_DESC1 = std::ffi::c_void;

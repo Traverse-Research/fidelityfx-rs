@@ -1,16 +1,17 @@
 // This file is part of the FidelityFX SDK.
-// 
-// Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
+//
+// Copyright (C) 2024 Advanced Micro Devices, Inc.
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to deal
+// of this software and associated documentation files(the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// to use, copy, modify, merge, publish, distribute, sublicense, and /or sell
 // copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
+// furnished to do so, subject to the following conditions :
+//
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -18,7 +19,6 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-
 
 #define FFX_FRAMEINTERPOLATION_BIND_SRV_GAME_MOTION_VECTOR_FIELD_X              0
 #define FFX_FRAMEINTERPOLATION_BIND_SRV_GAME_MOTION_VECTOR_FIELD_Y              1
@@ -45,31 +45,10 @@
     #define FFX_HALF 0
 #endif
 
+#define FFX_FRAMEINTERPOLATION_BIND_CB_INPAINTING_PYRAMID                       1
+
 #include "frameinterpolation/ffx_frameinterpolation_callbacks_hlsl.h"
 #include "frameinterpolation/ffx_frameinterpolation_common.h"
-
-
-#define FI_BIND_CB_INPAINTING_PYRAMID 1
-cbuffer cbInpaintingPyramid : FFX_DECLARE_CB(FI_BIND_CB_INPAINTING_PYRAMID)
-{
-    FfxUInt32 mips;
-    FfxUInt32 numWorkGroups;
-    FfxUInt32x2 workGroupOffset;
-}
-
-FfxUInt32 NumMips()
-{
-    return mips;
-}
-FfxUInt32 NumWorkGroups()
-{
-    return numWorkGroups;
-}
-FfxUInt32x2 WorkGroupOffset()
-{
-    return workGroupOffset;
-}
-
 #include "frameinterpolation/ffx_frameinterpolation_compute_game_vector_field_inpainting_pyramid.h"
 
 #ifndef FFX_FRAMEINTERPOLATION_THREAD_GROUP_WIDTH

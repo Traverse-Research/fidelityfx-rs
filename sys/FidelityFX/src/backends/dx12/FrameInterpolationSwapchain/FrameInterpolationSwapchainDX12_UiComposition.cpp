@@ -1,16 +1,17 @@
 // This file is part of the FidelityFX SDK.
-// 
-// Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
+//
+// Copyright (C) 2024 Advanced Micro Devices, Inc.
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to deal
+// of this software and associated documentation files(the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// to use, copy, modify, merge, publish, distribute, sublicense, and /or sell
 // copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
+// furnished to do so, subject to the following conditions :
+//
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -19,21 +20,32 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-
 #include "d3d12.h"
+#include "FrameInterpolationSwapchainDX12.h"
 #include "FrameInterpolationSwapchainDX12_Helpers.h"
 #include "FrameInterpolationSwapchainDX12_UiComposition.h"
 
+namespace UiCompositionShaders
+{
 #include "FrameInterpolationSwapchainUiCompositionVS.h"
 #include "FrameInterpolationSwapchainUiCompositionPS.h"
+}  // namespace UiCompositionShaders;
+
+namespace UiCompositionPremulShaders
+{
+#include "FrameInterpolationSwapchainUiCompositionPremulVS.h"
+#include "FrameInterpolationSwapchainUiCompositionPremulPS.h"
+}  // namespace UiCompositionPremulShaders;
 
 typedef HRESULT(__stdcall* D3D12SerializeVersionedRootSignatureType)(const D3D12_VERSIONED_ROOT_SIGNATURE_DESC* pRootSignature,
                                                                      ID3DBlob**                                 ppBlob,
                                                                      ID3DBlob**                                 ppErrorBlob);
 
+const uint32_t          s_uiCompositionDescRingBufferSize = FFX_FRAME_INTERPOLATION_SWAP_CHAIN_MAX_BUFFER_COUNT * 2 * 2;   // FFX_FRAME_INTERPOLATION_SWAP_CHAIN_MAX_BUFFER_COUNT real frames (i.e. * 2), 2 SRV each should be enough
+const uint32_t          s_uiCompositionDescHeapRtvSize = FFX_FRAME_INTERPOLATION_SWAP_CHAIN_MAX_BUFFER_COUNT * 2;
 ID3D12RootSignature*    s_uiCompositionRootSignature;
 ID3D12PipelineState*    s_uiCompositionPipeline;
-uint32_t                s_uiCompositionDescRingBufferSize;
+ID3D12PipelineState*    s_uiCompositionPremulPipeline;
 uint32_t                s_uiCompositionDescRingBufferBase;
 ID3D12DescriptorHeap*   s_uiCompositionDescRingBuffer;
 uint32_t                s_uiCompositionNextRtvDescriptor;
@@ -157,14 +169,31 @@ FfxErrorCodes CreateUiCompositionPipeline(ID3D12Device* dx12Device, DXGI_FORMAT 
 
     dx12PipelineStateDescription.Flags              = D3D12_PIPELINE_STATE_FLAG_NONE;
     dx12PipelineStateDescription.pRootSignature     = dx12RootSignature;
-    dx12PipelineStateDescription.VS.pShaderBytecode = g_mainVS;
-    dx12PipelineStateDescription.VS.BytecodeLength  = sizeof(g_mainVS);
-    dx12PipelineStateDescription.PS.pShaderBytecode = g_mainPS;
-    dx12PipelineStateDescription.PS.BytecodeLength  = sizeof(g_mainPS);
-    s_uiCompositionRootSignature                    = dx12RootSignature;
-    if (FAILED(dx12Device->CreateGraphicsPipelineState(&dx12PipelineStateDescription,
-                                                       IID_PPV_ARGS(reinterpret_cast<ID3D12PipelineState**>(&s_uiCompositionPipeline)))))
-        return FFX_ERROR_BACKEND_API_ERROR;
+
+    s_uiCompositionRootSignature = dx12RootSignature;
+
+    {
+        dx12PipelineStateDescription.VS.pShaderBytecode = UiCompositionShaders::g_mainVS;
+        dx12PipelineStateDescription.VS.BytecodeLength  = sizeof(UiCompositionShaders::g_mainVS);
+        dx12PipelineStateDescription.PS.pShaderBytecode = UiCompositionShaders::g_mainPS;
+        dx12PipelineStateDescription.PS.BytecodeLength  = sizeof(UiCompositionShaders::g_mainPS);
+
+        if (FAILED(dx12Device->CreateGraphicsPipelineState(&dx12PipelineStateDescription,
+                                                           IID_PPV_ARGS(reinterpret_cast<ID3D12PipelineState**>(&s_uiCompositionPipeline)))))
+            return FFX_ERROR_BACKEND_API_ERROR;
+    }
+
+    {
+        dx12PipelineStateDescription.VS.pShaderBytecode = UiCompositionPremulShaders::g_mainVS;
+        dx12PipelineStateDescription.VS.BytecodeLength  = sizeof(UiCompositionPremulShaders::g_mainVS);
+        dx12PipelineStateDescription.PS.pShaderBytecode = UiCompositionPremulShaders::g_mainPS;
+        dx12PipelineStateDescription.PS.BytecodeLength  = sizeof(UiCompositionPremulShaders::g_mainPS);
+
+        if (FAILED(dx12Device->CreateGraphicsPipelineState(&dx12PipelineStateDescription,
+                                                           IID_PPV_ARGS(reinterpret_cast<ID3D12PipelineState**>(&s_uiCompositionPremulPipeline)))))
+            return FFX_ERROR_BACKEND_API_ERROR;
+    }
+
     return FFX_OK;
 }
 
@@ -172,22 +201,21 @@ FfxErrorCodes verifyUiBlitGpuResources(ID3D12Device* dx12Device, DXGI_FORMAT fmt
 {
     FFX_ASSERT(nullptr != dx12Device);
 
-    if (nullptr == s_uiCompositionPipeline)
+    if (nullptr == s_uiCompositionPipeline || nullptr == s_uiCompositionPremulPipeline)
     {
         FfxErrorCodes res = CreateUiCompositionPipeline(dx12Device, fmt);
-        if (res != S_OK)
+        if (res != FFX_OK)
             return res;
     }
 
     if (nullptr == s_uiCompositionDescRingBuffer)
     {
         D3D12_DESCRIPTOR_HEAP_DESC descHeap = {};
-        descHeap.NumDescriptors = 8;  // 4 frames, 2 SRV each should be enough
-        descHeap.Type           = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-        descHeap.Flags          = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-        descHeap.NodeMask       = 0;
-        s_uiCompositionDescRingBufferSize    = descHeap.NumDescriptors;
-        s_uiCompositionDescRingBufferBase    = 0;
+        descHeap.NumDescriptors             = s_uiCompositionDescRingBufferSize;
+        descHeap.Type                       = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+        descHeap.Flags                      = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+        descHeap.NodeMask                   = 0;
+        s_uiCompositionDescRingBufferBase   = 0;
         if(FAILED(dx12Device->CreateDescriptorHeap(&descHeap, IID_PPV_ARGS(&s_uiCompositionDescRingBuffer))))
             return FFX_ERROR_BACKEND_API_ERROR;
     }
@@ -195,10 +223,10 @@ FfxErrorCodes verifyUiBlitGpuResources(ID3D12Device* dx12Device, DXGI_FORMAT fmt
     if (nullptr == s_uiCompositionDescHeapRtvCpu)
     {
         D3D12_DESCRIPTOR_HEAP_DESC descHeap = {};
-        descHeap.NumDescriptors = 4;
-        descHeap.Type           = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
-        descHeap.NodeMask       = 0;
-        descHeap.Flags          = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+        descHeap.NumDescriptors             = s_uiCompositionDescHeapRtvSize;
+        descHeap.Type                       = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
+        descHeap.NodeMask                   = 0;
+        descHeap.Flags                      = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
         if(FAILED(dx12Device->CreateDescriptorHeap(&descHeap, IID_PPV_ARGS(&s_uiCompositionDescHeapRtvCpu))))
             return FFX_ERROR_BACKEND_API_ERROR;
     }
@@ -210,17 +238,18 @@ void releaseUiBlitGpuResources()
 {
     SafeRelease(s_uiCompositionRootSignature);
     SafeRelease(s_uiCompositionPipeline);
+    SafeRelease(s_uiCompositionPremulPipeline);
 
     SafeRelease(s_uiCompositionDescRingBuffer);
-    s_uiCompositionDescRingBufferSize = 0;
     s_uiCompositionDescRingBufferBase = 0;
     
     SafeRelease(s_uiCompositionDescHeapRtvCpu);
     s_uiCompositionNextRtvDescriptor = 0;
 }
 
-FFX_API FfxErrorCode ffxFrameInterpolationUiComposition(const FfxPresentCallbackDescription* params)
+FFX_API FfxErrorCode ffxFrameInterpolationUiComposition(const FfxPresentCallbackDescription* params, void* unusedUserCtx)
 {
+    (void)unusedUserCtx;
     ID3D12Device*   dx12Device  = reinterpret_cast<ID3D12Device*>(params->device);
     ID3D12Resource* pRtResource = (ID3D12Resource*)(params->outputSwapChainBuffer.resource);
 
@@ -236,7 +265,16 @@ FFX_API FfxErrorCode ffxFrameInterpolationUiComposition(const FfxPresentCallback
     
     ID3D12CommandList*         pCommandList            = reinterpret_cast<ID3D12CommandList*>(params->commandList);
     ID3D12GraphicsCommandList* pCmdList                = (ID3D12GraphicsCommandList*)pCommandList;
-    ID3D12PipelineState*       dx12PipelineStateObject = s_uiCompositionPipeline;
+    ID3D12PipelineState*       dx12PipelineStateObject = nullptr;
+    if (params->usePremulAlpha)
+    {
+        dx12PipelineStateObject = s_uiCompositionPremulPipeline;
+    }
+    else
+    {
+        dx12PipelineStateObject = s_uiCompositionPipeline;
+    }
+
     ID3D12Resource*            pResBackbuffer          = (ID3D12Resource*)(params->currentBackBuffer.resource);
     ID3D12Resource*            pResUI                  = (ID3D12Resource*)(params->currentUI.resource);
 
@@ -262,7 +300,7 @@ FFX_API FfxErrorCode ffxFrameInterpolationUiComposition(const FfxPresentCallback
 
         pCmdList->CopyResource(pRtResource, pResBackbuffer);
 
-        for (int i = 0; i < _countof(barriers); ++i)
+        for (size_t i = 0; i < _countof(barriers); ++i)
         {
             D3D12_RESOURCE_STATES tmpStateBefore = barriers[i].Transition.StateBefore;
             barriers[i].Transition.StateBefore   = barriers[i].Transition.StateAfter;
@@ -273,20 +311,33 @@ FFX_API FfxErrorCode ffxFrameInterpolationUiComposition(const FfxPresentCallback
     }
     else
     {
+        uint32_t               barrierCount = 0;
         D3D12_RESOURCE_BARRIER barriers[3] = {};
-        barriers[0].Type                   = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-        barriers[0].Transition.pResource   = pResBackbuffer;
-        barriers[0].Transition.StateBefore = ffxGetDX12StateFromResourceState(params->currentBackBuffer.state);
-        barriers[0].Transition.StateAfter  = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
-        barriers[1].Type                   = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-        barriers[1].Transition.pResource   = pResUI;
-        barriers[1].Transition.StateBefore = ffxGetDX12StateFromResourceState(params->currentUI.state);
-        barriers[1].Transition.StateAfter  = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
-        barriers[2].Type                   = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-        barriers[2].Transition.pResource   = pRtResource;
-        barriers[2].Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
-        barriers[2].Transition.StateAfter  = D3D12_RESOURCE_STATE_RENDER_TARGET;
-        pCmdList->ResourceBarrier(_countof(barriers), barriers);
+        barriers[barrierCount].Type                   = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+        barriers[barrierCount].Transition.pResource   = pResBackbuffer;
+        barriers[barrierCount].Transition.StateBefore = ffxGetDX12StateFromResourceState(params->currentBackBuffer.state);
+        barriers[barrierCount].Transition.StateAfter  = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+        if (barriers[barrierCount].Transition.StateBefore != barriers[barrierCount].Transition.StateAfter)
+        {
+            ++barrierCount;
+        }
+        barriers[barrierCount].Type                   = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+        barriers[barrierCount].Transition.pResource   = pResUI;
+        barriers[barrierCount].Transition.StateBefore = ffxGetDX12StateFromResourceState(params->currentUI.state);
+        barriers[barrierCount].Transition.StateAfter  = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+        if (barriers[barrierCount].Transition.StateBefore != barriers[barrierCount].Transition.StateAfter)
+        {
+            ++barrierCount;
+        }
+        barriers[barrierCount].Type                   = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+        barriers[barrierCount].Transition.pResource   = pRtResource;
+        barriers[barrierCount].Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
+        barriers[barrierCount].Transition.StateAfter  = D3D12_RESOURCE_STATE_RENDER_TARGET;
+        if (barriers[barrierCount].Transition.StateBefore != barriers[barrierCount].Transition.StateAfter)
+        {
+            ++barrierCount;
+        }
+        pCmdList->ResourceBarrier(barrierCount, barriers);
 
         // set root signature
         pCmdList->SetGraphicsRootSignature(s_uiCompositionRootSignature);
@@ -308,11 +359,9 @@ FFX_API FfxErrorCode ffxFrameInterpolationUiComposition(const FfxPresentCallback
         D3D12_CPU_DESCRIPTOR_HANDLE cpuView = dx12DescriptorHeap->GetCPUDescriptorHandleForHeapStart();
         cpuView.ptr += s_uiCompositionDescRingBufferBase * dx12Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 
-        D3D12_RESOURCE_DESC bbDesc = pResBackbuffer->GetDesc();
-
         D3D12_SHADER_RESOURCE_VIEW_DESC dx12SrvDescription  = {};
         dx12SrvDescription.Shader4ComponentMapping          = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-        dx12SrvDescription.Format                           = bbDesc.Format;
+        dx12SrvDescription.Format                           = ffxGetDX12FormatFromSurfaceFormat(params->currentBackBuffer.description.format);
         dx12SrvDescription.ViewDimension                    = D3D12_SRV_DIMENSION_TEXTURE2D;
         dx12SrvDescription.Texture2D.MipLevels              = pResBackbuffer->GetDesc().MipLevels;
         dx12Device->CreateShaderResourceView(pResBackbuffer, &dx12SrvDescription, cpuView);
@@ -320,16 +369,16 @@ FFX_API FfxErrorCode ffxFrameInterpolationUiComposition(const FfxPresentCallback
         cpuView.ptr += dx12Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
         
         const D3D12_RESOURCE_DESC uiDesc                    = pResUI->GetDesc();
-        dx12SrvDescription.Format                           = uiDesc.Format;
+        dx12SrvDescription.Format                           = convertFormatSrv(ffxGetDX12FormatFromSurfaceFormat(params->currentUI.description.format));
         dx12SrvDescription.Texture2D.MipLevels              = uiDesc.MipLevels;
         dx12Device->CreateShaderResourceView(pResUI, &dx12SrvDescription, cpuView);
 
-        s_uiCompositionDescRingBufferBase = (s_uiCompositionDescRingBufferBase + 2) & 7;
+        s_uiCompositionDescRingBufferBase = (s_uiCompositionDescRingBufferBase + 2) % s_uiCompositionDescRingBufferSize;
         pCmdList->SetGraphicsRootDescriptorTable(0, gpuView);
 
         D3D12_CPU_DESCRIPTOR_HANDLE backbufferRTV = s_uiCompositionDescHeapRtvCpu->GetCPUDescriptorHandleForHeapStart();
         backbufferRTV.ptr += s_uiCompositionNextRtvDescriptor * dx12Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-        s_uiCompositionNextRtvDescriptor = (s_uiCompositionNextRtvDescriptor + 1) & 3;
+        s_uiCompositionNextRtvDescriptor = (s_uiCompositionNextRtvDescriptor + 1) % s_uiCompositionDescHeapRtvSize;
         dx12Device->CreateRenderTargetView(pRtResource, &colorDesc, backbufferRTV);
 
         D3D12_RESOURCE_DESC backBufferDesc = pRtResource->GetDesc();
@@ -343,14 +392,14 @@ FFX_API FfxErrorCode ffxFrameInterpolationUiComposition(const FfxPresentCallback
         pCmdList->RSSetScissorRects(1, &srd);
         pCmdList->DrawInstanced(3, 1, 0, 0);
 
-        for (int i = 0; i < _countof(barriers); ++i)
+        for (int i = 0; i < (int)barrierCount; ++i)
         {
             D3D12_RESOURCE_STATES  tmpStateBefore   = barriers[i].Transition.StateBefore;
             barriers[i].Transition.StateBefore      = barriers[i].Transition.StateAfter;
             barriers[i].Transition.StateAfter       = tmpStateBefore;
         }
 
-        pCmdList->ResourceBarrier(_countof(barriers), barriers);
+        pCmdList->ResourceBarrier(barrierCount, barriers);
     }
 
     return FFX_OK;

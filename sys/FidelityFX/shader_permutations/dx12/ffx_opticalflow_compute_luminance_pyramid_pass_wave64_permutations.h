@@ -1,4 +1,4 @@
-#include "ffx_opticalflow_compute_luminance_pyramid_pass_wave64_6239ed77dd50d308de21dac85b1d4942.h"
+#include "ffx_opticalflow_compute_luminance_pyramid_pass_wave64_76eeafc7d0295d74722b92a7d3d7dc69.h"
 
 typedef union ffx_opticalflow_compute_luminance_pyramid_pass_wave64_PermutationKey {
     struct {
@@ -61,6 +61,6 @@ static const uint32_t g_ffx_opticalflow_compute_luminance_pyramid_pass_wave64_In
 };
 
 static const ffx_opticalflow_compute_luminance_pyramid_pass_wave64_PermutationInfo g_ffx_opticalflow_compute_luminance_pyramid_pass_wave64_PermutationInfo[] = {
-    { g_ffx_opticalflow_compute_luminance_pyramid_pass_wave64_6239ed77dd50d308de21dac85b1d4942_size, g_ffx_opticalflow_compute_luminance_pyramid_pass_wave64_6239ed77dd50d308de21dac85b1d4942_data, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, g_ffx_opticalflow_compute_luminance_pyramid_pass_wave64_6239ed77dd50d308de21dac85b1d4942_TextureUAVResourceNames, g_ffx_opticalflow_compute_luminance_pyramid_pass_wave64_6239ed77dd50d308de21dac85b1d4942_TextureUAVResourceBindings, g_ffx_opticalflow_compute_luminance_pyramid_pass_wave64_6239ed77dd50d308de21dac85b1d4942_TextureUAVResourceCounts, g_ffx_opticalflow_compute_luminance_pyramid_pass_wave64_6239ed77dd50d308de21dac85b1d4942_TextureUAVResourceSpaces, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
+    { g_ffx_opticalflow_compute_luminance_pyramid_pass_wave64_76eeafc7d0295d74722b92a7d3d7dc69_size, g_ffx_opticalflow_compute_luminance_pyramid_pass_wave64_76eeafc7d0295d74722b92a7d3d7dc69_data, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, g_ffx_opticalflow_compute_luminance_pyramid_pass_wave64_76eeafc7d0295d74722b92a7d3d7dc69_TextureUAVResourceNames, g_ffx_opticalflow_compute_luminance_pyramid_pass_wave64_76eeafc7d0295d74722b92a7d3d7dc69_TextureUAVResourceBindings, g_ffx_opticalflow_compute_luminance_pyramid_pass_wave64_76eeafc7d0295d74722b92a7d3d7dc69_TextureUAVResourceCounts, g_ffx_opticalflow_compute_luminance_pyramid_pass_wave64_76eeafc7d0295d74722b92a7d3d7dc69_TextureUAVResourceSpaces, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
 };
 

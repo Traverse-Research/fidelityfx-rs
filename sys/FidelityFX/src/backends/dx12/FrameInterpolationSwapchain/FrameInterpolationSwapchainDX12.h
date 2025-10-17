@@ -1,16 +1,17 @@
 // This file is part of the FidelityFX SDK.
-// 
-// Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
+//
+// Copyright (C) 2024 Advanced Micro Devices, Inc.
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to deal
+// of this software and associated documentation files(the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// to use, copy, modify, merge, publish, distribute, sublicense, and /or sell
 // copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
+// furnished to do so, subject to the following conditions :
+//
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -18,7 +19,6 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-
 
 #pragma once
 #include <Windows.h>
@@ -33,28 +33,35 @@
 #include <FidelityFX/host/backends/dx12/ffx_dx12.h>
 #include <FidelityFX/host/ffx_fsr3.h>
 
-#define FFX_FRAME_INTERPOLATION_SWAP_CHAIN_VERSION          1
+#define FFX_FRAME_INTERPOLATION_SWAP_CHAIN_VERSION_MAJOR    1
+#define FFX_FRAME_INTERPOLATION_SWAP_CHAIN_VERSION_MINOR    1
+#define FFX_FRAME_INTERPOLATION_SWAP_CHAIN_VERSION_PATCH    1
 #define FFX_FRAME_INTERPOLATION_SWAP_CHAIN_MAX_BUFFER_COUNT 6
 
 typedef struct PacingData
 {
     FfxPresentCallbackFunc          presentCallback = nullptr;
+    void*                           presentCallbackContext = nullptr;
     FfxResource                     uiSurface;
 
     bool                            vsync;
     bool                            tearingSupported;
+    bool                            usePremulAlphaComposite;
+    bool                            drawDebugPacingLines;
 
-    UINT64                          gameFenceValue;
+
+    UINT64                          interpolationCompletedFenceValue;
     UINT64                          replacementBufferFenceSignal;
     UINT64                          numFramesSentForPresentationBase;
     UINT32                          numFramesToPresent;
+    UINT64                          currentFrameID;
 
-    typedef enum FrameIdentifier
+    typedef enum FrameType
     {
         Interpolated_1,
         Real,
         Count
-    } FrameIdentifier;
+    } FrameType;
 
     struct FrameInfo
     {
@@ -62,10 +69,10 @@ typedef struct PacingData
         FfxResource     resource;
         UINT64          interpolationCompletedFenceValue;
         UINT64          presentIndex;
-        UINT64          presentQpcTarget;
+        UINT64          presentQpcDelta;
     };
     
-    FrameInfo frames[FrameIdentifier::Count];
+    FrameInfo frames[FrameType::Count];
 
     void invalidate()
     {
@@ -76,13 +83,15 @@ typedef struct PacingData
 typedef struct FrameinterpolationPresentInfo
 {
     CRITICAL_SECTION    criticalSectionScheduledFrame;
-    ID3D12Device8*      device    = nullptr;
+    ID3D12Device*       device    = nullptr;
     IDXGISwapChain4*    swapChain = nullptr;
     Dx12CommandPool<8>  commandPool;
 
     PacingData          scheduledInterpolations;
     PacingData          scheduledPresents;
+
     FfxResource         currentUiSurface;
+    uint32_t            uiCompositionFlags = 0;
 
     ID3D12CommandQueue* interpolationQueue      = nullptr;
     ID3D12CommandQueue* asyncComputeQueue       = nullptr;
@@ -93,13 +102,25 @@ typedef struct FrameinterpolationPresentInfo
     ID3D12Fence*        interpolationFence      = nullptr;
     ID3D12Fence*        presentFence            = nullptr;
     ID3D12Fence*        replacementBufferFence  = nullptr;
-    ID3D12Fence*        compositionFence        = nullptr;
+    ID3D12Fence*        compositionFenceCPU     = nullptr;
+    ID3D12Fence*        compositionFenceGPU     = nullptr;
 
     HANDLE              presentEvent            = 0;
     HANDLE              interpolationEvent      = 0;
     HANDLE              pacerEvent              = 0;
 
+    volatile bool       resetTimer              = false;
     volatile bool       shutdown                = false;
+
+    volatile double     safetyMarginInSec       = 0.0001; //0.1ms
+    volatile double     varianceFactor          = 0.1;
+    volatile bool       allowHybridSpin         = false;
+    volatile uint32_t   hybridSpinTime          = 2; //Measured in system timer resolution units. Default is 2. Below 1 will frequently result in overshoot. Overshoots stop showing up >=2.
+    volatile bool       allowWaitForSingleObjectOnFence = false;
+    
+    FfxWaitCallbackFunc waitCallback            = nullptr;
+
+    volatile int64_t    previousPresentQpc         = 0;
 } FrameinterpolationPresentInfo;
 
 typedef struct ReplacementResource
@@ -132,50 +153,65 @@ protected:
     UINT                  getInterpolationEnabledSwapChainFlags(UINT nonAdjustedFlags);
     DXGI_SWAP_CHAIN_DESC1 getInterpolationEnabledSwapChainDescription(const DXGI_SWAP_CHAIN_DESC1* nonAdjustedDesc);
 
-    FrameinterpolationPresentInfo presentInfo_ = {};
+    FrameinterpolationPresentInfo presentInfo = {};
+    FfxFrameGenerationConfig      nextFrameGenerationConfig = {};
 
-    CRITICAL_SECTION    criticalSection_{};
+    CRITICAL_SECTION    criticalSection{};
+    CRITICAL_SECTION    criticalSectionUpdateConfig{};
 
-    UINT                gameBufferCount_           = 0;
-    UINT                gameFlags_                 = 0;
-    DXGI_SWAP_EFFECT    gameSwapEffect_            = DXGI_SWAP_EFFECT_FLIP_DISCARD;
-    UINT                gameMaximumFrameLatency_   = 1;  // default is 1
-    ID3D12Resource*     realBackBuffer0_           = nullptr;  //hold reference to avoid DXGI deadlock on Windows 10
+    UINT                gameBufferCount            = 0;
+    UINT                gameFlags                  = 0;
+    DXGI_SWAP_EFFECT    gameSwapEffect             = DXGI_SWAP_EFFECT_FLIP_DISCARD;
+    UINT                gameMaximumFrameLatency    = 1;  // default is 1
+    ID3D12Resource*     realBackBuffer0            = nullptr;  //hold reference to avoid DXGI deadlock on Windows 10
 
-    HANDLE              replacementFrameLatencyWaitableObjectHandle_ = 0;
+    HANDLE              replacementFrameLatencyWaitableObjectHandle  = 0;
 
-    UINT64              interpolationFenceValue_             = 0;
-    UINT64              gameFenceValue_                      = 0;
-    bool                frameInterpolationResetCondition_    = false;
+    UINT64              interpolationFenceValue              = 0;
+    UINT64              gameFenceValue                       = 0;
+    bool                frameInterpolationResetCondition     = false;
+    FfxRect2D           interpolationRect;
 
-    Dx12Commands*       registeredInterpolationCommandLists_[FFX_FRAME_INTERPOLATION_SWAP_CHAIN_MAX_BUFFER_COUNT] = {};
-    ReplacementResource replacementSwapBuffers_[FFX_FRAME_INTERPOLATION_SWAP_CHAIN_MAX_BUFFER_COUNT] = {};
-    ReplacementResource interpolationOutputs_[2]                                                     = {};
-    int                 replacementSwapBufferIndex_                                                  = 0;
-    int                 interpolationBufferIndex_                                                    = 0;
-    UINT64              presentCount_                                                                = 0;
+    Dx12Commands*       registeredInterpolationCommandLists[FFX_FRAME_INTERPOLATION_SWAP_CHAIN_MAX_BUFFER_COUNT] = {};
+    ReplacementResource replacementSwapBuffers[FFX_FRAME_INTERPOLATION_SWAP_CHAIN_MAX_BUFFER_COUNT]  = {};
+    ReplacementResource interpolationOutputs[2]                                                      = {};
+    ReplacementResource uiReplacementBuffer                                                          = {};
+    int                 replacementSwapBufferIndex                                                   = 0;
+    int                 interpolationBufferIndex                                                     = 0;
+    UINT64              presentCount                                                                 = 0;
 
-    bool                tearingSupported_          = false;
-    bool                interpolationEnabled_      = false;
-    bool                presentInterpolatedOnly_   = false;
+    FfxFsr3FrameGenerationFlags configFlags             = {};
 
-    UINT64              framesSentForPresentation_  = 0;
-    UINT64              nextPresentWaitValue_       = 0;
-    HANDLE              interpolationThreadHandle_  = 0;
-    ULONG               refCount_                   = 1;
+    bool                tearingSupported                = false;
+    bool                interpolationEnabled            = false;
+    bool                presentInterpolatedOnly         = false;
+    bool                previousFrameWasInterpolated    = false;
+    bool                drawDebugPacingLines            = false;
 
-    UINT                backBufferTransferFunction_ = 0;
-    float               minLuminance_               = 0.0f;
-    float               maxLuminance_               = 0.0f;
+    UINT64              currentFrameID              = 0;
 
-    FfxPresentCallbackFunc         presentCallback_         = nullptr;
-    FfxFrameGenerationDispatchFunc frameGenerationCallback_ = nullptr;
+    UINT64              framesSentForPresentation   = 0;
+    UINT64              nextPresentWaitValue        = 0;
+    HANDLE              interpolationThreadHandle   = 0;
+    ULONG               refCount                    = 1;
+
+    UINT                backBufferTransferFunction      = 0;
+    float               minLuminance                    = 0.0f;
+    float               maxLuminance                    = 0.0f;
+
+    FfxPresentCallbackFunc         presentCallback                 = nullptr;
+    void*                          presentCallbackContext          = nullptr;
+    FfxFrameGenerationDispatchFunc frameGenerationCallback         = nullptr;
+    void*                          frameGenerationCallbackContext  = nullptr;
 
     void presentPassthrough(UINT SyncInterval, UINT Flags);
     void presentWithUiComposition(UINT SyncInterval, UINT Flags);
 
     void dispatchInterpolationCommands(FfxResource* pInterpolatedFrame, FfxResource* pRealFrame);
     void presentInterpolated(UINT SyncInterval, UINT Flags);
+
+    bool verifyUiDuplicateResource();
+    void copyUiResource();
 
     bool verifyBackbufferDuplicateResources();
     bool destroyReplacementResources();
@@ -185,6 +221,9 @@ protected:
 
     IDXGISwapChain4* real();
 
+    UINT64 totalUsageInBytes = 0;
+    UINT64 aliasableUsageInBytes = 0;
+
 public:
     void setFrameGenerationConfig(FfxFrameGenerationConfig const* config);
     bool waitForPresents();
@@ -192,7 +231,11 @@ public:
     FfxResource interpolationOutput(int index = 0);
     ID3D12GraphicsCommandList* getInterpolationCommandList();
 
-    void registerUiResource(FfxResource uiResource);
+    void registerUiResource(FfxResource uiResource, uint32_t flags);
+    void setWaitCallback(FfxWaitCallbackFunc waitCallbackFunc);
+    void setFramePacingTuning(const FfxSwapchainFramePacingTuning* framePacingTuning);
+
+    void GetGpuMemoryUsage(FfxEffectMemoryUsage * vramUsage);
 
     FrameInterpolationSwapChainDX12();
     virtual ~FrameInterpolationSwapChainDX12();

@@ -1,8 +1,10 @@
-#include "ffx_frameinterpolation_inpainting_pass_3e4749573a03b594fad366ab9f4c7666.h"
+#include "ffx_frameinterpolation_inpainting_pass_7f7e983f969ee216216211b8d1728a30.h"
 
 typedef union ffx_frameinterpolation_inpainting_pass_PermutationKey {
     struct {
         uint32_t FFX_FRAMEINTERPOLATION_OPTION_INVERTED_DEPTH : 1;
+        uint32_t FFX_FRAMEINTERPOLATION_OPTION_LOW_RES_MOTION_VECTORS : 1;
+        uint32_t FFX_FRAMEINTERPOLATION_OPTION_JITTER_MOTION_VECTORS : 1;
     };
     uint32_t index;
 } ffx_frameinterpolation_inpainting_pass_PermutationKey;
@@ -58,9 +60,15 @@ typedef struct ffx_frameinterpolation_inpainting_pass_PermutationInfo {
 static const uint32_t g_ffx_frameinterpolation_inpainting_pass_IndirectionTable[] = {
     0,
     0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
 };
 
 static const ffx_frameinterpolation_inpainting_pass_PermutationInfo g_ffx_frameinterpolation_inpainting_pass_PermutationInfo[] = {
-    { g_ffx_frameinterpolation_inpainting_pass_3e4749573a03b594fad366ab9f4c7666_size, g_ffx_frameinterpolation_inpainting_pass_3e4749573a03b594fad366ab9f4c7666_data, 1, g_ffx_frameinterpolation_inpainting_pass_3e4749573a03b594fad366ab9f4c7666_CBVResourceNames, g_ffx_frameinterpolation_inpainting_pass_3e4749573a03b594fad366ab9f4c7666_CBVResourceBindings, g_ffx_frameinterpolation_inpainting_pass_3e4749573a03b594fad366ab9f4c7666_CBVResourceCounts, g_ffx_frameinterpolation_inpainting_pass_3e4749573a03b594fad366ab9f4c7666_CBVResourceSpaces, 4, g_ffx_frameinterpolation_inpainting_pass_3e4749573a03b594fad366ab9f4c7666_TextureSRVResourceNames, g_ffx_frameinterpolation_inpainting_pass_3e4749573a03b594fad366ab9f4c7666_TextureSRVResourceBindings, g_ffx_frameinterpolation_inpainting_pass_3e4749573a03b594fad366ab9f4c7666_TextureSRVResourceCounts, g_ffx_frameinterpolation_inpainting_pass_3e4749573a03b594fad366ab9f4c7666_TextureSRVResourceSpaces, 1, g_ffx_frameinterpolation_inpainting_pass_3e4749573a03b594fad366ab9f4c7666_TextureUAVResourceNames, g_ffx_frameinterpolation_inpainting_pass_3e4749573a03b594fad366ab9f4c7666_TextureUAVResourceBindings, g_ffx_frameinterpolation_inpainting_pass_3e4749573a03b594fad366ab9f4c7666_TextureUAVResourceCounts, g_ffx_frameinterpolation_inpainting_pass_3e4749573a03b594fad366ab9f4c7666_TextureUAVResourceSpaces, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
+    { g_ffx_frameinterpolation_inpainting_pass_7f7e983f969ee216216211b8d1728a30_size, g_ffx_frameinterpolation_inpainting_pass_7f7e983f969ee216216211b8d1728a30_data, 1, g_ffx_frameinterpolation_inpainting_pass_7f7e983f969ee216216211b8d1728a30_CBVResourceNames, g_ffx_frameinterpolation_inpainting_pass_7f7e983f969ee216216211b8d1728a30_CBVResourceBindings, g_ffx_frameinterpolation_inpainting_pass_7f7e983f969ee216216211b8d1728a30_CBVResourceCounts, g_ffx_frameinterpolation_inpainting_pass_7f7e983f969ee216216211b8d1728a30_CBVResourceSpaces, 4, g_ffx_frameinterpolation_inpainting_pass_7f7e983f969ee216216211b8d1728a30_TextureSRVResourceNames, g_ffx_frameinterpolation_inpainting_pass_7f7e983f969ee216216211b8d1728a30_TextureSRVResourceBindings, g_ffx_frameinterpolation_inpainting_pass_7f7e983f969ee216216211b8d1728a30_TextureSRVResourceCounts, g_ffx_frameinterpolation_inpainting_pass_7f7e983f969ee216216211b8d1728a30_TextureSRVResourceSpaces, 1, g_ffx_frameinterpolation_inpainting_pass_7f7e983f969ee216216211b8d1728a30_TextureUAVResourceNames, g_ffx_frameinterpolation_inpainting_pass_7f7e983f969ee216216211b8d1728a30_TextureUAVResourceBindings, g_ffx_frameinterpolation_inpainting_pass_7f7e983f969ee216216211b8d1728a30_TextureUAVResourceCounts, g_ffx_frameinterpolation_inpainting_pass_7f7e983f969ee216216211b8d1728a30_TextureUAVResourceSpaces, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
 };
 

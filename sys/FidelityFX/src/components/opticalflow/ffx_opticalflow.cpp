@@ -1,16 +1,17 @@
 // This file is part of the FidelityFX SDK.
-// 
-// Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
+//
+// Copyright (C) 2024 Advanced Micro Devices, Inc.
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to deal
+// of this software and associated documentation files(the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// to use, copy, modify, merge, publish, distribute, sublicense, and /or sell
 // copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
+// furnished to do so, subject to the following conditions :
+//
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -19,12 +20,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-
 #include <algorithm>    // for max used inside SPD CPU code.
 #include <cmath>        // for fabs, abs, sinf, sqrt, etc.
 #include <string>       // for memset
 #include <cfloat>       // for FLT_EPSILON
 #include "FidelityFX/host/ffx_opticalflow.h"
+
+#ifdef __clang__
+#pragma clang diagnostic ignored "-Wunused-function"
+#pragma clang diagnostic ignored "-Wsign-compare"
+#endif
 
 #define FFX_CPU
 #include <FidelityFX/gpu/ffx_core.h>
@@ -97,12 +102,6 @@ typedef struct OpticalFlowSpdConstants
 
 } OpticalFlowSpdConstants;
 
-FfxConstantBuffer globalOpticalflowConstantBuffers[] = 
-{
-    {sizeof(OpticalflowConstants) / sizeof(uint32_t)},
-    {sizeof(OpticalFlowSpdConstants) / sizeof(uint32_t)},
-};
-
 static FfxErrorCode patchResourceBindings(FfxPipelineState* inoutPipeline)
 {
     for (uint32_t srvIndex = 0; srvIndex < inoutPipeline->srvTextureCount; ++srvIndex)
@@ -153,7 +152,7 @@ static FfxErrorCode patchResourceBindings(FfxPipelineState* inoutPipeline)
     return FFX_OK;
 }
 
-static uint32_t getPipelinePermutationFlags(uint32_t contextFlags, FfxPass passId, bool fp16, bool force64, bool useLut)
+static uint32_t getPipelinePermutationFlags(uint32_t, FfxPass, bool fp16, bool force64, bool)
 {
     uint32_t flags = 0;
     flags |= (force64) ? OPTICALFLOW_SHADER_PERMUTATION_FORCE_WAVE64 : 0;
@@ -171,8 +170,8 @@ static FfxErrorCode createPipelineStates(FfxOpticalflowContext_Private* context)
         {FFX_FILTER_TYPE_MINMAGMIP_LINEAR, FFX_ADDRESS_MODE_CLAMP, FFX_ADDRESS_MODE_CLAMP, FFX_ADDRESS_MODE_CLAMP, FFX_BIND_COMPUTE_SHADER_STAGE} };
 
     const size_t rootConstantCount = 2;
-    FfxRootConstantDescription rootConstantDescs[2] = { {globalOpticalflowConstantBuffers[0].num32BitEntries, FFX_BIND_COMPUTE_SHADER_STAGE},
-                                                       {globalOpticalflowConstantBuffers[1].num32BitEntries, FFX_BIND_COMPUTE_SHADER_STAGE} };
+    FfxRootConstantDescription rootConstantDescs[2] = { {sizeof(OpticalflowConstants) / sizeof(uint32_t),    FFX_BIND_COMPUTE_SHADER_STAGE},
+                                                        {sizeof(OpticalFlowSpdConstants) / sizeof(uint32_t), FFX_BIND_COMPUTE_SHADER_STAGE} };
     FfxPipelineDescription pipelineDescription  = {};
     pipelineDescription.stage                   = FFX_BIND_COMPUTE_SHADER_STAGE;
     pipelineDescription.contextFlags            = context->contextDescription.flags;
@@ -184,7 +183,7 @@ static FfxErrorCode createPipelineStates(FfxOpticalflowContext_Private* context)
     FfxDeviceCapabilities capabilities;
     context->contextDescription.backendInterface.fpGetDeviceCapabilities(&context->contextDescription.backendInterface, &capabilities);
 
-    bool haveShaderModel66 = capabilities.minimumSupportedShaderModel >= FFX_SHADER_MODEL_6_6;
+    bool haveShaderModel66 = capabilities.maximumSupportedShaderModel >= FFX_SHADER_MODEL_6_6;
     bool supportedFP16     = capabilities.fp16Supported;
     bool canForceWave64    = false;
     bool useLut            = false;
@@ -217,15 +216,14 @@ static FfxErrorCode createPipelineStates(FfxOpticalflowContext_Private* context)
         return FFX_OK;
     };
 
-#define EAN(pass) pass, L#pass
-    CreateComputePipeline(EAN(FFX_OPTICALFLOW_PASS_GENERATE_OPTICAL_FLOW_INPUT_PYRAMID), &context->pipelineGenerateOpticalFlowInputPyramid);
+    CreateComputePipeline(FFX_OPTICALFLOW_PASS_GENERATE_OPTICAL_FLOW_INPUT_PYRAMID, L"Opticalflow_InputPyramid", & context->pipelineGenerateOpticalFlowInputPyramid);
     pipelineDescription.rootConstantBufferCount = 1;
-    CreateComputePipeline(EAN(FFX_OPTICALFLOW_PASS_PREPARE_LUMA), &context->pipelinePrepareLuma);
-    CreateComputePipeline(EAN(FFX_OPTICALFLOW_PASS_GENERATE_SCD_HISTOGRAM), &context->pipelineGenerateSCDHistogram);
-    CreateComputePipeline(EAN(FFX_OPTICALFLOW_PASS_COMPUTE_SCD_DIVERGENCE), &context->pipelineComputeSCDDivergence);
-    CreateComputePipeline(EAN(FFX_OPTICALFLOW_PASS_COMPUTE_OPTICAL_FLOW_ADVANCED_V5), &context->pipelineComputeOpticalFlowAdvancedV5);
-    CreateComputePipeline(EAN(FFX_OPTICALFLOW_PASS_FILTER_OPTICAL_FLOW_V5), &context->pipelineFilterOpticalFlowV5);
-    CreateComputePipeline(EAN(FFX_OPTICALFLOW_PASS_SCALE_OPTICAL_FLOW_ADVANCED_V5), &context->pipelineScaleOpticalFlowAdvancedV5);
+    CreateComputePipeline(FFX_OPTICALFLOW_PASS_PREPARE_LUMA, L"Opticalflow_Luma", &context->pipelinePrepareLuma);
+    CreateComputePipeline(FFX_OPTICALFLOW_PASS_GENERATE_SCD_HISTOGRAM, L"Opticalflow_SCD_Histogram", &context->pipelineGenerateSCDHistogram);
+    CreateComputePipeline(FFX_OPTICALFLOW_PASS_COMPUTE_SCD_DIVERGENCE, L"Opticalflow_SCD_Divergence", &context->pipelineComputeSCDDivergence);
+    CreateComputePipeline(FFX_OPTICALFLOW_PASS_COMPUTE_OPTICAL_FLOW_ADVANCED_V5, L"Opticalflow_Search", &context->pipelineComputeOpticalFlowAdvancedV5);
+    CreateComputePipeline(FFX_OPTICALFLOW_PASS_FILTER_OPTICAL_FLOW_V5, L"Opticalflow_Filter", &context->pipelineFilterOpticalFlowV5);
+    CreateComputePipeline(FFX_OPTICALFLOW_PASS_SCALE_OPTICAL_FLOW_ADVANCED_V5, L"Opticalflow_Upscale", &context->pipelineScaleOpticalFlowAdvancedV5);
 
     return FFX_OK;
 }
@@ -278,7 +276,11 @@ static FfxErrorCode opticalflowCreate(FfxOpticalflowContext_Private* context, co
 
     memcpy(&context->contextDescription, contextDescription, sizeof(FfxOpticalflowContextDescription));
 
-    errorCode = context->contextDescription.backendInterface.fpCreateBackendContext(&context->contextDescription.backendInterface, &context->effectContextId);
+    // Check version info - make sure we are linked with the right backend version
+    FfxVersionNumber version = context->contextDescription.backendInterface.fpGetSDKVersion(&context->contextDescription.backendInterface);
+    FFX_RETURN_ON_ERROR(version == FFX_SDK_MAKE_VERSION(1, 1, 4), FFX_ERROR_INVALID_VERSION);
+
+    errorCode = context->contextDescription.backendInterface.fpCreateBackendContext(&context->contextDescription.backendInterface, FFX_EFFECT_OPTICALFLOW, nullptr, &context->effectContextId);
     FFX_RETURN_ON_ERROR(errorCode == FFX_OK, errorCode);
 
     errorCode = context->contextDescription.backendInterface.fpGetDeviceCapabilities(&context->contextDescription.backendInterface, &context->deviceCapabilities);
@@ -292,7 +294,6 @@ static FfxErrorCode opticalflowCreate(FfxOpticalflowContext_Private* context, co
 
     FfxDimensions2D opticalFlowInputTextureSize = context->contextDescription.resolution;
 
-    uint32_t atomicInitData = 0U;
     const FfxResourceType texture1dResourceType = (context->contextDescription.flags & FFX_OPTICALFLOW_ENABLE_TEXTURE1D_USAGE) ? FFX_RESOURCE_TYPE_TEXTURE1D : FFX_RESOURCE_TYPE_TEXTURE2D;
 
     uint32_t minBlockSize = 8;
@@ -313,97 +314,97 @@ static FfxErrorCode opticalflowCreate(FfxOpticalflowContext_Private* context, co
 
     const FfxInternalResourceDescription internalSurfaceDesc[] =    {
         {   FFX_OF_RESOURCE_IDENTIFIER_OPTICAL_FLOW_INPUT_1, L"OPTICALFLOW_OpticalFlowInput1", FFX_RESOURCE_TYPE_TEXTURE2D, FFX_RESOURCE_USAGE_UAV,
-            FFX_SURFACE_FORMAT_R8_UINT, opticalFlowInputTextureSize.width, opticalFlowInputTextureSize.height, 1,  FFX_RESOURCE_FLAGS_NONE },
+            FFX_SURFACE_FORMAT_R8_UINT, opticalFlowInputTextureSize.width, opticalFlowInputTextureSize.height, 1,  FFX_RESOURCE_FLAGS_NONE, {FFX_RESOURCE_INIT_DATA_TYPE_UNINITIALIZED} },
 
         {   FFX_OF_RESOURCE_IDENTIFIER_OPTICAL_FLOW_INPUT_1_LEVEL_1, L"OPTICALFLOW_OpticalFlowInput1Level1", FFX_RESOURCE_TYPE_TEXTURE2D, FFX_RESOURCE_USAGE_UAV,
-            FFX_SURFACE_FORMAT_R8_UINT, opticalFlowInputTextureSize.width >> 1, opticalFlowInputTextureSize.height >> 1, 1,  FFX_RESOURCE_FLAGS_NONE },
+            FFX_SURFACE_FORMAT_R8_UINT, opticalFlowInputTextureSize.width >> 1, opticalFlowInputTextureSize.height >> 1, 1,  FFX_RESOURCE_FLAGS_NONE, {FFX_RESOURCE_INIT_DATA_TYPE_UNINITIALIZED} },
 
         {   FFX_OF_RESOURCE_IDENTIFIER_OPTICAL_FLOW_INPUT_1_LEVEL_2, L"OPTICALFLOW_OpticalFlowInput1Level2", FFX_RESOURCE_TYPE_TEXTURE2D, FFX_RESOURCE_USAGE_UAV,
-            FFX_SURFACE_FORMAT_R8_UINT, opticalFlowInputTextureSize.width >> 2, opticalFlowInputTextureSize.height >> 2, 1,  FFX_RESOURCE_FLAGS_NONE },
+            FFX_SURFACE_FORMAT_R8_UINT, opticalFlowInputTextureSize.width >> 2, opticalFlowInputTextureSize.height >> 2, 1,  FFX_RESOURCE_FLAGS_NONE, {FFX_RESOURCE_INIT_DATA_TYPE_UNINITIALIZED} },
 
         {   FFX_OF_RESOURCE_IDENTIFIER_OPTICAL_FLOW_INPUT_1_LEVEL_3, L"OPTICALFLOW_OpticalFlowInput1Level3", FFX_RESOURCE_TYPE_TEXTURE2D, FFX_RESOURCE_USAGE_UAV,
-            FFX_SURFACE_FORMAT_R8_UINT, opticalFlowInputTextureSize.width >> 3, opticalFlowInputTextureSize.height >> 3, 1,  FFX_RESOURCE_FLAGS_NONE },
+            FFX_SURFACE_FORMAT_R8_UINT, opticalFlowInputTextureSize.width >> 3, opticalFlowInputTextureSize.height >> 3, 1,  FFX_RESOURCE_FLAGS_NONE, {FFX_RESOURCE_INIT_DATA_TYPE_UNINITIALIZED} },
 
         {   FFX_OF_RESOURCE_IDENTIFIER_OPTICAL_FLOW_INPUT_1_LEVEL_4, L"OPTICALFLOW_OpticalFlowInput1Level4", FFX_RESOURCE_TYPE_TEXTURE2D, FFX_RESOURCE_USAGE_UAV,
-            FFX_SURFACE_FORMAT_R8_UINT, opticalFlowInputTextureSize.width >> 4, opticalFlowInputTextureSize.height >> 4, 1,  FFX_RESOURCE_FLAGS_NONE },
+            FFX_SURFACE_FORMAT_R8_UINT, opticalFlowInputTextureSize.width >> 4, opticalFlowInputTextureSize.height >> 4, 1,  FFX_RESOURCE_FLAGS_NONE, {FFX_RESOURCE_INIT_DATA_TYPE_UNINITIALIZED} },
 
         {   FFX_OF_RESOURCE_IDENTIFIER_OPTICAL_FLOW_INPUT_1_LEVEL_5, L"OPTICALFLOW_OpticalFlowInput1Level5", FFX_RESOURCE_TYPE_TEXTURE2D, FFX_RESOURCE_USAGE_UAV,
-            FFX_SURFACE_FORMAT_R8_UINT, opticalFlowInputTextureSize.width >> 5, opticalFlowInputTextureSize.height >> 5, 1,  FFX_RESOURCE_FLAGS_NONE },
+            FFX_SURFACE_FORMAT_R8_UINT, opticalFlowInputTextureSize.width >> 5, opticalFlowInputTextureSize.height >> 5, 1,  FFX_RESOURCE_FLAGS_NONE, {FFX_RESOURCE_INIT_DATA_TYPE_UNINITIALIZED} },
 
         {   FFX_OF_RESOURCE_IDENTIFIER_OPTICAL_FLOW_INPUT_1_LEVEL_6, L"OPTICALFLOW_OpticalFlowInput1Level6", FFX_RESOURCE_TYPE_TEXTURE2D, FFX_RESOURCE_USAGE_UAV,
-            FFX_SURFACE_FORMAT_R8_UINT, opticalFlowInputTextureSize.width >> 6, opticalFlowInputTextureSize.height >> 6, 1,  FFX_RESOURCE_FLAGS_NONE },
+            FFX_SURFACE_FORMAT_R8_UINT, opticalFlowInputTextureSize.width >> 6, opticalFlowInputTextureSize.height >> 6, 1,  FFX_RESOURCE_FLAGS_NONE, {FFX_RESOURCE_INIT_DATA_TYPE_UNINITIALIZED} },
 
         {   FFX_OF_RESOURCE_IDENTIFIER_OPTICAL_FLOW_INPUT_2, L"OPTICALFLOW_OpticalFlowInput2", FFX_RESOURCE_TYPE_TEXTURE2D, FFX_RESOURCE_USAGE_UAV,
-            FFX_SURFACE_FORMAT_R8_UINT, opticalFlowInputTextureSize.width, opticalFlowInputTextureSize.height, 1,  FFX_RESOURCE_FLAGS_NONE },
+            FFX_SURFACE_FORMAT_R8_UINT, opticalFlowInputTextureSize.width, opticalFlowInputTextureSize.height, 1,  FFX_RESOURCE_FLAGS_NONE, {FFX_RESOURCE_INIT_DATA_TYPE_UNINITIALIZED} },
 
         {   FFX_OF_RESOURCE_IDENTIFIER_OPTICAL_FLOW_INPUT_2_LEVEL_1, L"OPTICALFLOW_OpticalFlowInput2Level1", FFX_RESOURCE_TYPE_TEXTURE2D, FFX_RESOURCE_USAGE_UAV,
-            FFX_SURFACE_FORMAT_R8_UINT, opticalFlowInputTextureSize.width >> 1, opticalFlowInputTextureSize.height >> 1, 1,  FFX_RESOURCE_FLAGS_NONE },
+            FFX_SURFACE_FORMAT_R8_UINT, opticalFlowInputTextureSize.width >> 1, opticalFlowInputTextureSize.height >> 1, 1,  FFX_RESOURCE_FLAGS_NONE, {FFX_RESOURCE_INIT_DATA_TYPE_UNINITIALIZED} },
 
         {   FFX_OF_RESOURCE_IDENTIFIER_OPTICAL_FLOW_INPUT_2_LEVEL_2, L"OPTICALFLOW_OpticalFlowInput2Level2", FFX_RESOURCE_TYPE_TEXTURE2D, FFX_RESOURCE_USAGE_UAV,
-            FFX_SURFACE_FORMAT_R8_UINT, opticalFlowInputTextureSize.width >> 2, opticalFlowInputTextureSize.height >> 2, 1,  FFX_RESOURCE_FLAGS_NONE },
+            FFX_SURFACE_FORMAT_R8_UINT, opticalFlowInputTextureSize.width >> 2, opticalFlowInputTextureSize.height >> 2, 1,  FFX_RESOURCE_FLAGS_NONE, {FFX_RESOURCE_INIT_DATA_TYPE_UNINITIALIZED} },
 
         {   FFX_OF_RESOURCE_IDENTIFIER_OPTICAL_FLOW_INPUT_2_LEVEL_3, L"OPTICALFLOW_OpticalFlowInput2Level3", FFX_RESOURCE_TYPE_TEXTURE2D, FFX_RESOURCE_USAGE_UAV,
-            FFX_SURFACE_FORMAT_R8_UINT, opticalFlowInputTextureSize.width >> 3, opticalFlowInputTextureSize.height >> 3, 1,  FFX_RESOURCE_FLAGS_NONE },
+            FFX_SURFACE_FORMAT_R8_UINT, opticalFlowInputTextureSize.width >> 3, opticalFlowInputTextureSize.height >> 3, 1,  FFX_RESOURCE_FLAGS_NONE, {FFX_RESOURCE_INIT_DATA_TYPE_UNINITIALIZED} },
 
         {   FFX_OF_RESOURCE_IDENTIFIER_OPTICAL_FLOW_INPUT_2_LEVEL_4, L"OPTICALFLOW_OpticalFlowInput2Level4", FFX_RESOURCE_TYPE_TEXTURE2D, FFX_RESOURCE_USAGE_UAV,
-            FFX_SURFACE_FORMAT_R8_UINT, opticalFlowInputTextureSize.width >> 4, opticalFlowInputTextureSize.height >> 4, 1,  FFX_RESOURCE_FLAGS_NONE },
+            FFX_SURFACE_FORMAT_R8_UINT, opticalFlowInputTextureSize.width >> 4, opticalFlowInputTextureSize.height >> 4, 1,  FFX_RESOURCE_FLAGS_NONE, {FFX_RESOURCE_INIT_DATA_TYPE_UNINITIALIZED} },
 
         {   FFX_OF_RESOURCE_IDENTIFIER_OPTICAL_FLOW_INPUT_2_LEVEL_5, L"OPTICALFLOW_OpticalFlowInput2Level5", FFX_RESOURCE_TYPE_TEXTURE2D, FFX_RESOURCE_USAGE_UAV,
-            FFX_SURFACE_FORMAT_R8_UINT, opticalFlowInputTextureSize.width >> 5, opticalFlowInputTextureSize.height >> 5, 1,  FFX_RESOURCE_FLAGS_NONE },
+            FFX_SURFACE_FORMAT_R8_UINT, opticalFlowInputTextureSize.width >> 5, opticalFlowInputTextureSize.height >> 5, 1,  FFX_RESOURCE_FLAGS_NONE, {FFX_RESOURCE_INIT_DATA_TYPE_UNINITIALIZED} },
 
         {   FFX_OF_RESOURCE_IDENTIFIER_OPTICAL_FLOW_INPUT_2_LEVEL_6, L"OPTICALFLOW_OpticalFlowInput2Level6", FFX_RESOURCE_TYPE_TEXTURE2D, FFX_RESOURCE_USAGE_UAV,
-            FFX_SURFACE_FORMAT_R8_UINT, opticalFlowInputTextureSize.width >> 6, opticalFlowInputTextureSize.height >> 6, 1,  FFX_RESOURCE_FLAGS_NONE },
+            FFX_SURFACE_FORMAT_R8_UINT, opticalFlowInputTextureSize.width >> 6, opticalFlowInputTextureSize.height >> 6, 1,  FFX_RESOURCE_FLAGS_NONE, {FFX_RESOURCE_INIT_DATA_TYPE_UNINITIALIZED} },
 
         {   FFX_OF_RESOURCE_IDENTIFIER_OPTICAL_FLOW_1, L"OPTICALFLOW_OpticalFlow1", FFX_RESOURCE_TYPE_TEXTURE2D, FFX_RESOURCE_USAGE_UAV,
-            FFX_SURFACE_FORMAT_R16G16_SINT, opticalFlowTextureSize.width, opticalFlowTextureSize.height, 1,  FFX_RESOURCE_FLAGS_NONE },
+            FFX_SURFACE_FORMAT_R16G16_SINT, opticalFlowTextureSize.width, opticalFlowTextureSize.height, 1,  FFX_RESOURCE_FLAGS_NONE, {FFX_RESOURCE_INIT_DATA_TYPE_UNINITIALIZED} },
 
         {   FFX_OF_RESOURCE_IDENTIFIER_OPTICAL_FLOW_1_LEVEL_1, L"OPTICALFLOW_OpticalFlow1Level1", FFX_RESOURCE_TYPE_TEXTURE2D, FFX_RESOURCE_USAGE_UAV,
-            FFX_SURFACE_FORMAT_R16G16_SINT, opticalFlowLevel1TextureSize.width, opticalFlowLevel1TextureSize.height, 1, FFX_RESOURCE_FLAGS_NONE },
+            FFX_SURFACE_FORMAT_R16G16_SINT, opticalFlowLevel1TextureSize.width, opticalFlowLevel1TextureSize.height, 1, FFX_RESOURCE_FLAGS_NONE, {FFX_RESOURCE_INIT_DATA_TYPE_UNINITIALIZED} },
 
         {   FFX_OF_RESOURCE_IDENTIFIER_OPTICAL_FLOW_1_LEVEL_2, L"OPTICALFLOW_OpticalFlow1Level2", FFX_RESOURCE_TYPE_TEXTURE2D, FFX_RESOURCE_USAGE_UAV,
-            FFX_SURFACE_FORMAT_R16G16_SINT, opticalFlowLevel2TextureSize.width, opticalFlowLevel2TextureSize.height, 1, FFX_RESOURCE_FLAGS_NONE },
+            FFX_SURFACE_FORMAT_R16G16_SINT, opticalFlowLevel2TextureSize.width, opticalFlowLevel2TextureSize.height, 1, FFX_RESOURCE_FLAGS_NONE, {FFX_RESOURCE_INIT_DATA_TYPE_UNINITIALIZED} },
 
         {   FFX_OF_RESOURCE_IDENTIFIER_OPTICAL_FLOW_1_LEVEL_3, L"OPTICALFLOW_OpticalFlow1Level3", FFX_RESOURCE_TYPE_TEXTURE2D, FFX_RESOURCE_USAGE_UAV,
-            FFX_SURFACE_FORMAT_R16G16_SINT, opticalFlowLevel3TextureSize.width, opticalFlowLevel3TextureSize.height, 1, FFX_RESOURCE_FLAGS_NONE },
+            FFX_SURFACE_FORMAT_R16G16_SINT, opticalFlowLevel3TextureSize.width, opticalFlowLevel3TextureSize.height, 1, FFX_RESOURCE_FLAGS_NONE, {FFX_RESOURCE_INIT_DATA_TYPE_UNINITIALIZED} },
 
         {   FFX_OF_RESOURCE_IDENTIFIER_OPTICAL_FLOW_1_LEVEL_4, L"OPTICALFLOW_OpticalFlow1Level4", FFX_RESOURCE_TYPE_TEXTURE2D, FFX_RESOURCE_USAGE_UAV,
-            FFX_SURFACE_FORMAT_R16G16_SINT, opticalFlowLevel4TextureSize.width, opticalFlowLevel4TextureSize.height, 1, FFX_RESOURCE_FLAGS_NONE },
+            FFX_SURFACE_FORMAT_R16G16_SINT, opticalFlowLevel4TextureSize.width, opticalFlowLevel4TextureSize.height, 1, FFX_RESOURCE_FLAGS_NONE, {FFX_RESOURCE_INIT_DATA_TYPE_UNINITIALIZED} },
 
         {   FFX_OF_RESOURCE_IDENTIFIER_OPTICAL_FLOW_1_LEVEL_5, L"OPTICALFLOW_OpticalFlow1Level5", FFX_RESOURCE_TYPE_TEXTURE2D, FFX_RESOURCE_USAGE_UAV,
-            FFX_SURFACE_FORMAT_R16G16_SINT, opticalFlowLevel5TextureSize.width, opticalFlowLevel5TextureSize.height, 1, FFX_RESOURCE_FLAGS_NONE },
+            FFX_SURFACE_FORMAT_R16G16_SINT, opticalFlowLevel5TextureSize.width, opticalFlowLevel5TextureSize.height, 1, FFX_RESOURCE_FLAGS_NONE, {FFX_RESOURCE_INIT_DATA_TYPE_UNINITIALIZED} },
 
         {   FFX_OF_RESOURCE_IDENTIFIER_OPTICAL_FLOW_1_LEVEL_6, L"OPTICALFLOW_OpticalFlow1Level6", FFX_RESOURCE_TYPE_TEXTURE2D, FFX_RESOURCE_USAGE_UAV,
-            FFX_SURFACE_FORMAT_R16G16_SINT, opticalFlowLevel6TextureSize.width, opticalFlowLevel6TextureSize.height, 1, FFX_RESOURCE_FLAGS_NONE },
+            FFX_SURFACE_FORMAT_R16G16_SINT, opticalFlowLevel6TextureSize.width, opticalFlowLevel6TextureSize.height, 1, FFX_RESOURCE_FLAGS_NONE, {FFX_RESOURCE_INIT_DATA_TYPE_UNINITIALIZED} },
 
         {   FFX_OF_RESOURCE_IDENTIFIER_OPTICAL_FLOW_2, L"OPTICALFLOW_OpticalFlow2", FFX_RESOURCE_TYPE_TEXTURE2D, FFX_RESOURCE_USAGE_UAV,
-            FFX_SURFACE_FORMAT_R16G16_SINT, opticalFlowTextureSize.width, opticalFlowTextureSize.height, 1,  FFX_RESOURCE_FLAGS_NONE },
+            FFX_SURFACE_FORMAT_R16G16_SINT, opticalFlowTextureSize.width, opticalFlowTextureSize.height, 1,  FFX_RESOURCE_FLAGS_NONE, {FFX_RESOURCE_INIT_DATA_TYPE_UNINITIALIZED} },
 
         {   FFX_OF_RESOURCE_IDENTIFIER_OPTICAL_FLOW_2_LEVEL_1, L"OPTICALFLOW_OpticalFlow2Level1", FFX_RESOURCE_TYPE_TEXTURE2D, FFX_RESOURCE_USAGE_UAV,
-            FFX_SURFACE_FORMAT_R16G16_SINT, opticalFlowLevel1TextureSize.width, opticalFlowLevel1TextureSize.height, 1, FFX_RESOURCE_FLAGS_NONE },
+            FFX_SURFACE_FORMAT_R16G16_SINT, opticalFlowLevel1TextureSize.width, opticalFlowLevel1TextureSize.height, 1, FFX_RESOURCE_FLAGS_NONE, {FFX_RESOURCE_INIT_DATA_TYPE_UNINITIALIZED} },
 
         {   FFX_OF_RESOURCE_IDENTIFIER_OPTICAL_FLOW_2_LEVEL_2, L"OPTICALFLOW_OpticalFlow2Level2", FFX_RESOURCE_TYPE_TEXTURE2D, FFX_RESOURCE_USAGE_UAV,
-            FFX_SURFACE_FORMAT_R16G16_SINT, opticalFlowLevel2TextureSize.width, opticalFlowLevel2TextureSize.height, 1, FFX_RESOURCE_FLAGS_NONE },
+            FFX_SURFACE_FORMAT_R16G16_SINT, opticalFlowLevel2TextureSize.width, opticalFlowLevel2TextureSize.height, 1, FFX_RESOURCE_FLAGS_NONE, {FFX_RESOURCE_INIT_DATA_TYPE_UNINITIALIZED} },
 
         {   FFX_OF_RESOURCE_IDENTIFIER_OPTICAL_FLOW_2_LEVEL_3, L"OPTICALFLOW_OpticalFlow2Level3", FFX_RESOURCE_TYPE_TEXTURE2D, FFX_RESOURCE_USAGE_UAV,
-            FFX_SURFACE_FORMAT_R16G16_SINT, opticalFlowLevel3TextureSize.width, opticalFlowLevel3TextureSize.height, 1, FFX_RESOURCE_FLAGS_NONE },
+            FFX_SURFACE_FORMAT_R16G16_SINT, opticalFlowLevel3TextureSize.width, opticalFlowLevel3TextureSize.height, 1, FFX_RESOURCE_FLAGS_NONE, {FFX_RESOURCE_INIT_DATA_TYPE_UNINITIALIZED} },
 
         {   FFX_OF_RESOURCE_IDENTIFIER_OPTICAL_FLOW_2_LEVEL_4, L"OPTICALFLOW_OpticalFlow2Level4", FFX_RESOURCE_TYPE_TEXTURE2D, FFX_RESOURCE_USAGE_UAV,
-            FFX_SURFACE_FORMAT_R16G16_SINT, opticalFlowLevel4TextureSize.width, opticalFlowLevel4TextureSize.height, 1, FFX_RESOURCE_FLAGS_NONE },
+            FFX_SURFACE_FORMAT_R16G16_SINT, opticalFlowLevel4TextureSize.width, opticalFlowLevel4TextureSize.height, 1, FFX_RESOURCE_FLAGS_NONE, {FFX_RESOURCE_INIT_DATA_TYPE_UNINITIALIZED} },
 
         {   FFX_OF_RESOURCE_IDENTIFIER_OPTICAL_FLOW_2_LEVEL_5, L"OPTICALFLOW_OpticalFlow2Level5", FFX_RESOURCE_TYPE_TEXTURE2D, FFX_RESOURCE_USAGE_UAV,
-            FFX_SURFACE_FORMAT_R16G16_SINT, opticalFlowLevel5TextureSize.width, opticalFlowLevel5TextureSize.height, 1, FFX_RESOURCE_FLAGS_NONE },
+            FFX_SURFACE_FORMAT_R16G16_SINT, opticalFlowLevel5TextureSize.width, opticalFlowLevel5TextureSize.height, 1, FFX_RESOURCE_FLAGS_NONE, {FFX_RESOURCE_INIT_DATA_TYPE_UNINITIALIZED} },
 
         {   FFX_OF_RESOURCE_IDENTIFIER_OPTICAL_FLOW_2_LEVEL_6, L"OPTICALFLOW_OpticalFlow2Level6", FFX_RESOURCE_TYPE_TEXTURE2D, FFX_RESOURCE_USAGE_UAV,
-            FFX_SURFACE_FORMAT_R16G16_SINT, opticalFlowLevel6TextureSize.width, opticalFlowLevel6TextureSize.height, 1, FFX_RESOURCE_FLAGS_NONE },
+            FFX_SURFACE_FORMAT_R16G16_SINT, opticalFlowLevel6TextureSize.width, opticalFlowLevel6TextureSize.height, 1, FFX_RESOURCE_FLAGS_NONE, {FFX_RESOURCE_INIT_DATA_TYPE_UNINITIALIZED} },
 
         {   FFX_OF_RESOURCE_IDENTIFIER_OPTICAL_FLOW_SCD_HISTOGRAM, L"OPTICALFLOW_OpticalFlowSCDHistogram", FFX_RESOURCE_TYPE_TEXTURE2D, FFX_RESOURCE_USAGE_UAV,
-            FFX_SURFACE_FORMAT_R32_UINT, GetSCDHistogramTextureWidth(), 1, 1,  FFX_RESOURCE_FLAGS_NONE },
+            FFX_SURFACE_FORMAT_R32_UINT, GetSCDHistogramTextureWidth(), 1, 1,  FFX_RESOURCE_FLAGS_NONE, {FFX_RESOURCE_INIT_DATA_TYPE_UNINITIALIZED} },
 
         {   FFX_OF_RESOURCE_IDENTIFIER_OPTICAL_FLOW_SCD_PREVIOUS_HISTOGRAM, L"OPTICALFLOW_OpticalFlowSCDPreviousHistogram", FFX_RESOURCE_TYPE_TEXTURE2D, FFX_RESOURCE_USAGE_UAV,
-            FFX_SURFACE_FORMAT_R32_FLOAT, GetSCDHistogramTextureWidth(), 1, 1,  FFX_RESOURCE_FLAGS_NONE },
+            FFX_SURFACE_FORMAT_R32_FLOAT, GetSCDHistogramTextureWidth(), 1, 1,  FFX_RESOURCE_FLAGS_NONE, {FFX_RESOURCE_INIT_DATA_TYPE_UNINITIALIZED} },
 
         {   FFX_OF_RESOURCE_IDENTIFIER_OPTICAL_FLOW_SCD_TEMP, L"OPTICALFLOW_OpticalFlowSCDTemp", FFX_RESOURCE_TYPE_TEXTURE2D, FFX_RESOURCE_USAGE_UAV,
-            FFX_SURFACE_FORMAT_R32_UINT, 3, 1, 1,  FFX_RESOURCE_FLAGS_NONE },
+            FFX_SURFACE_FORMAT_R32_UINT, 3, 1, 1,  FFX_RESOURCE_FLAGS_NONE, {FFX_RESOURCE_INIT_DATA_TYPE_UNINITIALIZED} },
     };
 
     memset(context->resources, 0, sizeof(context->resources));
@@ -416,10 +417,9 @@ static FfxErrorCode opticalflowCreate(FfxOpticalflowContext_Private* context, co
             resourceType, currentSurfaceDescription->format,
             currentSurfaceDescription->width, currentSurfaceDescription->height, 1,
             currentSurfaceDescription->mipCount, FFX_RESOURCE_FLAGS_NONE, currentSurfaceDescription->usage };
-        const FfxResourceStates initialState = FFX_RESOURCE_STATE_COMMON;
+        const FfxResourceStates initialState = FFX_RESOURCE_STATE_UNORDERED_ACCESS;
         const FfxCreateResourceDescription createResourceDescription = {
-            FFX_HEAP_TYPE_DEFAULT, resourceDescription, initialState, currentSurfaceDescription->initDataSize, currentSurfaceDescription->initData,
-            currentSurfaceDescription->name, currentSurfaceDescription->id };
+            FFX_HEAP_TYPE_DEFAULT, resourceDescription, initialState, currentSurfaceDescription->name, currentSurfaceDescription->id, currentSurfaceDescription->initData };
 
         FFX_VALIDATE(context->contextDescription.backendInterface.fpCreateResource(
             &context->contextDescription.backendInterface,
@@ -462,7 +462,7 @@ static FfxErrorCode opticalflowRelease(FfxOpticalflowContext_Private* context)
     return FFX_OK;
 }
 
-static void scheduleDispatch(FfxOpticalflowContext_Private* context, const FfxPipelineState* pipeline, const std::string& pipelineName, uint32_t dispatchX, uint32_t dispatchY, uint32_t dispatchZ = 1)
+static void scheduleDispatch(FfxOpticalflowContext_Private* context, const FfxPipelineState* pipeline, const wchar_t* pipelineName, uint32_t dispatchX, uint32_t dispatchY, uint32_t dispatchZ = 1)
 {
     FfxComputeJobDescription jobDescriptor = {};
 
@@ -470,25 +470,27 @@ static void scheduleDispatch(FfxOpticalflowContext_Private* context, const FfxPi
 
         const uint32_t bindingIdentifier = pipeline->srvTextureBindings[currentShaderResourceViewIndex].resourceIdentifier;
         const FfxResourceInternal currentResource = context->srvBindings[bindingIdentifier];
-        jobDescriptor.srvTextures[currentShaderResourceViewIndex] = currentResource;
-        wcscpy_s(jobDescriptor.srvTextureNames[currentShaderResourceViewIndex], pipeline->srvTextureBindings[currentShaderResourceViewIndex].name);
+        jobDescriptor.srvTextures[currentShaderResourceViewIndex].resource = currentResource;
+#ifdef FFX_DEBUG
+        wcscpy_s(jobDescriptor.srvTextures[currentShaderResourceViewIndex].name, pipeline->srvTextureBindings[currentShaderResourceViewIndex].name);
+#endif
 
         FFX_ASSERT(bindingIdentifier != FFX_OF_BINDING_IDENTIFIER_NULL);
         FFX_ASSERT(bindingIdentifier < FFX_OF_BINDING_IDENTIFIER_COUNT);
-        FFX_ASSERT(currentResource.internalIndex != 0);
     }
 
     for (uint32_t currentUnorderedAccessViewIndex = 0; currentUnorderedAccessViewIndex < pipeline->uavTextureCount; ++currentUnorderedAccessViewIndex) {
 
         const uint32_t bindingIdentifier = pipeline->uavTextureBindings[currentUnorderedAccessViewIndex].resourceIdentifier;
         const FfxResourceInternal currentResource = context->uavBindings[bindingIdentifier];
-        jobDescriptor.uavTextures[currentUnorderedAccessViewIndex] = currentResource;
-        jobDescriptor.uavTextureMips[currentUnorderedAccessViewIndex] = 0;
-        wcscpy_s(jobDescriptor.uavTextureNames[currentUnorderedAccessViewIndex], pipeline->uavTextureBindings[currentUnorderedAccessViewIndex].name);
+        jobDescriptor.uavTextures[currentUnorderedAccessViewIndex].resource = currentResource;
+        jobDescriptor.uavTextures[currentUnorderedAccessViewIndex].mip = 0;
+#ifdef FFX_DEBUG
+        wcscpy_s(jobDescriptor.uavTextures[currentUnorderedAccessViewIndex].name, pipeline->uavTextureBindings[currentUnorderedAccessViewIndex].name);
+#endif
 
         FFX_ASSERT(bindingIdentifier != FFX_OF_BINDING_IDENTIFIER_NULL);
         FFX_ASSERT(bindingIdentifier < FFX_OF_BINDING_IDENTIFIER_COUNT);
-        FFX_ASSERT(currentResource.internalIndex != 0);
     }
     
     jobDescriptor.dimensions[0] = dispatchX;
@@ -497,11 +499,14 @@ static void scheduleDispatch(FfxOpticalflowContext_Private* context, const FfxPi
     jobDescriptor.pipeline = *pipeline;
 
     for (uint32_t currentRootConstantIndex = 0; currentRootConstantIndex < pipeline->constCount; ++currentRootConstantIndex) {
+#ifdef FFX_DEBUG
         wcscpy_s(jobDescriptor.cbNames[currentRootConstantIndex], pipeline->constantBufferBindings[currentRootConstantIndex].name);
-        jobDescriptor.cbs[currentRootConstantIndex] = globalOpticalflowConstantBuffers[pipeline->constantBufferBindings[currentRootConstantIndex].resourceIdentifier];
+#endif
+        jobDescriptor.cbs[currentRootConstantIndex] = context->constantBuffers[pipeline->constantBufferBindings[currentRootConstantIndex].resourceIdentifier];
     }
 
     FfxGpuJobDescription dispatchJob = { FFX_GPU_JOB_COMPUTE };
+    wcscpy_s(dispatchJob.jobLabel, pipelineName);
     dispatchJob.computeJobDescriptor = jobDescriptor;
 
     context->contextDescription.backendInterface.fpScheduleGpuJob(&context->contextDescription.backendInterface, &dispatchJob);
@@ -563,40 +568,57 @@ static FfxErrorCode dispatch(FfxOpticalflowContext_Private* context, const FfxOp
         FfxGpuJobDescription clearJob = { FFX_GPU_JOB_CLEAR_FLOAT };
         memcpy(clearJob.clearJobDescriptor.color, clearValuesToZeroFloat, 4 * sizeof(float));
 
+        wcscpy_s(clearJob.jobLabel, L"Clear Optical Flow SCD Temp");
         clearJob.clearJobDescriptor.target = context->resources[FFX_OF_RESOURCE_IDENTIFIER_OPTICAL_FLOW_SCD_TEMP];
         context->contextDescription.backendInterface.fpScheduleGpuJob(&context->contextDescription.backendInterface, &clearJob);
         clearJob.clearJobDescriptor.target = context->uavBindings[FFX_OF_BINDING_IDENTIFIER_SHARED_OPTICAL_FLOW_SCD_OUTPUT];
         context->contextDescription.backendInterface.fpScheduleGpuJob(&context->contextDescription.backendInterface, &clearJob);
+        wcscpy_s(clearJob.jobLabel, L"Clear Optical Flow SCD Histogram");
         clearJob.clearJobDescriptor.target = context->resources[FFX_OF_RESOURCE_IDENTIFIER_OPTICAL_FLOW_SCD_HISTOGRAM];
         context->contextDescription.backendInterface.fpScheduleGpuJob(&context->contextDescription.backendInterface, &clearJob);
+        wcscpy_s(clearJob.jobLabel, L"Clear Optical Flow SCD Previous histogram");
         clearJob.clearJobDescriptor.target = context->resources[FFX_OF_RESOURCE_IDENTIFIER_OPTICAL_FLOW_SCD_PREVIOUS_HISTOGRAM];
         context->contextDescription.backendInterface.fpScheduleGpuJob(&context->contextDescription.backendInterface, &clearJob);
+        wcscpy_s(clearJob.jobLabel, L"Clear Optical Flow Input 1");
         clearJob.clearJobDescriptor.target = context->resources[FFX_OF_RESOURCE_IDENTIFIER_OPTICAL_FLOW_INPUT_1];
         context->contextDescription.backendInterface.fpScheduleGpuJob(&context->contextDescription.backendInterface, &clearJob);
+        wcscpy_s(clearJob.jobLabel, L"Clear Optical Flow Input 1 Level 1");
         clearJob.clearJobDescriptor.target = context->resources[FFX_OF_RESOURCE_IDENTIFIER_OPTICAL_FLOW_INPUT_1_LEVEL_1];
         context->contextDescription.backendInterface.fpScheduleGpuJob(&context->contextDescription.backendInterface, &clearJob);
+        wcscpy_s(clearJob.jobLabel, L"Clear Optical Flow Input 1 Level 2");
         clearJob.clearJobDescriptor.target = context->resources[FFX_OF_RESOURCE_IDENTIFIER_OPTICAL_FLOW_INPUT_1_LEVEL_2];
         context->contextDescription.backendInterface.fpScheduleGpuJob(&context->contextDescription.backendInterface, &clearJob);
+        wcscpy_s(clearJob.jobLabel, L"Clear Optical Flow Input 1 Level 3");
         clearJob.clearJobDescriptor.target = context->resources[FFX_OF_RESOURCE_IDENTIFIER_OPTICAL_FLOW_INPUT_1_LEVEL_3];
         context->contextDescription.backendInterface.fpScheduleGpuJob(&context->contextDescription.backendInterface, &clearJob);
+        wcscpy_s(clearJob.jobLabel, L"Clear Optical Flow Input 1 Level 4");
         clearJob.clearJobDescriptor.target = context->resources[FFX_OF_RESOURCE_IDENTIFIER_OPTICAL_FLOW_INPUT_1_LEVEL_4];
         context->contextDescription.backendInterface.fpScheduleGpuJob(&context->contextDescription.backendInterface, &clearJob);
+        wcscpy_s(clearJob.jobLabel, L"Clear Optical Flow Input 1 Level 5");
         clearJob.clearJobDescriptor.target = context->resources[FFX_OF_RESOURCE_IDENTIFIER_OPTICAL_FLOW_INPUT_1_LEVEL_5];
         context->contextDescription.backendInterface.fpScheduleGpuJob(&context->contextDescription.backendInterface, &clearJob);
+        wcscpy_s(clearJob.jobLabel, L"Clear Optical Flow Input 1 Level 6");
         clearJob.clearJobDescriptor.target = context->resources[FFX_OF_RESOURCE_IDENTIFIER_OPTICAL_FLOW_INPUT_1_LEVEL_6];
         context->contextDescription.backendInterface.fpScheduleGpuJob(&context->contextDescription.backendInterface, &clearJob);
+        wcscpy_s(clearJob.jobLabel, L"Clear Optical Flow Input 2");
         clearJob.clearJobDescriptor.target = context->resources[FFX_OF_RESOURCE_IDENTIFIER_OPTICAL_FLOW_INPUT_2];
         context->contextDescription.backendInterface.fpScheduleGpuJob(&context->contextDescription.backendInterface, &clearJob);
+        wcscpy_s(clearJob.jobLabel, L"Clear Optical Flow Input 2 Level 1");
         clearJob.clearJobDescriptor.target = context->resources[FFX_OF_RESOURCE_IDENTIFIER_OPTICAL_FLOW_INPUT_2_LEVEL_1];
         context->contextDescription.backendInterface.fpScheduleGpuJob(&context->contextDescription.backendInterface, &clearJob);
+        wcscpy_s(clearJob.jobLabel, L"Clear Optical Flow Input 2 Level 2");
         clearJob.clearJobDescriptor.target = context->resources[FFX_OF_RESOURCE_IDENTIFIER_OPTICAL_FLOW_INPUT_2_LEVEL_2];
         context->contextDescription.backendInterface.fpScheduleGpuJob(&context->contextDescription.backendInterface, &clearJob);
+        wcscpy_s(clearJob.jobLabel, L"Clear Optical Flow Input 2 Level 3");
         clearJob.clearJobDescriptor.target = context->resources[FFX_OF_RESOURCE_IDENTIFIER_OPTICAL_FLOW_INPUT_2_LEVEL_3];
         context->contextDescription.backendInterface.fpScheduleGpuJob(&context->contextDescription.backendInterface, &clearJob);
+        wcscpy_s(clearJob.jobLabel, L"Clear Optical Flow Input 2 Level 4");
         clearJob.clearJobDescriptor.target = context->resources[FFX_OF_RESOURCE_IDENTIFIER_OPTICAL_FLOW_INPUT_2_LEVEL_4];
         context->contextDescription.backendInterface.fpScheduleGpuJob(&context->contextDescription.backendInterface, &clearJob);
+        wcscpy_s(clearJob.jobLabel, L"Clear Optical Flow Input 2 Level 5");
         clearJob.clearJobDescriptor.target = context->resources[FFX_OF_RESOURCE_IDENTIFIER_OPTICAL_FLOW_INPUT_2_LEVEL_5];
         context->contextDescription.backendInterface.fpScheduleGpuJob(&context->contextDescription.backendInterface, &clearJob);
+        wcscpy_s(clearJob.jobLabel, L"Clear Optical Flow Input 2 Level 6");
         clearJob.clearJobDescriptor.target = context->resources[FFX_OF_RESOURCE_IDENTIFIER_OPTICAL_FLOW_INPUT_2_LEVEL_6];
         context->contextDescription.backendInterface.fpScheduleGpuJob(&context->contextDescription.backendInterface, &clearJob);
     }
@@ -618,8 +640,8 @@ static FfxErrorCode dispatch(FfxOpticalflowContext_Private* context, const FfxOp
     luminancePyramidConstants.workGroupOffset[1] = workGroupOffset[1];
     luminancePyramidConstants.numworkGroupsOpticalFlowInputPyramid = numWorkGroupsAndMips[0];
 
-    memcpy(&globalOpticalflowConstantBuffers[FFX_OPTICALFLOW_CONSTANTBUFFER_IDENTIFIER].data, &context->constants, globalOpticalflowConstantBuffers[FFX_OPTICALFLOW_CONSTANTBUFFER_IDENTIFIER].num32BitEntries * sizeof(uint32_t));
-    memcpy(&globalOpticalflowConstantBuffers[FFX_OPTICALFLOW_CONSTANTBUFFER_IDENTIFIER_SPD].data, &luminancePyramidConstants, globalOpticalflowConstantBuffers[FFX_OPTICALFLOW_CONSTANTBUFFER_IDENTIFIER_SPD].num32BitEntries * sizeof(uint32_t));
+    context->contextDescription.backendInterface.fpStageConstantBufferDataFunc(&context->contextDescription.backendInterface, &context->constants,        sizeof(context->constants),        &context->constantBuffers[FFX_OPTICALFLOW_CONSTANTBUFFER_IDENTIFIER]);
+    context->contextDescription.backendInterface.fpStageConstantBufferDataFunc(&context->contextDescription.backendInterface, &luminancePyramidConstants, sizeof(luminancePyramidConstants), &context->constantBuffers[FFX_OPTICALFLOW_CONSTANTBUFFER_IDENTIFIER_SPD]);
 
     {
         context->uavBindings[FFX_OF_BINDING_IDENTIFIER_OPTICAL_FLOW_SCD_HISTOGRAM] = context->resources[FFX_OF_RESOURCE_IDENTIFIER_OPTICAL_FLOW_SCD_HISTOGRAM];
@@ -657,14 +679,14 @@ static FfxErrorCode dispatch(FfxOpticalflowContext_Private* context, const FfxOp
             uint32_t threadPixelsY = 2;
             int32_t dispatchX = ((context->contextDescription.resolution.width + (threadPixelsX - 1)) / threadPixelsX + (threadGroupSizeX - 1)) / threadGroupSizeX;
             int32_t dispatchY = ((context->contextDescription.resolution.height + (threadPixelsY - 1)) / threadPixelsY + (threadGroupSizeY - 1)) / threadGroupSizeY;
-            std::string pipelineName = "OF PrepareLuma";
-            scheduleDispatch(context, &context->pipelinePrepareLuma, pipelineName, dispatchX, dispatchY);
+            scheduleDispatch(context, &context->pipelinePrepareLuma, L"OF PrepareLuma", dispatchX, dispatchY);
         }
 
         {
             {
-                std::string pipelineName = "OF GenerateOpticalFlowInputPyramid";
-                scheduleDispatch(context, &context->pipelineGenerateOpticalFlowInputPyramid, pipelineName,
+                scheduleDispatch(context,
+                                 &context->pipelineGenerateOpticalFlowInputPyramid,
+                                 L"OF GenerateOpticalFlowInputPyramid",
                                  threadGroupSizeOpticalFlowInputPyramid[0],
                                  threadGroupSizeOpticalFlowInputPyramid[1]
                 );
@@ -679,14 +701,12 @@ static FfxErrorCode dispatch(FfxOpticalflowContext_Private* context, const FfxOp
                     const uint32_t dispatchX = (strataWidth + threadGroupSizeX - 1) / threadGroupSizeX;
                     const uint32_t dispatchY = 16;
                     const uint32_t dispatchZ = HistogramsPerDim * HistogramsPerDim;
-                    std::string pipelineName = "OF GenerateSCDHistogram";
-                    scheduleDispatch(context, &context->pipelineGenerateSCDHistogram, pipelineName, dispatchX, dispatchY, dispatchZ);
+                    scheduleDispatch(context, &context->pipelineGenerateSCDHistogram, L"OF GenerateSCDHistogram", dispatchX, dispatchY, dispatchZ);
                 }
                 {
                     const uint32_t dispatchX = HistogramsPerDim * HistogramsPerDim;
                     const uint32_t dispatchY = HistogramShifts;
-                    std::string pipelineName = "OF ComputeSCDDivergence";
-                    scheduleDispatch(context, &context->pipelineComputeSCDDivergence, pipelineName, dispatchX, dispatchY);
+                    scheduleDispatch(context, &context->pipelineComputeSCDDivergence, L"OF ComputeSCDDivergence", dispatchX, dispatchY);
                 }
             }
 
@@ -714,7 +734,7 @@ static FfxErrorCode dispatch(FfxOpticalflowContext_Private* context, const FfxOp
                 context->constants.opticalFlowPyramidLevel = level;
                 context->constants.opticalFlowPyramidLevelCount = pyramidMaxIterations;
 
-                memcpy(&globalOpticalflowConstantBuffers[FFX_OPTICALFLOW_CONSTANTBUFFER_IDENTIFIER].data, &context->constants, globalOpticalflowConstantBuffers[FFX_OPTICALFLOW_CONSTANTBUFFER_IDENTIFIER].num32BitEntries * sizeof(uint32_t));
+                context->contextDescription.backendInterface.fpStageConstantBufferDataFunc(&context->contextDescription.backendInterface, &context->constants, sizeof(context->constants), &context->constantBuffers[FFX_OPTICALFLOW_CONSTANTBUFFER_IDENTIFIER]);
 
                 context->srvBindings[FFX_OF_BINDING_IDENTIFIER_OPTICAL_FLOW_INPUT] = context->resources[opticalFlowInputResourceIndexA + level];
                 context->srvBindings[FFX_OF_BINDING_IDENTIFIER_OPTICAL_FLOW_PREVIOUS_INPUT] = context->resources[opticalFlowInputResourceIndexB + level];
@@ -725,17 +745,16 @@ static FfxErrorCode dispatch(FfxOpticalflowContext_Private* context, const FfxOp
                 {
                     const FfxUInt32 inputLumaWidth = ffxMax(context->contextDescription.resolution.width >> level, 1);
                     const FfxUInt32 inputLumaHeight = ffxMax(context->contextDescription.resolution.height >> level, 1);
-                    std::string pipelineName = "OF " + std::to_string(level) + " Search";
+                    std::wstring pipelineName = L"OF " + std::to_wstring(level) + L" Search";
 
                     {
                         uint32_t threadPixels = 4;
                         FFX_ASSERT(opticalFlowBlockSize >= threadPixels);
-                        uint32_t threadGroupSizeX = 4;
                         uint32_t threadGroupSizeY = 16;
                         uint32_t threadGroupSize = 64;
                         uint32_t dispatchX = ((inputLumaWidth + threadPixels - 1) / threadPixels * threadGroupSizeY + (threadGroupSize - 1)) / threadGroupSize;
                         uint32_t dispatchY = (inputLumaHeight + (threadGroupSizeY - 1)) / threadGroupSizeY;
-                        scheduleDispatch(context, &context->pipelineComputeOpticalFlowAdvancedV5, pipelineName, dispatchX, dispatchY);
+                        scheduleDispatch(context, &context->pipelineComputeOpticalFlowAdvancedV5, pipelineName.c_str(), dispatchX, dispatchY);
                     }
                 }
 
@@ -757,10 +776,10 @@ static FfxErrorCode dispatch(FfxOpticalflowContext_Private* context, const FfxOp
                     const uint32_t threadGroupSizeY = 4;
                     const uint32_t dispatchX = (levelWidth + threadGroupSizeX - 1) / threadGroupSizeX;
                     const uint32_t dispatchY = (levelHeight + threadGroupSizeY - 1) / threadGroupSizeY;
-                    std::string pipelineName = "OF " + std::to_string(level) + " Filter";
+                    std::wstring pipelineName = L"OF " + std::to_wstring(level) + L" Filter";
 
                     {
-                        scheduleDispatch(context, &context->pipelineFilterOpticalFlowV5, pipelineName, dispatchX, dispatchY);
+                        scheduleDispatch(context, &context->pipelineFilterOpticalFlowV5, pipelineName.c_str(), dispatchX, dispatchY);
                     }
                 }
 
@@ -786,21 +805,80 @@ static FfxErrorCode dispatch(FfxOpticalflowContext_Private* context, const FfxOp
                     const uint32_t dispatchX = (nextLevelWidth + threadGroupSizeX - 1) / threadGroupSizeX;
                     const uint32_t dispatchY = (nextLevelHeight + threadGroupSizeY - 1) / threadGroupSizeY;
                     const uint32_t dispatchZ = 1;
-                    std::string pipelineName = "OF " + std::to_string(level) + " Scale";
+                    std::wstring pipelineName = L"OF " + std::to_wstring(level) + L" Scale";
 
                     {
                         const uint32_t dispatchX = (nextLevelWidth + 3) / 4;
                         const uint32_t dispatchY = (nextLevelHeight + 3) / 4;
-                        scheduleDispatch(context, &context->pipelineScaleOpticalFlowAdvancedV5, pipelineName, dispatchX, dispatchY, dispatchZ);
+                        scheduleDispatch(context, &context->pipelineScaleOpticalFlowAdvancedV5, pipelineName.c_str(), dispatchX, dispatchY, dispatchZ);
                     }
+
+                    {
+                        FfxGpuJobDescription barrierJob = {FFX_GPU_JOB_BARRIER};
+                        barrierJob.barrierDescriptor = { context->srvBindings[FFX_OF_BINDING_IDENTIFIER_OPTICAL_FLOW], FFX_BARRIER_TYPE_TRANSITION, FFX_RESOURCE_STATE_COMPUTE_READ, FFX_RESOURCE_STATE_UNORDERED_ACCESS, 0};
+                        context->contextDescription.backendInterface.fpScheduleGpuJob(&context->contextDescription.backendInterface, &barrierJob);
+                    }
+                }
+
+                {
+                    FfxGpuJobDescription barrierJob = {FFX_GPU_JOB_BARRIER};
+                    barrierJob.barrierDescriptor = { context->srvBindings[FFX_OF_BINDING_IDENTIFIER_OPTICAL_FLOW_PREVIOUS], FFX_BARRIER_TYPE_TRANSITION, FFX_RESOURCE_STATE_COMPUTE_READ, FFX_RESOURCE_STATE_UNORDERED_ACCESS, 0};
+                    context->contextDescription.backendInterface.fpScheduleGpuJob(&context->contextDescription.backendInterface, &barrierJob);
                 }
             }
         }
     }
 
+    {
+        FfxGpuJobDescription barrierJob = {FFX_GPU_JOB_BARRIER};
+
+        wcscpy_s(barrierJob.jobLabel, L"Transition Optical Flow Input 1");
+        barrierJob.barrierDescriptor = { context->resources[FFX_OF_RESOURCE_IDENTIFIER_OPTICAL_FLOW_INPUT_1], FFX_BARRIER_TYPE_TRANSITION, FFX_RESOURCE_STATE_COMPUTE_READ, FFX_RESOURCE_STATE_UNORDERED_ACCESS, 0};
+        context->contextDescription.backendInterface.fpScheduleGpuJob(&context->contextDescription.backendInterface, &barrierJob);
+        wcscpy_s(barrierJob.jobLabel, L"Transition Optical Flow Input 1 Level 1");
+        barrierJob.barrierDescriptor = { context->resources[FFX_OF_RESOURCE_IDENTIFIER_OPTICAL_FLOW_INPUT_1_LEVEL_1], FFX_BARRIER_TYPE_TRANSITION, FFX_RESOURCE_STATE_COMPUTE_READ, FFX_RESOURCE_STATE_UNORDERED_ACCESS, 0};
+        context->contextDescription.backendInterface.fpScheduleGpuJob(&context->contextDescription.backendInterface, &barrierJob);
+        wcscpy_s(barrierJob.jobLabel, L"Transition Optical Flow Input 1 Level 2");
+        barrierJob.barrierDescriptor = { context->resources[FFX_OF_RESOURCE_IDENTIFIER_OPTICAL_FLOW_INPUT_1_LEVEL_2], FFX_BARRIER_TYPE_TRANSITION, FFX_RESOURCE_STATE_COMPUTE_READ, FFX_RESOURCE_STATE_UNORDERED_ACCESS, 0};
+        context->contextDescription.backendInterface.fpScheduleGpuJob(&context->contextDescription.backendInterface, &barrierJob);
+        wcscpy_s(barrierJob.jobLabel, L"Transition Optical Flow Input 1 Level 3");
+        barrierJob.barrierDescriptor = { context->resources[FFX_OF_RESOURCE_IDENTIFIER_OPTICAL_FLOW_INPUT_1_LEVEL_3], FFX_BARRIER_TYPE_TRANSITION, FFX_RESOURCE_STATE_COMPUTE_READ, FFX_RESOURCE_STATE_UNORDERED_ACCESS, 0};
+        context->contextDescription.backendInterface.fpScheduleGpuJob(&context->contextDescription.backendInterface, &barrierJob);
+        wcscpy_s(barrierJob.jobLabel, L"Transition Optical Flow Input 1 Level 4");
+        barrierJob.barrierDescriptor = { context->resources[FFX_OF_RESOURCE_IDENTIFIER_OPTICAL_FLOW_INPUT_1_LEVEL_4], FFX_BARRIER_TYPE_TRANSITION, FFX_RESOURCE_STATE_COMPUTE_READ, FFX_RESOURCE_STATE_UNORDERED_ACCESS, 0};
+        context->contextDescription.backendInterface.fpScheduleGpuJob(&context->contextDescription.backendInterface, &barrierJob);
+        wcscpy_s(barrierJob.jobLabel, L"Transition Optical Flow Input 1 Level 5");
+        barrierJob.barrierDescriptor = { context->resources[FFX_OF_RESOURCE_IDENTIFIER_OPTICAL_FLOW_INPUT_1_LEVEL_5], FFX_BARRIER_TYPE_TRANSITION, FFX_RESOURCE_STATE_COMPUTE_READ, FFX_RESOURCE_STATE_UNORDERED_ACCESS, 0};
+        context->contextDescription.backendInterface.fpScheduleGpuJob(&context->contextDescription.backendInterface, &barrierJob);
+        wcscpy_s(barrierJob.jobLabel, L"Transition Optical Flow Input 1 Level 6");
+        barrierJob.barrierDescriptor = { context->resources[FFX_OF_RESOURCE_IDENTIFIER_OPTICAL_FLOW_INPUT_1_LEVEL_6], FFX_BARRIER_TYPE_TRANSITION, FFX_RESOURCE_STATE_COMPUTE_READ, FFX_RESOURCE_STATE_UNORDERED_ACCESS, 0};
+        context->contextDescription.backendInterface.fpScheduleGpuJob(&context->contextDescription.backendInterface, &barrierJob);
+        wcscpy_s(barrierJob.jobLabel, L"Transition Optical Flow Input 2");
+        barrierJob.barrierDescriptor = { context->resources[FFX_OF_RESOURCE_IDENTIFIER_OPTICAL_FLOW_INPUT_2], FFX_BARRIER_TYPE_TRANSITION, FFX_RESOURCE_STATE_COMPUTE_READ, FFX_RESOURCE_STATE_UNORDERED_ACCESS, 0};
+        context->contextDescription.backendInterface.fpScheduleGpuJob(&context->contextDescription.backendInterface, &barrierJob);
+        wcscpy_s(barrierJob.jobLabel, L"Transition Optical Flow Input 2 Level 1");
+        barrierJob.barrierDescriptor = { context->resources[FFX_OF_RESOURCE_IDENTIFIER_OPTICAL_FLOW_INPUT_2_LEVEL_1], FFX_BARRIER_TYPE_TRANSITION, FFX_RESOURCE_STATE_COMPUTE_READ, FFX_RESOURCE_STATE_UNORDERED_ACCESS, 0};
+        context->contextDescription.backendInterface.fpScheduleGpuJob(&context->contextDescription.backendInterface, &barrierJob);
+        wcscpy_s(barrierJob.jobLabel, L"Transition Optical Flow Input 2 Level 2");
+        barrierJob.barrierDescriptor = { context->resources[FFX_OF_RESOURCE_IDENTIFIER_OPTICAL_FLOW_INPUT_2_LEVEL_2], FFX_BARRIER_TYPE_TRANSITION, FFX_RESOURCE_STATE_COMPUTE_READ, FFX_RESOURCE_STATE_UNORDERED_ACCESS, 0};
+        context->contextDescription.backendInterface.fpScheduleGpuJob(&context->contextDescription.backendInterface, &barrierJob);
+        wcscpy_s(barrierJob.jobLabel, L"Transition Optical Flow Input 2 Level 3");
+        barrierJob.barrierDescriptor = { context->resources[FFX_OF_RESOURCE_IDENTIFIER_OPTICAL_FLOW_INPUT_2_LEVEL_3], FFX_BARRIER_TYPE_TRANSITION, FFX_RESOURCE_STATE_COMPUTE_READ, FFX_RESOURCE_STATE_UNORDERED_ACCESS, 0};
+        context->contextDescription.backendInterface.fpScheduleGpuJob(&context->contextDescription.backendInterface, &barrierJob);
+        wcscpy_s(barrierJob.jobLabel, L"Transition Optical Flow Input 2 Level 4");
+        barrierJob.barrierDescriptor = { context->resources[FFX_OF_RESOURCE_IDENTIFIER_OPTICAL_FLOW_INPUT_2_LEVEL_4], FFX_BARRIER_TYPE_TRANSITION, FFX_RESOURCE_STATE_COMPUTE_READ, FFX_RESOURCE_STATE_UNORDERED_ACCESS, 0};
+        context->contextDescription.backendInterface.fpScheduleGpuJob(&context->contextDescription.backendInterface, &barrierJob);
+        wcscpy_s(barrierJob.jobLabel, L"Transition Optical Flow Input 2 Level 5");
+        barrierJob.barrierDescriptor = { context->resources[FFX_OF_RESOURCE_IDENTIFIER_OPTICAL_FLOW_INPUT_2_LEVEL_5], FFX_BARRIER_TYPE_TRANSITION, FFX_RESOURCE_STATE_COMPUTE_READ, FFX_RESOURCE_STATE_UNORDERED_ACCESS, 0};
+        context->contextDescription.backendInterface.fpScheduleGpuJob(&context->contextDescription.backendInterface, &barrierJob);
+        wcscpy_s(barrierJob.jobLabel, L"Transition Optical Flow Input 2 Level 6");
+        barrierJob.barrierDescriptor = { context->resources[FFX_OF_RESOURCE_IDENTIFIER_OPTICAL_FLOW_INPUT_2_LEVEL_6], FFX_BARRIER_TYPE_TRANSITION, FFX_RESOURCE_STATE_COMPUTE_READ, FFX_RESOURCE_STATE_UNORDERED_ACCESS, 0};
+        context->contextDescription.backendInterface.fpScheduleGpuJob(&context->contextDescription.backendInterface, &barrierJob);
+    }
+
     context->resourceFrameIndex = (context->resourceFrameIndex + 1) % FFX_OPTICALFLOW_MAX_QUEUED_FRAMES;
 
-    FFX_VALIDATE(context->contextDescription.backendInterface.fpExecuteGpuJobs(&context->contextDescription.backendInterface, commandList));
+    FFX_VALIDATE(context->contextDescription.backendInterface.fpExecuteGpuJobs(&context->contextDescription.backendInterface, commandList, context->effectContextId));
 
     context->contextDescription.backendInterface.fpUnregisterResources(&context->contextDescription.backendInterface, commandList, context->effectContextId);
 
@@ -812,6 +890,7 @@ FfxErrorCode ffxOpticalflowContextCreate(FfxOpticalflowContext* context, FfxOpti
     FFX_RETURN_ON_ERROR(context, FFX_ERROR_INVALID_POINTER);
     FFX_RETURN_ON_ERROR(contextDescription, FFX_ERROR_INVALID_POINTER);
 
+    FFX_RETURN_ON_ERROR(contextDescription->backendInterface.fpGetSDKVersion, FFX_ERROR_INCOMPLETE_INTERFACE);
     FFX_RETURN_ON_ERROR(contextDescription->backendInterface.fpGetDeviceCapabilities, FFX_ERROR_INCOMPLETE_INTERFACE);
     FFX_RETURN_ON_ERROR(contextDescription->backendInterface.fpCreateBackendContext, FFX_ERROR_INCOMPLETE_INTERFACE);
     FFX_RETURN_ON_ERROR(contextDescription->backendInterface.fpDestroyBackendContext, FFX_ERROR_INCOMPLETE_INTERFACE);
@@ -827,6 +906,21 @@ FfxErrorCode ffxOpticalflowContextCreate(FfxOpticalflowContext* context, FfxOpti
     FfxErrorCode errorCode = opticalflowCreate(contextPrivate, contextDescription);
 
     return errorCode;
+}
+
+FFX_API FfxErrorCode ffxOpticalflowContextGetGpuMemoryUsage(FfxOpticalflowContext* context, FfxEffectMemoryUsage* vramUsage)
+{
+    FFX_RETURN_ON_ERROR(context, FFX_ERROR_INVALID_POINTER);
+    FFX_RETURN_ON_ERROR(vramUsage, FFX_ERROR_INVALID_POINTER);
+    FfxOpticalflowContext_Private* contextPrivate = (FfxOpticalflowContext_Private*)(context);
+
+    FFX_RETURN_ON_ERROR(contextPrivate->device, FFX_ERROR_NULL_DEVICE);
+
+    FfxErrorCode errorCode = contextPrivate->contextDescription.backendInterface.fpGetEffectGpuMemoryUsage(
+        &contextPrivate->contextDescription.backendInterface, contextPrivate->effectContextId, vramUsage);
+    FFX_RETURN_ON_ERROR(errorCode == FFX_OK, errorCode);
+
+    return FFX_OK;
 }
 
 FfxErrorCode ffxOpticalflowContextDestroy(FfxOpticalflowContext* context)
@@ -857,12 +951,12 @@ FFX_API FfxErrorCode ffxOpticalflowGetSharedResourceDescriptions(FfxOpticalflowC
     SharedResources->opticalFlowVector = {
         FFX_HEAP_TYPE_DEFAULT,
         { FFX_RESOURCE_TYPE_TEXTURE2D, FFX_SURFACE_FORMAT_R16G16_SINT, opticalFlowTextureSize.width, opticalFlowTextureSize.height, 1, 1, FFX_RESOURCE_FLAGS_NONE, FFX_RESOURCE_USAGE_UAV },
-        FFX_RESOURCE_STATE_UNORDERED_ACCESS, 0, nullptr, L"OPTICALFLOW_Result", 0 };
+        FFX_RESOURCE_STATE_UNORDERED_ACCESS, L"OPTICALFLOW_Result", 0, {FFX_RESOURCE_INIT_DATA_TYPE_UNINITIALIZED} };
 
     SharedResources->opticalFlowSCD = {
         FFX_HEAP_TYPE_DEFAULT,
         { FFX_RESOURCE_TYPE_TEXTURE2D, FFX_SURFACE_FORMAT_R32_UINT, 3, 1, 1, 1, FFX_RESOURCE_FLAGS_NONE, FFX_RESOURCE_USAGE_UAV },
-        FFX_RESOURCE_STATE_UNORDERED_ACCESS, 0, nullptr, L"OPTICALFLOW_SCDOutput", 0 };
+        FFX_RESOURCE_STATE_UNORDERED_ACCESS, L"OPTICALFLOW_SCDOutput", 0, {FFX_RESOURCE_INIT_DATA_TYPE_UNINITIALIZED} };
 
     return FFX_OK;
 }
@@ -887,3 +981,7 @@ FfxErrorCode ffxOpticalflowContextDispatch(FfxOpticalflowContext* context, const
     return errorCode;
 }
 
+FFX_API FfxVersionNumber ffxOpticalflowGetEffectVersion()
+{
+    return FFX_SDK_MAKE_VERSION(FFX_OPTICALFLOW_VERSION_MAJOR, FFX_OPTICALFLOW_VERSION_MINOR, FFX_OPTICALFLOW_VERSION_PATCH);
+}

@@ -1,13 +1,14 @@
 # This file is part of the FidelityFX SDK.
 # 
-# Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
+# Copyright (C) 2024 Advanced Micro Devices, Inc.
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
+# of this software and associated documentation files(the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# to use, copy, modify, merge, publish, distribute, sublicense, and /or sell
 # copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
+# furnished to do so, subject to the following conditions :
+# 
 # The above copyright notice and this permission notice shall be included in
 # all copies or substantial portions of the Software.
 # 
@@ -20,6 +21,7 @@
 # THE SOFTWARE.
 
 if (FFX_SSSR OR FFX_ALL)
+
 	# Shared sources
 	set(SHARED_SOURCES ${FFX_SHARED_SOURCES})
 
@@ -47,11 +49,13 @@ if (FFX_SSSR OR FFX_ALL)
 	source_group("private_source" FILES ${PRIVATE_SOURCES})
 	source_group("public_source"  FILES ${PUBLIC_SOURCES})
 
-	# Dependencies
 	target_link_libraries(ffx_sssr_${FFX_PLATFORM_NAME} PRIVATE ffx_denoiser_${FFX_PLATFORM_NAME})
 
 	target_include_directories(ffx_sssr_${FFX_PLATFORM_NAME} PUBLIC ${FFX_INCLUDE_PATH})
 	target_include_directories(ffx_sssr_${FFX_PLATFORM_NAME} PUBLIC ${FFX_SHARED_PATH})
+
+	# Dependencies
+ 	add_dependencies(ffx_sssr_${FFX_PLATFORM_NAME} ffx_denoiser_${FFX_PLATFORM_NAME})
 
 	set_source_files_properties(${SHADERS} PROPERTIES HEADER_FILE_ONLY TRUE)
 	set_target_properties(ffx_sssr_${FFX_PLATFORM_NAME} PROPERTIES FOLDER Components)

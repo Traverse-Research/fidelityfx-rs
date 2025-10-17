@@ -1,16 +1,17 @@
 // This file is part of the FidelityFX SDK.
-// 
-// Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
+//
+// Copyright (C) 2024 Advanced Micro Devices, Inc.
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to deal
+// of this software and associated documentation files(the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// to use, copy, modify, merge, publish, distribute, sublicense, and /or sell
 // copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
+// furnished to do so, subject to the following conditions :
+//
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -18,7 +19,6 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-
 
 #if !defined(FFX_FSR2_COMMON_H)
 #define FFX_FSR2_COMMON_H
@@ -508,6 +508,32 @@ FfxFloat32x3 UnprepareRgb(FfxFloat32x3 fRgb, FfxFloat32 fExposure)
 
     return fRgb;
 }
+
+#if FFX_HALF && defined(__XBOX_SCARLETT) && defined(__XBATG_EXTRA_16_BIT_OPTIMISATION) && (__XBATG_EXTRA_16_BIT_OPTIMISATION == 1)
+
+void PrepareRgbPaired(inout FFX_MIN16_F2 r, inout FFX_MIN16_F2 g, inout FFX_MIN16_F2 b, FfxFloat32 fExposure, FfxFloat32 fPreExposure)
+{
+    FFX_MIN16_F ExposureOverPreExposureOver = FFX_MIN16_F(fExposure / fPreExposure);
+
+    r *= ExposureOverPreExposureOver;
+    g *= ExposureOverPreExposureOver;
+    b *= ExposureOverPreExposureOver;
+
+    r = ffxClampHalf(r, 0.0, FSR2_FP16_MAX);
+    g = ffxClampHalf(g, 0.0, FSR2_FP16_MAX);
+    b = ffxClampHalf(b, 0.0, FSR2_FP16_MAX);
+}
+
+void UnprepareRgbPaired(inout FFX_MIN16_F2 r, inout FFX_MIN16_F2 g, inout FFX_MIN16_F2 b, FfxFloat32 fExposure)
+{
+    FFX_MIN16_F PreExposureOverExposure = FFX_MIN16_F(PreExposure() / fExposure);
+
+    r *= PreExposureOverExposure;
+    g *= PreExposureOverExposure;
+    b *= PreExposureOverExposure;
+}
+
+#endif
 
 
 struct BilinearSamplingData

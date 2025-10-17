@@ -1,16 +1,17 @@
 // This file is part of the FidelityFX SDK.
-// 
-// Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
+//
+// Copyright (C) 2024 Advanced Micro Devices, Inc.
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to deal
+// of this software and associated documentation files(the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// to use, copy, modify, merge, publish, distribute, sublicense, and /or sell
 // copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
+// furnished to do so, subject to the following conditions :
+//
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -18,7 +19,6 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-
 
 #ifndef FFX_FRAMEINTERPOLATION_DISOCCLUSION_MASK_H
 #define FFX_FRAMEINTERPOLATION_DISOCCLUSION_MASK_H
@@ -46,13 +46,17 @@ FfxFloat32 ComputeSampleDepthClip(FfxInt32x2 iPxSamplePos, FfxFloat32 fPreviousD
 
 FfxFloat32 LoadEstimatedDepth(FfxUInt32 estimatedIndex, FfxInt32x2 iSamplePos)
 {
+    const FfxFloat32x2 fUv = FfxFloat32x2(iSamplePos + 0.5f) / RenderSize();
+    const FfxFloat32x2 fDistortionFieldUv = SampleDistortionField(fUv);
+    FfxInt32x2 iDistortionPixelOffset = FfxInt32x2(fDistortionFieldUv.xy * RenderSize());
+
     if (estimatedIndex == 0)
     {
-        return LoadReconstructedDepthPreviousFrame(iSamplePos);
+        return LoadReconstructedDepthPreviousFrame(iSamplePos + iDistortionPixelOffset);
     }
     else if (estimatedIndex == 1)
     {
-        return LoadDilatedDepth(iSamplePos);
+        return LoadDilatedDepth(iSamplePos + iDistortionPixelOffset);
     }
 
     return 0;
@@ -125,17 +129,18 @@ void computeDisocclusionMask(FfxInt32x2 iPxPos)
     const FfxFloat32 fDepthClipInterpolatedToCurrent    = 1.0f - ComputeDepthClip(1, fDepthUv - gameMv.fMotionVector, fDilatedDepth);
     FfxFloat32x2 fDisocclusionMask = FfxFloat32x2(fDepthClipInterpolatedToPrevious, fDepthClipInterpolatedToCurrent);
 
-    fDisocclusionMask = fDisocclusionMask >= FFX_FRAMEINTERPOLATION_EPSILON;
+    fDisocclusionMask = FfxFloat32x2(FFX_GREATER_THAN_EQUAL(fDisocclusionMask, ffxBroadcast2(FFX_FRAMEINTERPOLATION_EPSILON)));
 
     // Avoid false disocclusion if primary game vector pointer outside screen area
     const FfxFloat32x2 fSrcMotionVector   = gameMv.fMotionVector * 2.0f;
-    const FfxInt32x2   iSamplePosPrevious = (fDepthUv + fSrcMotionVector) * RenderSize();
-    fDisocclusionMask.x = ffxSaturate(fDisocclusionMask.x + !IsOnScreen(iSamplePosPrevious, RenderSize()));
+    const FfxInt32x2   iSamplePosPrevious = FfxInt32x2((fDepthUv + fSrcMotionVector) * RenderSize());
+    fDisocclusionMask.x = ffxSaturate(fDisocclusionMask.x + FfxFloat32(!IsOnScreen(iSamplePosPrevious, RenderSize())));
 
-    const FfxInt32x2 iSamplePosCurrent = (fDepthUv - fSrcMotionVector) * RenderSize();
-    fDisocclusionMask.y = ffxSaturate(fDisocclusionMask.y + !IsOnScreen(iSamplePosCurrent, RenderSize()));
+    const FfxInt32x2 iSamplePosCurrent = FfxInt32x2((fDepthUv - fSrcMotionVector) * RenderSize());
+    fDisocclusionMask.y = ffxSaturate(fDisocclusionMask.y + FfxFloat32(!IsOnScreen(iSamplePosCurrent, RenderSize())));
 
     StoreDisocclusionMask(iPxPos, fDisocclusionMask);
+
 }
 
 #endif // FFX_FRAMEINTERPOLATION_DISOCCLUSION_MASK_H

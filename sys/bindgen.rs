@@ -39,6 +39,8 @@ fn bindgen(api_dir: &Path) -> bindgen::Builder {
     let mut bindings = bindgen::Builder::default()
         .layout_tests(false)
         .derive_default(true)
+        .generate_comments(true)
+        .clang_arg("-fparse-all-comments")
         .prepend_enum_name(false)
         .clang_arg("-xc++")
         .clang_arg(format!("-I{}/include", api_dir.display()))
