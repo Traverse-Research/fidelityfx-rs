@@ -13,15 +13,15 @@ pub mod vk {
     use crate::*;
 
     use ash::vk::{
-        AllocationCallbacks as VkAllocationCallbacks, Buffer as VkBuffer,
-        BufferCreateInfo as VkBufferCreateInfo, CommandBuffer as VkCommandBuffer,
-        Device as VkDevice, Fence as VkFence, Format as VkFormat, Image as VkImage,
-        ImageCreateInfo as VkImageCreateInfo, PFN_vkAcquireNextImageKHR, PFN_vkDestroySwapchainKHR,
-        PFN_vkGetDeviceProcAddr, PFN_vkGetSwapchainImagesKHR, PFN_vkQueuePresentKHR,
-        PFN_vkSetHdrMetadataEXT, PhysicalDevice as VkPhysicalDevice, Pipeline as VkPipeline,
-        Queue as VkQueue, Result as VkResult, SubmitInfo as VkSubmitInfo,
+        Buffer as VkBuffer, BufferCreateInfo as VkBufferCreateInfo,
+        CommandBuffer as VkCommandBuffer, Device as VkDevice, Fence as VkFence, Format as VkFormat,
+        Image as VkImage, ImageCreateInfo as VkImageCreateInfo, PFN_vkAcquireNextImageKHR,
+        PFN_vkDestroySwapchainKHR, PFN_vkGetDeviceProcAddr, PFN_vkGetSwapchainImagesKHR,
+        PFN_vkQueuePresentKHR, PFN_vkSetHdrMetadataEXT, PhysicalDevice as VkPhysicalDevice,
+        Pipeline as VkPipeline, Queue as VkQueue, Result as VkResult, SubmitInfo as VkSubmitInfo,
         SwapchainCreateInfoKHR as VkSwapchainCreateInfoKHR, SwapchainKHR as VkSwapchainKHR,
     };
+    type VkAllocationCallbacks = ash::vk::AllocationCallbacks<'static>;
 
     include!("vk_bindings.rs");
 }
