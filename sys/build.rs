@@ -14,14 +14,7 @@ fn compile_fidelityfx(api_dir: &Path, vk_include_dir: &Path) {
 
     // fsr1 and fsr2 need to be enabled (though don't need to have bindings) to get access
     // to fsr3 shaders (see hardcoded "shared" implementation in ffxGetPermutationBlobByIndex())
-    let components = [
-        "fsr1",
-        "fsr2",
-        "fsr3",
-        "fsr3upscaler",
-        "opticalflow",
-        "frameinterpolation",
-    ];
+    let components = ["fsr1", "fsr2", "fsr3", "fsr3upscaler"];
 
     for component in components {
         let paths = glob(&format!(
