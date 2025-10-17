@@ -5,6 +5,17 @@ use std::path::Path;
 
 use glob::glob;
 
+const COMPONENTS: &[&str] = &[
+    // fsr1 and fsr2 need to be enabled (though don't need to have bindings) to get access
+    // to fsr3 shaders (see hardcoded "shared" implementation in ffxGetPermutationBlobByIndex())
+    "fsr1",
+    "fsr2",
+    "fsr3",
+    "fsr3upscaler",
+    "opticalflow",
+    "frameinterpolation",
+];
+
 fn compile_fidelityfx(api_dir: &Path, vk_include_dir: &Path) {
     let mut sources = vec![];
 
@@ -12,11 +23,7 @@ fn compile_fidelityfx(api_dir: &Path, vk_include_dir: &Path) {
         glob(&format!("{}/src/shared/*.cpp", api_dir.display())).expect("Failed to find sources");
     sources.extend(paths.map(|p| p.unwrap()));
 
-    // fsr1 and fsr2 need to be enabled (though don't need to have bindings) to get access
-    // to fsr3 shaders (see hardcoded "shared" implementation in ffxGetPermutationBlobByIndex())
-    let components = ["fsr1", "fsr2", "fsr3", "fsr3upscaler"];
-
-    for component in components {
+    for component in COMPONENTS {
         let paths = glob(&format!(
             "{}/src/components/{component}/*.cpp",
             api_dir.display()
@@ -82,6 +89,9 @@ fn main() {
     #[cfg(feature = "generate-bindings")]
     {
         bindgen::generate_bindings(api_dir);
+        for component in COMPONENTS {
+            bindgen::generate_component_bindings(component, api_dir);
+        }
         bindgen::generate_vk_bindings(api_dir, &vk_include_dir);
         bindgen::generate_dx12_bindings(api_dir);
     }

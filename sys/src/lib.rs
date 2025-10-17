@@ -8,6 +8,43 @@
 
 include!("bindings.rs");
 
+pub mod frameinterpolation {
+    use crate::*;
+
+    include!("frameinterpolation_bindings.rs");
+}
+
+pub mod opticalflow {
+    use crate::*;
+
+    include!("opticalflow_bindings.rs");
+}
+
+pub mod fsr1 {
+    use crate::*;
+
+    include!("fsr1_bindings.rs");
+}
+
+pub mod fsr2 {
+    use crate::*;
+
+    include!("fsr2_bindings.rs");
+}
+
+pub mod fsr3upscaler {
+    use crate::*;
+
+    include!("fsr3upscaler_bindings.rs");
+}
+
+pub mod fsr3 {
+    use crate::fsr3upscaler::*;
+    use crate::*;
+
+    include!("fsr3_bindings.rs");
+}
+
 // TODO(Marijn): Use `ash` and `windows` to provide the right types for
 // Vulkan handles and D3D12 structures?
 
