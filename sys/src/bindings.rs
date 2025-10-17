@@ -10930,7 +10930,7 @@ pub const FFX_RESOURCE_TYPE_TEXTURE2D: ResourceType = 2;
 pub const FFX_RESOURCE_TYPE_TEXTURE_CUBE: ResourceType = 3;
 #[doc = "< The resource is a 3-dimensional texture."]
 pub const FFX_RESOURCE_TYPE_TEXTURE3D: ResourceType = 4;
-#[doc = "\n @ingroup SDKTypes"]
+#[doc = " An enumeration for different resource types\n\n @ingroup SDKTypes"]
 pub type ResourceType = ::std::os::raw::c_int;
 #[doc = "< Local memory."]
 pub const FFX_HEAP_TYPE_DEFAULT: HeapType = 0;
@@ -10952,9 +10952,13 @@ pub const FFX_GPU_JOB_BARRIER: GpuJobType = 3;
 pub const FFX_GPU_JOB_DISCARD: GpuJobType = 4;
 #[doc = " An enumeration for different render job types\n\n @ingroup SDKTypes"]
 pub type GpuJobType = ::std::os::raw::c_int;
+#[doc = "FFX_DESCRIPTOR_CBV = 0,   // All CBVs currently mapped to root signature\nFFX_DESCRIPTOR_SAMPLER,   // All samplers currently static"]
 pub const FFX_DESCRIPTOR_TEXTURE_SRV: DescriptorType = 0;
+#[doc = "FFX_DESCRIPTOR_CBV = 0,   // All CBVs currently mapped to root signature\nFFX_DESCRIPTOR_SAMPLER,   // All samplers currently static"]
 pub const FFX_DESCRIPTOR_BUFFER_SRV: DescriptorType = 1;
+#[doc = "FFX_DESCRIPTOR_CBV = 0,   // All CBVs currently mapped to root signature\nFFX_DESCRIPTOR_SAMPLER,   // All samplers currently static"]
 pub const FFX_DESCRIPTOR_TEXTURE_UAV: DescriptorType = 2;
+#[doc = "FFX_DESCRIPTOR_CBV = 0,   // All CBVs currently mapped to root signature\nFFX_DESCRIPTOR_SAMPLER,   // All samplers currently static"]
 pub const FFX_DESCRIPTOR_BUFFER_UAV: DescriptorType = 3;
 #[doc = " An enumeration for various descriptor types\n\n @ingroup SDKTypes"]
 pub type DescriptorType = ::std::os::raw::c_int;
@@ -11881,6 +11885,7 @@ pub struct ShaderBlob {
     pub samplerCount: u32,
     #[doc = "< Number of RT Acceleration structures."]
     pub rtAccelStructCount: u32,
+    #[doc = " constant buffers"]
     pub boundConstantBufferNames: *mut *const ::std::os::raw::c_char,
     #[doc = "< Pointer to an array of bound ConstantBuffers."]
     pub boundConstantBuffers: *const u32,
@@ -11888,6 +11893,7 @@ pub struct ShaderBlob {
     pub boundConstantBufferCounts: *const u32,
     #[doc = "< Pointer to an array of bound ConstantBuffer resource spaces"]
     pub boundConstantBufferSpaces: *const u32,
+    #[doc = " srv textures"]
     pub boundSRVTextureNames: *mut *const ::std::os::raw::c_char,
     #[doc = "< Pointer to an array of bound SRV resources."]
     pub boundSRVTextures: *const u32,
@@ -11895,6 +11901,7 @@ pub struct ShaderBlob {
     pub boundSRVTextureCounts: *const u32,
     #[doc = "< Pointer to an array of bound SRV resource spaces"]
     pub boundSRVTextureSpaces: *const u32,
+    #[doc = " uav textures"]
     pub boundUAVTextureNames: *mut *const ::std::os::raw::c_char,
     #[doc = "< Pointer to an array of bound UAV texture resources."]
     pub boundUAVTextures: *const u32,
@@ -11902,6 +11909,7 @@ pub struct ShaderBlob {
     pub boundUAVTextureCounts: *const u32,
     #[doc = "< Pointer to an array of bound UAV texture resource spaces"]
     pub boundUAVTextureSpaces: *const u32,
+    #[doc = " srv buffers"]
     pub boundSRVBufferNames: *mut *const ::std::os::raw::c_char,
     #[doc = "< Pointer to an array of bound SRV buffer resources."]
     pub boundSRVBuffers: *const u32,
@@ -11909,6 +11917,7 @@ pub struct ShaderBlob {
     pub boundSRVBufferCounts: *const u32,
     #[doc = "< Pointer to an array of bound SRV buffer resource spaces"]
     pub boundSRVBufferSpaces: *const u32,
+    #[doc = " uav buffers"]
     pub boundUAVBufferNames: *mut *const ::std::os::raw::c_char,
     #[doc = "< Pointer to an array of bound UAV buffer resources."]
     pub boundUAVBuffers: *const u32,
@@ -11916,6 +11925,7 @@ pub struct ShaderBlob {
     pub boundUAVBufferCounts: *const u32,
     #[doc = "< Pointer to an array of bound UAV buffer resource spaces"]
     pub boundUAVBufferSpaces: *const u32,
+    #[doc = " samplers"]
     pub boundSamplerNames: *mut *const ::std::os::raw::c_char,
     #[doc = "< Pointer to an array of bound sampler resources."]
     pub boundSamplers: *const u32,
@@ -11923,6 +11933,7 @@ pub struct ShaderBlob {
     pub boundSamplerCounts: *const u32,
     #[doc = "< Pointer to an array of bound sampler resource spaces"]
     pub boundSamplerSpaces: *const u32,
+    #[doc = " rt acceleration structures"]
     pub boundRTAccelerationStructureNames: *mut *const ::std::os::raw::c_char,
     #[doc = "< Pointer to an array of bound UAV buffer resources."]
     pub boundRTAccelerationStructures: *const u32,
@@ -12000,19 +12011,26 @@ impl Default for FrameGenerationDispatchDescription {
         }
     }
 }
+#[doc = "struct definition matches FfxApiEffectMemoryUsage"]
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
 pub struct EffectMemoryUsage {
     pub totalUsageInBytes: u64,
     pub aliasableUsageInBytes: u64,
 }
+#[doc = "struct definition matches FfxApiSwapchainFramePacingTuning"]
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
 pub struct SwapchainFramePacingTuning {
+    #[doc = " in Millisecond"]
     pub safetyMarginInMs: f32,
+    #[doc = " valid range [0.0,1.0]"]
     pub varianceFactor: f32,
+    #[doc = "Allows pacing spinlock to sleep."]
     pub allowHybridSpin: bool,
+    #[doc = "How long to spin when hybridSpin is enabled. Measured in timer resolution units. Not recommended to go below 2. Will result in frequent overshoots."]
     pub hybridSpinTime: u32,
+    #[doc = "Allows to call WaitForSingleObject() instead of spinning for fence value."]
     pub allowWaitForSingleObjectOnFence: bool,
 }
 #[doc = " The value of Pi.\n\n @ingroup Utils"]
@@ -12505,11 +12523,16 @@ impl Default for Fsr3UpscalerContextDescription {
 #[doc = "< A bit indicating that the interpolated output resource will contain debug views with relevant information."]
 pub const FFX_FSR3UPSCALER_DISPATCH_DRAW_DEBUG_VIEW: Fsr3UpscalerDispatchFlags = 1;
 pub type Fsr3UpscalerDispatchFlags = ::std::os::raw::c_int;
+#[doc = "Override constant buffer fVelocityFactor. The float value is casted from void * ptr. Value of 0.0f can improve temporal stability of bright pixels. Default value is 1.0f. Value is clamped to [0.0f, 1.0f]."]
 pub const FFX_FSR3UPSCALER_CONFIGURE_UPSCALE_KEY_FVELOCITYFACTOR: Fsr3UpscalerConfigureKey = 0;
+#[doc = "Override constant buffer fReactivenessScale. The float value is casted from void * ptr. Meant for development purpose to test if writing a larger value to reactive mask, reduces ghosting. Default value is 1.0f. Value is clamped to [0.0f, +infinity]."]
 pub const FFX_FSR3UPSCALER_CONFIGURE_UPSCALE_KEY_FREACTIVENESSSCALE: Fsr3UpscalerConfigureKey = 1;
+#[doc = "Override fShadingChangeScale. Increasing this scales fsr3.1 computed shading change value at read to have higher reactiveness. Default value is 1.0f. Value is clamped to [0.0f, +infinity]."]
 pub const FFX_FSR3UPSCALER_CONFIGURE_UPSCALE_KEY_FSHADINGCHANGESCALE: Fsr3UpscalerConfigureKey = 2;
+#[doc = " Override constant buffer fAccumulationAddedPerFrame. Corresponds to amount of accumulation added per frame at pixel coordinate where disocclusion occured or when reactive mask value is > 0.0f. Decreasing this and drawing the ghosting object (IE no mv) to reactive mask with value close to 1.0f can decrease temporal ghosting. Decreasing this value could result in more thin feature pixels flickering. Default value is 0.333. Value is clamped to [0.0f, 1.0f]."]
 pub const FFX_FSR3UPSCALER_CONFIGURE_UPSCALE_KEY_FACCUMULATIONADDEDPERFRAME:
     Fsr3UpscalerConfigureKey = 3;
+#[doc = "Override constant buffer fMinDisocclusionAccumulation. Increasing this value may reduce white pixel temporal flickering around swaying thin objects that are disoccluding one another often. Too high value may increase ghosting. Default value is -0.333. A sufficiently negative value means for pixel coordinate at frame N that is disoccluded, add fAccumulationAddedPerFrame starting at frame N+2. Default value is -0.333. Value is clamped to [-1.0f, 1.0f]."]
 pub const FFX_FSR3UPSCALER_CONFIGURE_UPSCALE_KEY_FMINDISOCCLUSIONACCUMULATION:
     Fsr3UpscalerConfigureKey = 4;
 pub type Fsr3UpscalerConfigureKey = ::std::os::raw::c_int;
@@ -12834,7 +12857,7 @@ impl Default for FrameInterpolationSharedResourceDescriptions {
         }
     }
 }
-#[doc = " A structure encapsulating the FidelityFX Super Resolution 2 context.\n\n This sets up an object which contains all persistent internal data and\n resources that are required by FSR3.\n\n The <c><i>FfxFsr3Context</i></c> object should have a lifetime matching\n your use of FSR3. Before destroying the FSR3 context care should be taken\n to ensure the GPU is not accessing the resources created or used by FSR3.\n It is therefore recommended that the GPU is idle before destroying the\n FSR3 context.\n\n @ingroup FRAMEINTERPOLATION"]
+#[doc = " forward declarations"]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct FrameInterpolationContext {
