@@ -5,18 +5,22 @@ pub const OPTICALFLOW_VERSION_MINOR: u32 = 0;
 pub const OPTICALFLOW_VERSION_PATCH: u32 = 0;
 pub const OPTICALFLOW_CONTEXT_COUNT: u32 = 1;
 pub const OPTICALFLOW_CONTEXT_SIZE: u32 = 131072;
-pub const FFX_OPTICALFLOW_PASS_PREPARE_LUMA: OpticalflowPass = 0;
-pub const FFX_OPTICALFLOW_PASS_GENERATE_OPTICAL_FLOW_INPUT_PYRAMID: OpticalflowPass = 1;
-pub const FFX_OPTICALFLOW_PASS_GENERATE_SCD_HISTOGRAM: OpticalflowPass = 2;
-pub const FFX_OPTICALFLOW_PASS_COMPUTE_SCD_DIVERGENCE: OpticalflowPass = 3;
-pub const FFX_OPTICALFLOW_PASS_COMPUTE_OPTICAL_FLOW_ADVANCED_V5: OpticalflowPass = 4;
-pub const FFX_OPTICALFLOW_PASS_FILTER_OPTICAL_FLOW_V5: OpticalflowPass = 5;
-pub const FFX_OPTICALFLOW_PASS_SCALE_OPTICAL_FLOW_ADVANCED_V5: OpticalflowPass = 6;
-pub const FFX_OPTICALFLOW_PASS_COUNT: OpticalflowPass = 7;
+#[repr(i32)]
+#[non_exhaustive]
 #[doc = " An enumeration of all the passes which constitute the OpticalFlow algorithm.\n\n @ingroup ffxOpticalflow"]
-pub type OpticalflowPass = ::std::os::raw::c_int;
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub enum OpticalflowPass {
+    PREPARE_LUMA = 0,
+    GENERATE_OPTICAL_FLOW_INPUT_PYRAMID = 1,
+    GENERATE_SCD_HISTOGRAM = 2,
+    COMPUTE_SCD_DIVERGENCE = 3,
+    COMPUTE_OPTICAL_FLOW_ADVANCED_V5 = 4,
+    FILTER_OPTICAL_FLOW_V5 = 5,
+    SCALE_OPTICAL_FLOW_ADVANCED_V5 = 6,
+    COUNT = 7,
+}
 impl OpticalflowInitializationFlagBits {
-    pub const FFX_OPTICALFLOW_ENABLE_TEXTURE1D_USAGE: OpticalflowInitializationFlagBits =
+    pub const ENABLE_TEXTURE1D_USAGE: OpticalflowInitializationFlagBits =
         OpticalflowInitializationFlagBits(1);
 }
 impl ::std::ops::BitOr<OpticalflowInitializationFlagBits> for OpticalflowInitializationFlagBits {

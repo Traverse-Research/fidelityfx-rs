@@ -52,71 +52,75 @@ pub type UInt32x2 = [u32; 2usize];
 pub type UInt32x3 = [u32; 3usize];
 #[doc = " A typedef for a 4-dimensional 32bit unsigned integer.\n\n @ingroup CPUTypes"]
 pub type UInt32x4 = [u32; 4usize];
-#[doc = "< Unknown format"]
-pub const FFX_SURFACE_FORMAT_UNKNOWN: SurfaceFormat = 0;
-#[doc = "< 32 bit per channel, 4 channel typeless format"]
-pub const FFX_SURFACE_FORMAT_R32G32B32A32_TYPELESS: SurfaceFormat = 1;
-#[doc = "< 32 bit per channel, 4 channel uint format"]
-pub const FFX_SURFACE_FORMAT_R32G32B32A32_UINT: SurfaceFormat = 2;
-#[doc = "< 32 bit per channel, 4 channel float format"]
-pub const FFX_SURFACE_FORMAT_R32G32B32A32_FLOAT: SurfaceFormat = 3;
-#[doc = "< 16 bit per channel, 4 channel float format"]
-pub const FFX_SURFACE_FORMAT_R16G16B16A16_FLOAT: SurfaceFormat = 4;
-#[doc = "< 32 bit per channel, 2 channel float format"]
-pub const FFX_SURFACE_FORMAT_R32G32_FLOAT: SurfaceFormat = 5;
-#[doc = "< 8 bit per channel, 1 channel float format"]
-pub const FFX_SURFACE_FORMAT_R8_UINT: SurfaceFormat = 6;
-#[doc = "< 32 bit per channel, 1 channel float format"]
-pub const FFX_SURFACE_FORMAT_R32_UINT: SurfaceFormat = 7;
-#[doc = "< 10 bit per RGB channel with 2 bit alpha, 4 channel unsigned normalized format"]
-pub const FFX_SURFACE_FORMAT_R10G10B10A2_UNORM: SurfaceFormat = 8;
-#[doc = "<  8 bit per channel, 4 channel float format"]
-pub const FFX_SURFACE_FORMAT_R8G8B8A8_TYPELESS: SurfaceFormat = 9;
-#[doc = "<  8 bit per channel, 4 channel unsigned normalized format"]
-pub const FFX_SURFACE_FORMAT_R8G8B8A8_UNORM: SurfaceFormat = 10;
-#[doc = "<  8 bit per channel, 4 channel signed normalized format"]
-pub const FFX_SURFACE_FORMAT_R8G8B8A8_SNORM: SurfaceFormat = 11;
-#[doc = "<  8 bit per channel, 4 channel srgb normalized"]
-pub const FFX_SURFACE_FORMAT_R8G8B8A8_SRGB: SurfaceFormat = 12;
-#[doc = "< 32 bit 3 channel float format"]
-pub const FFX_SURFACE_FORMAT_R11G11B10_FLOAT: SurfaceFormat = 13;
-#[doc = "< 16 bit per channel, 2 channel float format"]
-pub const FFX_SURFACE_FORMAT_R16G16_FLOAT: SurfaceFormat = 14;
-#[doc = "< 16 bit per channel, 2 channel unsigned int format"]
-pub const FFX_SURFACE_FORMAT_R16G16_UINT: SurfaceFormat = 15;
-#[doc = "< 16 bit per channel, 2 channel signed int format"]
-pub const FFX_SURFACE_FORMAT_R16G16_SINT: SurfaceFormat = 16;
-#[doc = "< 16 bit per channel, 1 channel float format"]
-pub const FFX_SURFACE_FORMAT_R16_FLOAT: SurfaceFormat = 17;
-#[doc = "< 16 bit per channel, 1 channel unsigned int format"]
-pub const FFX_SURFACE_FORMAT_R16_UINT: SurfaceFormat = 18;
-#[doc = "< 16 bit per channel, 1 channel unsigned normalized format"]
-pub const FFX_SURFACE_FORMAT_R16_UNORM: SurfaceFormat = 19;
-#[doc = "< 16 bit per channel, 1 channel signed normalized format"]
-pub const FFX_SURFACE_FORMAT_R16_SNORM: SurfaceFormat = 20;
-#[doc = "<  8 bit per channel, 1 channel unsigned normalized format"]
-pub const FFX_SURFACE_FORMAT_R8_UNORM: SurfaceFormat = 21;
-#[doc = "<  8 bit per channel, 2 channel unsigned normalized format"]
-pub const FFX_SURFACE_FORMAT_R8G8_UNORM: SurfaceFormat = 22;
-#[doc = "<  8 bit per channel, 2 channel unsigned integer format"]
-pub const FFX_SURFACE_FORMAT_R8G8_UINT: SurfaceFormat = 23;
-#[doc = "< 32 bit per channel, 1 channel float format"]
-pub const FFX_SURFACE_FORMAT_R32_FLOAT: SurfaceFormat = 24;
+#[repr(i32)]
+#[non_exhaustive]
 #[doc = " An enumeration of surface formats.\n\n @ingroup SDKTypes"]
-pub type SurfaceFormat = ::std::os::raw::c_int;
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub enum SurfaceFormat {
+    #[doc = "< Unknown format"]
+    UNKNOWN = 0,
+    #[doc = "< 32 bit per channel, 4 channel typeless format"]
+    R32G32B32A32_TYPELESS = 1,
+    #[doc = "< 32 bit per channel, 4 channel uint format"]
+    R32G32B32A32_UINT = 2,
+    #[doc = "< 32 bit per channel, 4 channel float format"]
+    R32G32B32A32_FLOAT = 3,
+    #[doc = "< 16 bit per channel, 4 channel float format"]
+    R16G16B16A16_FLOAT = 4,
+    #[doc = "< 32 bit per channel, 2 channel float format"]
+    R32G32_FLOAT = 5,
+    #[doc = "< 8 bit per channel, 1 channel float format"]
+    R8_UINT = 6,
+    #[doc = "< 32 bit per channel, 1 channel float format"]
+    R32_UINT = 7,
+    #[doc = "< 10 bit per RGB channel with 2 bit alpha, 4 channel unsigned normalized format"]
+    R10G10B10A2_UNORM = 8,
+    #[doc = "<  8 bit per channel, 4 channel float format"]
+    R8G8B8A8_TYPELESS = 9,
+    #[doc = "<  8 bit per channel, 4 channel unsigned normalized format"]
+    R8G8B8A8_UNORM = 10,
+    #[doc = "<  8 bit per channel, 4 channel signed normalized format"]
+    R8G8B8A8_SNORM = 11,
+    #[doc = "<  8 bit per channel, 4 channel srgb normalized"]
+    R8G8B8A8_SRGB = 12,
+    #[doc = "< 32 bit 3 channel float format"]
+    R11G11B10_FLOAT = 13,
+    #[doc = "< 16 bit per channel, 2 channel float format"]
+    R16G16_FLOAT = 14,
+    #[doc = "< 16 bit per channel, 2 channel unsigned int format"]
+    R16G16_UINT = 15,
+    #[doc = "< 16 bit per channel, 2 channel signed int format"]
+    R16G16_SINT = 16,
+    #[doc = "< 16 bit per channel, 1 channel float format"]
+    R16_FLOAT = 17,
+    #[doc = "< 16 bit per channel, 1 channel unsigned int format"]
+    R16_UINT = 18,
+    #[doc = "< 16 bit per channel, 1 channel unsigned normalized format"]
+    R16_UNORM = 19,
+    #[doc = "< 16 bit per channel, 1 channel signed normalized format"]
+    R16_SNORM = 20,
+    #[doc = "<  8 bit per channel, 1 channel unsigned normalized format"]
+    R8_UNORM = 21,
+    #[doc = "<  8 bit per channel, 2 channel unsigned normalized format"]
+    R8G8_UNORM = 22,
+    #[doc = "<  8 bit per channel, 2 channel unsigned integer format"]
+    R8G8_UINT = 23,
+    #[doc = "< 32 bit per channel, 1 channel float format"]
+    R32_FLOAT = 24,
+}
 impl ResourceUsage {
     #[doc = "< No usage flags indicate a resource is read only."]
-    pub const FFX_RESOURCE_USAGE_READ_ONLY: ResourceUsage = ResourceUsage(0);
+    pub const READ_ONLY: ResourceUsage = ResourceUsage(0);
     #[doc = "< Indicates a resource will be used as render target."]
-    pub const FFX_RESOURCE_USAGE_RENDERTARGET: ResourceUsage = ResourceUsage(1);
+    pub const RENDERTARGET: ResourceUsage = ResourceUsage(1);
     #[doc = "< Indicates a resource will be used as UAV."]
-    pub const FFX_RESOURCE_USAGE_UAV: ResourceUsage = ResourceUsage(2);
+    pub const UAV: ResourceUsage = ResourceUsage(2);
     #[doc = "< Indicates a resource will be used as depth target."]
-    pub const FFX_RESOURCE_USAGE_DEPTHTARGET: ResourceUsage = ResourceUsage(4);
+    pub const DEPTHTARGET: ResourceUsage = ResourceUsage(4);
     #[doc = "< Indicates a resource will be used as indirect argument buffer"]
-    pub const FFX_RESOURCE_USAGE_INDIRECT: ResourceUsage = ResourceUsage(8);
+    pub const INDIRECT: ResourceUsage = ResourceUsage(8);
     #[doc = "< Indicates a resource that will generate array views. Works on 2D and cubemap textures"]
-    pub const FFX_RESOURCE_USAGE_ARRAYVIEW: ResourceUsage = ResourceUsage(16);
+    pub const ARRAYVIEW: ResourceUsage = ResourceUsage(16);
 }
 impl ::std::ops::BitOr<ResourceUsage> for ResourceUsage {
     type Output = Self;
@@ -201,33 +205,41 @@ impl ::std::ops::BitAndAssign for ResourceStates {
 #[doc = " An enumeration of resource states.\n\n @ingroup SDKTypes"]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub struct ResourceStates(pub ::std::os::raw::c_int);
-#[doc = "< A resource with a single dimension."]
-pub const FFX_RESOURCE_DIMENSION_TEXTURE_1D: ResourceDimension = 0;
-#[doc = "< A resource with two dimensions."]
-pub const FFX_RESOURCE_DIMENSION_TEXTURE_2D: ResourceDimension = 1;
+#[repr(i32)]
+#[non_exhaustive]
 #[doc = " An enumeration of surface dimensions.\n\n @ingroup SDKTypes"]
-pub type ResourceDimension = ::std::os::raw::c_int;
-#[doc = "< A resource view on a buffer."]
-pub const FFX_RESOURCE_VIEW_DIMENSION_BUFFER: ResourceViewDimension = 0;
-#[doc = "< A resource view on a single dimension."]
-pub const FFX_RESOURCE_VIEW_DIMENSION_TEXTURE_1D: ResourceViewDimension = 1;
-#[doc = "< A resource view on a single dimensional array."]
-pub const FFX_RESOURCE_VIEW_DIMENSION_TEXTURE_1D_ARRAY: ResourceViewDimension = 2;
-#[doc = "< A resource view on two dimensions."]
-pub const FFX_RESOURCE_VIEW_DIMENSION_TEXTURE_2D: ResourceViewDimension = 3;
-#[doc = "< A resource view on two dimensional array."]
-pub const FFX_RESOURCE_VIEW_DIMENSION_TEXTURE_2D_ARRAY: ResourceViewDimension = 4;
-#[doc = "< A resource view on three dimensions."]
-pub const FFX_RESOURCE_VIEW_DIMENSION_TEXTURE_3D: ResourceViewDimension = 5;
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub enum ResourceDimension {
+    #[doc = "< A resource with a single dimension."]
+    TEXTURE_1D = 0,
+    #[doc = "< A resource with two dimensions."]
+    TEXTURE_2D = 1,
+}
+#[repr(i32)]
+#[non_exhaustive]
 #[doc = " An enumeration of resource view dimensions.\n\n @ingroup SDKTypes"]
-pub type ResourceViewDimension = ::std::os::raw::c_int;
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub enum ResourceViewDimension {
+    #[doc = "< A resource view on a buffer."]
+    BUFFER = 0,
+    #[doc = "< A resource view on a single dimension."]
+    TEXTURE_1D = 1,
+    #[doc = "< A resource view on a single dimensional array."]
+    TEXTURE_1D_ARRAY = 2,
+    #[doc = "< A resource view on two dimensions."]
+    TEXTURE_2D = 3,
+    #[doc = "< A resource view on two dimensional array."]
+    TEXTURE_2D_ARRAY = 4,
+    #[doc = "< A resource view on three dimensions."]
+    TEXTURE_3D = 5,
+}
 impl ResourceFlags {
     #[doc = "< No flags."]
-    pub const FFX_RESOURCE_FLAGS_NONE: ResourceFlags = ResourceFlags(0);
+    pub const NONE: ResourceFlags = ResourceFlags(0);
     #[doc = "< A bit indicating a resource does not need to persist across frames."]
-    pub const FFX_RESOURCE_FLAGS_ALIASABLE: ResourceFlags = ResourceFlags(1);
+    pub const ALIASABLE: ResourceFlags = ResourceFlags(1);
     #[doc = "< Special case flag used internally when importing resources that require additional setup"]
-    pub const FFX_RESOURCE_FLAGS_UNDEFINED: ResourceFlags = ResourceFlags(2);
+    pub const UNDEFINED: ResourceFlags = ResourceFlags(2);
 }
 impl ::std::ops::BitOr<ResourceFlags> for ResourceFlags {
     type Output = Self;
@@ -259,146 +271,194 @@ impl ::std::ops::BitAndAssign for ResourceFlags {
 #[doc = " An enumeration of surface dimensions.\n\n @ingroup SDKTypes"]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub struct ResourceFlags(pub ::std::os::raw::c_int);
-#[doc = "< The resource view is an unordered access view (UAV)."]
-pub const FFX_RESOURCE_VIEW_UNORDERED_ACCESS: ResourceViewType = 0;
-#[doc = "< The resource view is a shader resource view (SRV)."]
-pub const FFX_RESOURCE_VIEW_SHADER_READ: ResourceViewType = 1;
+#[repr(i32)]
+#[non_exhaustive]
 #[doc = " An enumeration of all resource view types.\n\n @ingroup SDKTypes"]
-pub type ResourceViewType = ::std::os::raw::c_int;
-#[doc = "< Point sampling."]
-pub const FFX_FILTER_TYPE_MINMAGMIP_POINT: FilterType = 0;
-#[doc = "< Sampling with interpolation."]
-pub const FFX_FILTER_TYPE_MINMAGMIP_LINEAR: FilterType = 1;
-#[doc = "< Use linear interpolation for minification and magnification; use point sampling for mip-level sampling."]
-pub const FFX_FILTER_TYPE_MINMAGLINEARMIP_POINT: FilterType = 2;
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub enum ResourceViewType {
+    #[doc = "< The resource view is an unordered access view (UAV)."]
+    UNORDERED_ACCESS = 0,
+    #[doc = "< The resource view is a shader resource view (SRV)."]
+    SHADER_READ = 1,
+}
+#[repr(i32)]
+#[non_exhaustive]
 #[doc = " The type of filtering to perform when reading a texture.\n\n @ingroup SDKTypes"]
-pub type FilterType = ::std::os::raw::c_int;
-#[doc = "< Wrap when reading texture."]
-pub const FFX_ADDRESS_MODE_WRAP: AddressMode = 0;
-#[doc = "< Mirror when reading texture."]
-pub const FFX_ADDRESS_MODE_MIRROR: AddressMode = 1;
-#[doc = "< Clamp when reading texture."]
-pub const FFX_ADDRESS_MODE_CLAMP: AddressMode = 2;
-#[doc = "< Border color when reading texture."]
-pub const FFX_ADDRESS_MODE_BORDER: AddressMode = 3;
-#[doc = "< Mirror once when reading texture."]
-pub const FFX_ADDRESS_MODE_MIRROR_ONCE: AddressMode = 4;
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub enum FilterType {
+    #[doc = "< Point sampling."]
+    MINMAGMIP_POINT = 0,
+    #[doc = "< Sampling with interpolation."]
+    MINMAGMIP_LINEAR = 1,
+    #[doc = "< Use linear interpolation for minification and magnification; use point sampling for mip-level sampling."]
+    MINMAGLINEARMIP_POINT = 2,
+}
+#[repr(i32)]
+#[non_exhaustive]
 #[doc = " The address mode used when reading a texture.\n\n @ingroup SDKTypes"]
-pub type AddressMode = ::std::os::raw::c_int;
-#[doc = "< Shader model 5.1."]
-pub const FFX_SHADER_MODEL_5_1: ShaderModel = 0;
-#[doc = "< Shader model 6.0."]
-pub const FFX_SHADER_MODEL_6_0: ShaderModel = 1;
-#[doc = "< Shader model 6.1."]
-pub const FFX_SHADER_MODEL_6_1: ShaderModel = 2;
-#[doc = "< Shader model 6.2."]
-pub const FFX_SHADER_MODEL_6_2: ShaderModel = 3;
-#[doc = "< Shader model 6.3."]
-pub const FFX_SHADER_MODEL_6_3: ShaderModel = 4;
-#[doc = "< Shader model 6.4."]
-pub const FFX_SHADER_MODEL_6_4: ShaderModel = 5;
-#[doc = "< Shader model 6.5."]
-pub const FFX_SHADER_MODEL_6_5: ShaderModel = 6;
-#[doc = "< Shader model 6.6."]
-pub const FFX_SHADER_MODEL_6_6: ShaderModel = 7;
-#[doc = "< Shader model 6.7."]
-pub const FFX_SHADER_MODEL_6_7: ShaderModel = 8;
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub enum AddressMode {
+    #[doc = "< Wrap when reading texture."]
+    WRAP = 0,
+    #[doc = "< Mirror when reading texture."]
+    MIRROR = 1,
+    #[doc = "< Clamp when reading texture."]
+    CLAMP = 2,
+    #[doc = "< Border color when reading texture."]
+    BORDER = 3,
+    #[doc = "< Mirror once when reading texture."]
+    MIRROR_ONCE = 4,
+}
+#[repr(i32)]
+#[non_exhaustive]
 #[doc = " An enumeration of all supported shader models.\n\n @ingroup SDKTypes"]
-pub type ShaderModel = ::std::os::raw::c_int;
-#[doc = "< The resource is a buffer."]
-pub const FFX_RESOURCE_TYPE_BUFFER: ResourceType = 0;
-#[doc = "< The resource is a 1-dimensional texture."]
-pub const FFX_RESOURCE_TYPE_TEXTURE1D: ResourceType = 1;
-#[doc = "< The resource is a 2-dimensional texture."]
-pub const FFX_RESOURCE_TYPE_TEXTURE2D: ResourceType = 2;
-#[doc = "< The resource is a cube map."]
-pub const FFX_RESOURCE_TYPE_TEXTURE_CUBE: ResourceType = 3;
-#[doc = "< The resource is a 3-dimensional texture."]
-pub const FFX_RESOURCE_TYPE_TEXTURE3D: ResourceType = 4;
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub enum ShaderModel {
+    #[doc = "< Shader model 5.1."]
+    _5_1 = 0,
+    #[doc = "< Shader model 6.0."]
+    _6_0 = 1,
+    #[doc = "< Shader model 6.1."]
+    _6_1 = 2,
+    #[doc = "< Shader model 6.2."]
+    _6_2 = 3,
+    #[doc = "< Shader model 6.3."]
+    _6_3 = 4,
+    #[doc = "< Shader model 6.4."]
+    _6_4 = 5,
+    #[doc = "< Shader model 6.5."]
+    _6_5 = 6,
+    #[doc = "< Shader model 6.6."]
+    _6_6 = 7,
+    #[doc = "< Shader model 6.7."]
+    _6_7 = 8,
+}
+#[repr(i32)]
+#[non_exhaustive]
 #[doc = "\n @ingroup SDKTypes"]
-pub type ResourceType = ::std::os::raw::c_int;
-#[doc = "< Local memory."]
-pub const FFX_HEAP_TYPE_DEFAULT: HeapType = 0;
-#[doc = "< Heap used for uploading resources."]
-pub const FFX_HEAP_TYPE_UPLOAD: HeapType = 1;
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub enum ResourceType {
+    #[doc = "< The resource is a buffer."]
+    BUFFER = 0,
+    #[doc = "< The resource is a 1-dimensional texture."]
+    TEXTURE1D = 1,
+    #[doc = "< The resource is a 2-dimensional texture."]
+    TEXTURE2D = 2,
+    #[doc = "< The resource is a cube map."]
+    TEXTURE_CUBE = 3,
+    #[doc = "< The resource is a 3-dimensional texture."]
+    TEXTURE3D = 4,
+}
+#[repr(i32)]
+#[non_exhaustive]
 #[doc = " An enumeration for different heap types\n\n @ingroup SDKTypes"]
-pub type HeapType = ::std::os::raw::c_int;
-#[doc = "< The GPU job is performing a floating-point clear."]
-pub const FFX_GPU_JOB_CLEAR_FLOAT: GpuJobType = 0;
-#[doc = "< The GPU job is performing a copy."]
-pub const FFX_GPU_JOB_COPY: GpuJobType = 1;
-#[doc = "< The GPU job is performing a compute dispatch."]
-pub const FFX_GPU_JOB_COMPUTE: GpuJobType = 2;
-#[doc = "< The GPU job is performing a barrier."]
-pub const FFX_GPU_JOB_BARRIER: GpuJobType = 3;
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub enum HeapType {
+    #[doc = "< Local memory."]
+    DEFAULT = 0,
+    #[doc = "< Heap used for uploading resources."]
+    UPLOAD = 1,
+}
+#[repr(i32)]
+#[non_exhaustive]
 #[doc = " An enumeration for different render job types\n\n @ingroup SDKTypes"]
-pub type GpuJobType = ::std::os::raw::c_int;
-pub const FFX_DESCRIPTOR_TEXTURE_SRV: DescriptorType = 0;
-pub const FFX_DESCRIPTOR_BUFFER_SRV: DescriptorType = 1;
-pub const FFX_DESCRIPTOR_TEXTURE_UAV: DescriptorType = 2;
-pub const FFX_DESCRIPTOR_BUFFER_UAV: DescriptorType = 3;
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub enum GpuJobType {
+    #[doc = "< The GPU job is performing a floating-point clear."]
+    CLEAR_FLOAT = 0,
+    #[doc = "< The GPU job is performing a copy."]
+    COPY = 1,
+    #[doc = "< The GPU job is performing a compute dispatch."]
+    COMPUTE = 2,
+    #[doc = "< The GPU job is performing a barrier."]
+    BARRIER = 3,
+}
+#[repr(i32)]
+#[non_exhaustive]
 #[doc = " An enumeration for various descriptor types\n\n @ingroup SDKTypes"]
-pub type DescriptorType = ::std::os::raw::c_int;
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub enum DescriptorType {
+    TEXTURE_SRV = 0,
+    BUFFER_SRV = 1,
+    TEXTURE_UAV = 2,
+    BUFFER_UAV = 3,
+}
 #[doc = " An enumeration for various descriptor types\n\n @ingroup SDKTypes"]
 pub use self::DescriptorType as DescriptiorType;
-pub const FFX_BIND_PIXEL_SHADER_STAGE: BindStage = 1;
-pub const FFX_BIND_VERTEX_SHADER_STAGE: BindStage = 2;
-pub const FFX_BIND_COMPUTE_SHADER_STAGE: BindStage = 4;
+#[repr(i32)]
+#[non_exhaustive]
 #[doc = " An enumeration for view binding stages\n\n @ingroup SDKTypes"]
-pub type BindStage = ::std::os::raw::c_int;
-pub const FFX_BARRIER_TYPE_TRANSITION: BarrierType = 0;
-pub const FFX_BARRIER_TYPE_UAV: BarrierType = 1;
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub enum BindStage {
+    PIXEL_SHADER_STAGE = 1,
+    VERTEX_SHADER_STAGE = 2,
+    COMPUTE_SHADER_STAGE = 4,
+}
+#[repr(i32)]
+#[non_exhaustive]
 #[doc = " An enumeration for barrier types\n\n @ingroup SDKTypes"]
-pub type BarrierType = ::std::os::raw::c_int;
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub enum BarrierType {
+    TRANSITION = 0,
+    UAV = 1,
+}
 impl MsgType {
-    pub const FFX_MESSAGE_TYPE_ERROR: MsgType = MsgType(0);
-    pub const FFX_MESSAGE_TYPE_WARNING: MsgType = MsgType(1);
-    pub const FFX_MESSAGE_TYPE_COUNT: MsgType = MsgType(2);
+    pub const ERROR: MsgType = MsgType(0);
+    pub const WARNING: MsgType = MsgType(1);
+    pub const COUNT: MsgType = MsgType(2);
 }
 #[repr(transparent)]
 #[doc = " An enumeration for message types that can be passed\n\n @ingroup SDKTypes"]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub struct MsgType(pub ::std::os::raw::c_int);
-#[doc = "< FidelityFX Super Resolution v2"]
-pub const FFX_EFFECT_FSR2: Effect = 0;
-#[doc = "< FidelityFX Super Resolution"]
-pub const FFX_EFFECT_FSR1: Effect = 1;
-#[doc = "< FidelityFX Single Pass Downsampler"]
-pub const FFX_EFFECT_SPD: Effect = 2;
-#[doc = "< FidelityFX Blur"]
-pub const FFX_EFFECT_BLUR: Effect = 3;
-#[doc = "< FidelityFX Combined Adaptive Compute Ambient Occlusion"]
-pub const FFX_EFFECT_CACAO: Effect = 4;
-#[doc = "< FidelityFX Contrast Adaptive Sharpening"]
-pub const FFX_EFFECT_CAS: Effect = 5;
-#[doc = "< FidelityFX Denoiser"]
-pub const FFX_EFFECT_DENOISER: Effect = 6;
-#[doc = "< FidelityFX Lens"]
-pub const FFX_EFFECT_LENS: Effect = 7;
-#[doc = "< FidelityFX Parallel Sort"]
-pub const FFX_EFFECT_PARALLEL_SORT: Effect = 8;
-#[doc = "< FidelityFX Stochastic Screen Space Reflections"]
-pub const FFX_EFFECT_SSSR: Effect = 9;
-#[doc = "< FidelityFX Variable Shading"]
-pub const FFX_EFFECT_VARIABLE_SHADING: Effect = 10;
-#[doc = "< FidelityFX Luma Preserving Mapper"]
-pub const FFX_EFFECT_LPM: Effect = 11;
-#[doc = "< FidelityFX Depth of Field"]
-pub const FFX_EFFECT_DOF: Effect = 12;
-#[doc = "< FidelityFX Classifier"]
-pub const FFX_EFFECT_CLASSIFIER: Effect = 13;
-#[doc = "< FidelityFX Super Resolution v3"]
-pub const FFX_EFFECT_FSR3UPSCALER: Effect = 14;
-#[doc = "< FidelityFX Frame Interpolation, part of FidelityFX Super Resolution v3"]
-pub const FFX_EFFECT_FRAMEINTERPOLATION: Effect = 15;
-#[doc = "< FidelityFX Optical Flow, part of FidelityFX Super Resolution v3"]
-pub const FFX_EFFECT_OPTICALFLOW: Effect = 16;
+#[repr(i32)]
+#[non_exhaustive]
 #[doc = " An enumeration of all the effects which constitute the FidelityFX SDK.\n\n Dictates what effect shader blobs to fetch for pipeline creation\n\n @ingroup FfxInterface"]
-pub type Effect = ::std::os::raw::c_int;
-pub const FFX_BACKBUFFER_TRANSFER_FUNCTION_SRGB: BackbufferTransferFunction = 0;
-pub const FFX_BACKBUFFER_TRANSFER_FUNCTION_PQ: BackbufferTransferFunction = 1;
-pub const FFX_BACKBUFFER_TRANSFER_FUNCTION_SCRGB: BackbufferTransferFunction = 2;
-pub type BackbufferTransferFunction = ::std::os::raw::c_int;
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub enum Effect {
+    #[doc = "< FidelityFX Super Resolution v2"]
+    FSR2 = 0,
+    #[doc = "< FidelityFX Super Resolution"]
+    FSR1 = 1,
+    #[doc = "< FidelityFX Single Pass Downsampler"]
+    SPD = 2,
+    #[doc = "< FidelityFX Blur"]
+    BLUR = 3,
+    #[doc = "< FidelityFX Combined Adaptive Compute Ambient Occlusion"]
+    CACAO = 4,
+    #[doc = "< FidelityFX Contrast Adaptive Sharpening"]
+    CAS = 5,
+    #[doc = "< FidelityFX Denoiser"]
+    DENOISER = 6,
+    #[doc = "< FidelityFX Lens"]
+    LENS = 7,
+    #[doc = "< FidelityFX Parallel Sort"]
+    PARALLEL_SORT = 8,
+    #[doc = "< FidelityFX Stochastic Screen Space Reflections"]
+    SSSR = 9,
+    #[doc = "< FidelityFX Variable Shading"]
+    VARIABLE_SHADING = 10,
+    #[doc = "< FidelityFX Luma Preserving Mapper"]
+    LPM = 11,
+    #[doc = "< FidelityFX Depth of Field"]
+    DOF = 12,
+    #[doc = "< FidelityFX Classifier"]
+    CLASSIFIER = 13,
+    #[doc = "< FidelityFX Super Resolution v3"]
+    FSR3UPSCALER = 14,
+    #[doc = "< FidelityFX Frame Interpolation, part of FidelityFX Super Resolution v3"]
+    FRAMEINTERPOLATION = 15,
+    #[doc = "< FidelityFX Optical Flow, part of FidelityFX Super Resolution v3"]
+    OPTICALFLOW = 16,
+}
+#[repr(i32)]
+#[non_exhaustive]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub enum BackbufferTransferFunction {
+    SRGB = 0,
+    PQ = 1,
+    SCRGB = 2,
+}
 #[doc = " A typedef representing the graphics device.\n\n @ingroup SDKTypes"]
 pub type Device = *mut ::std::os::raw::c_void;
 pub type CommandQueue = *mut ::std::os::raw::c_void;
@@ -1080,42 +1140,44 @@ unsafe extern "C" {
     #[link_name = "\u{1}ffxAssertSetPrintingCallback"]
     pub fn AssertSetPrintingCallback(callback: AssertCallback);
 }
-#[doc = " Typedef for error codes returned from functions in the FidelityFX SDK.\n\n @ingroup Errors"]
-pub type ErrorCode = i32;
-#[doc = "< The operation completed successfully."]
-pub const FFX_OK: ErrorCodes = 0;
-#[doc = "< The operation failed due to an invalid pointer."]
-pub const FFX_ERROR_INVALID_POINTER: ErrorCodes = -2147483648;
-#[doc = "< The operation failed due to an invalid alignment."]
-pub const FFX_ERROR_INVALID_ALIGNMENT: ErrorCodes = -2147483647;
-#[doc = "< The operation failed due to an invalid size."]
-pub const FFX_ERROR_INVALID_SIZE: ErrorCodes = -2147483646;
-#[doc = "< The end of the file was encountered."]
-pub const FFX_EOF: ErrorCodes = -2147483645;
-#[doc = "< The operation failed because the specified path was invalid."]
-pub const FFX_ERROR_INVALID_PATH: ErrorCodes = -2147483644;
-#[doc = "< The operation failed because end of file was reached."]
-pub const FFX_ERROR_EOF: ErrorCodes = -2147483643;
-#[doc = "< The operation failed because of some malformed data."]
-pub const FFX_ERROR_MALFORMED_DATA: ErrorCodes = -2147483642;
-#[doc = "< The operation failed because it ran out memory."]
-pub const FFX_ERROR_OUT_OF_MEMORY: ErrorCodes = -2147483641;
-#[doc = "< The operation failed because the interface was not fully configured."]
-pub const FFX_ERROR_INCOMPLETE_INTERFACE: ErrorCodes = -2147483640;
-#[doc = "< The operation failed because of an invalid enumeration value."]
-pub const FFX_ERROR_INVALID_ENUM: ErrorCodes = -2147483639;
-#[doc = "< The operation failed because an argument was invalid."]
-pub const FFX_ERROR_INVALID_ARGUMENT: ErrorCodes = -2147483638;
-#[doc = "< The operation failed because a value was out of range."]
-pub const FFX_ERROR_OUT_OF_RANGE: ErrorCodes = -2147483637;
-#[doc = "< The operation failed because a device was null."]
-pub const FFX_ERROR_NULL_DEVICE: ErrorCodes = -2147483636;
-#[doc = "< The operation failed because the backend API returned an error code."]
-pub const FFX_ERROR_BACKEND_API_ERROR: ErrorCodes = -2147483635;
-#[doc = "< The operation failed because there was not enough memory."]
-pub const FFX_ERROR_INSUFFICIENT_MEMORY: ErrorCodes = -2147483634;
+impl ErrorCodes {
+    #[doc = "< The operation completed successfully."]
+    pub const OK: ErrorCodes = ErrorCodes(0);
+    #[doc = "< The operation failed due to an invalid pointer."]
+    pub const ERROR_INVALID_POINTER: ErrorCodes = ErrorCodes(-2147483648);
+    #[doc = "< The operation failed due to an invalid alignment."]
+    pub const ERROR_INVALID_ALIGNMENT: ErrorCodes = ErrorCodes(-2147483647);
+    #[doc = "< The operation failed due to an invalid size."]
+    pub const ERROR_INVALID_SIZE: ErrorCodes = ErrorCodes(-2147483646);
+    #[doc = "< The end of the file was encountered."]
+    pub const EOF: ErrorCodes = ErrorCodes(-2147483645);
+    #[doc = "< The operation failed because the specified path was invalid."]
+    pub const ERROR_INVALID_PATH: ErrorCodes = ErrorCodes(-2147483644);
+    #[doc = "< The operation failed because end of file was reached."]
+    pub const ERROR_EOF: ErrorCodes = ErrorCodes(-2147483643);
+    #[doc = "< The operation failed because of some malformed data."]
+    pub const ERROR_MALFORMED_DATA: ErrorCodes = ErrorCodes(-2147483642);
+    #[doc = "< The operation failed because it ran out memory."]
+    pub const ERROR_OUT_OF_MEMORY: ErrorCodes = ErrorCodes(-2147483641);
+    #[doc = "< The operation failed because the interface was not fully configured."]
+    pub const ERROR_INCOMPLETE_INTERFACE: ErrorCodes = ErrorCodes(-2147483640);
+    #[doc = "< The operation failed because of an invalid enumeration value."]
+    pub const ERROR_INVALID_ENUM: ErrorCodes = ErrorCodes(-2147483639);
+    #[doc = "< The operation failed because an argument was invalid."]
+    pub const ERROR_INVALID_ARGUMENT: ErrorCodes = ErrorCodes(-2147483638);
+    #[doc = "< The operation failed because a value was out of range."]
+    pub const ERROR_OUT_OF_RANGE: ErrorCodes = ErrorCodes(-2147483637);
+    #[doc = "< The operation failed because a device was null."]
+    pub const ERROR_NULL_DEVICE: ErrorCodes = ErrorCodes(-2147483636);
+    #[doc = "< The operation failed because the backend API returned an error code."]
+    pub const ERROR_BACKEND_API_ERROR: ErrorCodes = ErrorCodes(-2147483635);
+    #[doc = "< The operation failed because there was not enough memory."]
+    pub const ERROR_INSUFFICIENT_MEMORY: ErrorCodes = ErrorCodes(-2147483634);
+}
+#[repr(transparent)]
 #[doc = " Error codes and their meaning\n\n @ingroup Errors"]
-pub type ErrorCodes = ::std::os::raw::c_int;
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub struct ErrorCodes(pub ::std::os::raw::c_int);
 #[doc = " Stand in type for FfxPass\n\n These will be defined for each effect individually (i.e. FfxFsr2Pass).\n They are used to fetch the proper blob index to build effect shaders\n\n @ingroup FfxInterface"]
 pub type Pass = u32;
 #[doc = " Get the SDK version of the backend context.\n\n Newer effects may require support that legacy versions of the SDK will not be\n able to provide. A version query is thus required to ensure an effect component\n will always be paired with a backend which will support all needed functionality.\n\n @param [in]  backendInterface                    A pointer to the backend interface.\n\n @returns\n The SDK version a backend was built with.\n\n @ingroup FfxInterface"]

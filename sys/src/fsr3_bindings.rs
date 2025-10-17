@@ -5,54 +5,51 @@ pub const FSR3_VERSION_MINOR: u32 = 0;
 pub const FSR3_VERSION_PATCH: u32 = 3;
 pub const FSR3_CONTEXT_COUNT: u32 = 4;
 pub const FSR3_CONTEXT_SIZE: u32 = 16536;
-#[doc = "< Perform upscaling with a per-dimension upscaling ratio of 1.5x."]
-pub const FFX_FSR3_QUALITY_MODE_QUALITY: Fsr3QualityMode = 1;
-#[doc = "< Perform upscaling with a per-dimension upscaling ratio of 1.7x."]
-pub const FFX_FSR3_QUALITY_MODE_BALANCED: Fsr3QualityMode = 2;
-#[doc = "< Perform upscaling with a per-dimension upscaling ratio of 2.0x."]
-pub const FFX_FSR3_QUALITY_MODE_PERFORMANCE: Fsr3QualityMode = 3;
-#[doc = "< Perform upscaling with a per-dimension upscaling ratio of 3.0x."]
-pub const FFX_FSR3_QUALITY_MODE_ULTRA_PERFORMANCE: Fsr3QualityMode = 4;
+#[repr(i32)]
+#[non_exhaustive]
 #[doc = " An enumeration of all the quality modes supported by FidelityFX Super\n Resolution 2 upscaling.\n\n In order to provide a consistent user experience across multiple\n applications which implement FSR3. It is strongly recommended that the\n following preset scaling factors are made available through your\n application's user interface.\n\n If your application does not expose the notion of preset scaling factors\n for upscaling algorithms (perhaps instead implementing a fixed ratio which\n is immutable) or implementing a more dynamic scaling scheme (such as\n dynamic resolution scaling), then there is no need to use these presets.\n\n Please note that <c><i>FFX_FSR3_QUALITY_MODE_ULTRA_PERFORMANCE</i></c> is\n an optional mode which may introduce significant quality degradation in the\n final image. As such it is recommended that you evaluate the final results\n of using this scaling mode before deciding if you should include it in your\n application.\n\n @ingroup FSR3"]
-pub type Fsr3QualityMode = ::std::os::raw::c_int;
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub enum Fsr3QualityMode {
+    #[doc = "< Perform upscaling with a per-dimension upscaling ratio of 1.5x."]
+    QUALITY = 1,
+    #[doc = "< Perform upscaling with a per-dimension upscaling ratio of 1.7x."]
+    BALANCED = 2,
+    #[doc = "< Perform upscaling with a per-dimension upscaling ratio of 2.0x."]
+    PERFORMANCE = 3,
+    #[doc = "< Perform upscaling with a per-dimension upscaling ratio of 3.0x."]
+    ULTRA_PERFORMANCE = 4,
+}
 impl Fsr3InitializationFlagBits {
     #[doc = "< A bit indicating if the input color data provided to all inputs is using a high-dynamic range."]
-    pub const FFX_FSR3_ENABLE_HIGH_DYNAMIC_RANGE: Fsr3InitializationFlagBits =
-        Fsr3InitializationFlagBits(1);
+    pub const ENABLE_HIGH_DYNAMIC_RANGE: Fsr3InitializationFlagBits = Fsr3InitializationFlagBits(1);
     #[doc = "< A bit indicating if the motion vectors are rendered at display resolution."]
-    pub const FFX_FSR3_ENABLE_DISPLAY_RESOLUTION_MOTION_VECTORS: Fsr3InitializationFlagBits =
+    pub const ENABLE_DISPLAY_RESOLUTION_MOTION_VECTORS: Fsr3InitializationFlagBits =
         Fsr3InitializationFlagBits(2);
     #[doc = "< A bit indicating that the motion vectors have the jittering pattern applied to them."]
-    pub const FFX_FSR3_ENABLE_MOTION_VECTORS_JITTER_CANCELLATION: Fsr3InitializationFlagBits =
+    pub const ENABLE_MOTION_VECTORS_JITTER_CANCELLATION: Fsr3InitializationFlagBits =
         Fsr3InitializationFlagBits(4);
     #[doc = "< A bit indicating that the input depth buffer data provided is inverted [1..0]."]
-    pub const FFX_FSR3_ENABLE_DEPTH_INVERTED: Fsr3InitializationFlagBits =
-        Fsr3InitializationFlagBits(8);
+    pub const ENABLE_DEPTH_INVERTED: Fsr3InitializationFlagBits = Fsr3InitializationFlagBits(8);
     #[doc = "< A bit indicating that the input depth buffer data provided is using an infinite far plane."]
-    pub const FFX_FSR3_ENABLE_DEPTH_INFINITE: Fsr3InitializationFlagBits =
-        Fsr3InitializationFlagBits(16);
+    pub const ENABLE_DEPTH_INFINITE: Fsr3InitializationFlagBits = Fsr3InitializationFlagBits(16);
     #[doc = "< A bit indicating if automatic exposure should be applied to input color data."]
-    pub const FFX_FSR3_ENABLE_AUTO_EXPOSURE: Fsr3InitializationFlagBits =
-        Fsr3InitializationFlagBits(32);
+    pub const ENABLE_AUTO_EXPOSURE: Fsr3InitializationFlagBits = Fsr3InitializationFlagBits(32);
     #[doc = "< A bit indicating that the application uses dynamic resolution scaling."]
-    pub const FFX_FSR3_ENABLE_DYNAMIC_RESOLUTION: Fsr3InitializationFlagBits =
+    pub const ENABLE_DYNAMIC_RESOLUTION: Fsr3InitializationFlagBits =
         Fsr3InitializationFlagBits(64);
     #[doc = "< A bit indicating that the backend should use 1D textures."]
-    pub const FFX_FSR3_ENABLE_TEXTURE1D_USAGE: Fsr3InitializationFlagBits =
-        Fsr3InitializationFlagBits(128);
+    pub const ENABLE_TEXTURE1D_USAGE: Fsr3InitializationFlagBits = Fsr3InitializationFlagBits(128);
     #[doc = "< A bit indicating that the runtime should check some API values and report issues."]
-    pub const FFX_FSR3_ENABLE_DEBUG_CHECKING: Fsr3InitializationFlagBits =
-        Fsr3InitializationFlagBits(256);
-    pub const FFX_FSR3_ENABLE_UPSCALING_ONLY: Fsr3InitializationFlagBits =
-        Fsr3InitializationFlagBits(512);
+    pub const ENABLE_DEBUG_CHECKING: Fsr3InitializationFlagBits = Fsr3InitializationFlagBits(256);
+    pub const ENABLE_UPSCALING_ONLY: Fsr3InitializationFlagBits = Fsr3InitializationFlagBits(512);
     #[doc = ", A bit indicating that the context will only be used for upscaling"]
-    pub const FFX_FSR3_ENABLE_HDR_UPSCALE_SDR_FINALOUTPUT: Fsr3InitializationFlagBits =
+    pub const ENABLE_HDR_UPSCALE_SDR_FINALOUTPUT: Fsr3InitializationFlagBits =
         Fsr3InitializationFlagBits(1024);
     #[doc = ", A bit indicating if the input color data provided to UPSCALE is using a high-dynamic range, final output SDR."]
-    pub const FFX_FSR3_ENABLE_SDR_UPSCALE_HDR_FINALOUTPUT: Fsr3InitializationFlagBits =
+    pub const ENABLE_SDR_UPSCALE_HDR_FINALOUTPUT: Fsr3InitializationFlagBits =
         Fsr3InitializationFlagBits(2048);
     #[doc = ", A bit indicating if the input color data provided to UPSCALE is using SDR, final output is high-dynamic range."]
-    pub const FFX_FSR3_ENABLE_ASYNC_WORKLOAD_SUPPORT: Fsr3InitializationFlagBits =
+    pub const ENABLE_ASYNC_WORKLOAD_SUPPORT: Fsr3InitializationFlagBits =
         Fsr3InitializationFlagBits(4096);
 }
 impl ::std::ops::BitOr<Fsr3InitializationFlagBits> for Fsr3InitializationFlagBits {
@@ -87,11 +84,9 @@ impl ::std::ops::BitAndAssign for Fsr3InitializationFlagBits {
 pub struct Fsr3InitializationFlagBits(pub ::std::os::raw::c_int);
 impl Fsr3FrameGenerationFlags {
     #[doc = "< A bit indicating that the debug tear lines will be drawn to the interpolated output."]
-    pub const FFX_FSR3_FRAME_GENERATION_FLAG_DRAW_DEBUG_TEAR_LINES: Fsr3FrameGenerationFlags =
-        Fsr3FrameGenerationFlags(1);
+    pub const FLAG_DRAW_DEBUG_TEAR_LINES: Fsr3FrameGenerationFlags = Fsr3FrameGenerationFlags(1);
     #[doc = "< A bit indicating that the interpolated output resource will contain debug views with relevant information."]
-    pub const FFX_FSR3_FRAME_GENERATION_FLAG_DRAW_DEBUG_VIEW: Fsr3FrameGenerationFlags =
-        Fsr3FrameGenerationFlags(2);
+    pub const FLAG_DRAW_DEBUG_VIEW: Fsr3FrameGenerationFlags = Fsr3FrameGenerationFlags(2);
 }
 impl ::std::ops::BitOr<Fsr3FrameGenerationFlags> for Fsr3FrameGenerationFlags {
     type Output = Self;
