@@ -14,9 +14,8 @@ jobs:
         run: cargo fmt --all -- --check
       - name: Cargo clippy
         run: cargo clippy --workspace --all-targets --all-features -- -D warnings
-# TODO(YIGIT): We currently do not have tests
-#      - name: Cargo test
-#        run: cargo test --workspace
+      - name: Cargo test
+        run: cargo test --workspace --all-features
 
   rust-msrv:
     name: Build-test MSRV (1.74) with minimal crate dependencies
