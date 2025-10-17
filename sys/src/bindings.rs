@@ -350,11 +350,15 @@ pub const FFX_BARRIER_TYPE_TRANSITION: BarrierType = 0;
 pub const FFX_BARRIER_TYPE_UAV: BarrierType = 1;
 #[doc = " An enumeration for barrier types\n\n @ingroup SDKTypes"]
 pub type BarrierType = ::std::os::raw::c_int;
-pub const FFX_MESSAGE_TYPE_ERROR: MsgType = 0;
-pub const FFX_MESSAGE_TYPE_WARNING: MsgType = 1;
-pub const FFX_MESSAGE_TYPE_COUNT: MsgType = 2;
+impl MsgType {
+    pub const FFX_MESSAGE_TYPE_ERROR: MsgType = MsgType(0);
+    pub const FFX_MESSAGE_TYPE_WARNING: MsgType = MsgType(1);
+    pub const FFX_MESSAGE_TYPE_COUNT: MsgType = MsgType(2);
+}
+#[repr(transparent)]
 #[doc = " An enumeration for message types that can be passed\n\n @ingroup SDKTypes"]
-pub type MsgType = ::std::os::raw::c_int;
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub struct MsgType(pub ::std::os::raw::c_int);
 #[doc = "< FidelityFX Super Resolution v2"]
 pub const FFX_EFFECT_FSR2: Effect = 0;
 #[doc = "< FidelityFX Super Resolution"]
