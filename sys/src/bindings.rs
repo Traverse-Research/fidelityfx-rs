@@ -437,15 +437,41 @@ pub enum DescriptorType {
 }
 #[doc = " An enumeration for various descriptor types\n\n @ingroup SDKTypes"]
 pub use self::DescriptorType as DescriptiorType;
-#[repr(i32)]
-#[non_exhaustive]
+impl BindStage {
+    pub const PIXEL_SHADER_STAGE: BindStage = BindStage(1);
+    pub const VERTEX_SHADER_STAGE: BindStage = BindStage(2);
+    pub const COMPUTE_SHADER_STAGE: BindStage = BindStage(4);
+}
+impl ::std::ops::BitOr<BindStage> for BindStage {
+    type Output = Self;
+    #[inline]
+    fn bitor(self, other: Self) -> Self {
+        BindStage(self.0 | other.0)
+    }
+}
+impl ::std::ops::BitOrAssign for BindStage {
+    #[inline]
+    fn bitor_assign(&mut self, rhs: BindStage) {
+        self.0 |= rhs.0;
+    }
+}
+impl ::std::ops::BitAnd<BindStage> for BindStage {
+    type Output = Self;
+    #[inline]
+    fn bitand(self, other: Self) -> Self {
+        BindStage(self.0 & other.0)
+    }
+}
+impl ::std::ops::BitAndAssign for BindStage {
+    #[inline]
+    fn bitand_assign(&mut self, rhs: BindStage) {
+        self.0 &= rhs.0;
+    }
+}
+#[repr(transparent)]
 #[doc = " An enumeration for view binding stages\n\n @ingroup SDKTypes"]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
-pub enum BindStage {
-    PIXEL_SHADER_STAGE = 1,
-    VERTEX_SHADER_STAGE = 2,
-    COMPUTE_SHADER_STAGE = 4,
-}
+pub struct BindStage(pub ::std::os::raw::c_int);
 #[repr(i32)]
 #[non_exhaustive]
 #[doc = " An enumeration for barrier types\n\n @ingroup SDKTypes"]
@@ -1739,15 +1765,41 @@ pub type ExecuteGpuJobsFunc = ::std::option::Option<
         effectContextId: UInt32,
     ) -> ErrorCode,
 >;
-#[repr(i32)]
-#[non_exhaustive]
-#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
-pub enum UiCompositionFlags {
+impl UiCompositionFlags {
     #[doc = "< A bit indicating that we use premultiplied alpha for UI composition"]
-    FLAG_USE_PREMUL_ALPHA = 1,
+    pub const FLAG_USE_PREMUL_ALPHA: UiCompositionFlags = UiCompositionFlags(1);
     #[doc = "< A bit indicating that the swapchain should doublebuffer the UI resource"]
-    FLAG_ENABLE_INTERNAL_UI_DOUBLE_BUFFERING = 2,
+    pub const FLAG_ENABLE_INTERNAL_UI_DOUBLE_BUFFERING: UiCompositionFlags = UiCompositionFlags(2);
 }
+impl ::std::ops::BitOr<UiCompositionFlags> for UiCompositionFlags {
+    type Output = Self;
+    #[inline]
+    fn bitor(self, other: Self) -> Self {
+        UiCompositionFlags(self.0 | other.0)
+    }
+}
+impl ::std::ops::BitOrAssign for UiCompositionFlags {
+    #[inline]
+    fn bitor_assign(&mut self, rhs: UiCompositionFlags) {
+        self.0 |= rhs.0;
+    }
+}
+impl ::std::ops::BitAnd<UiCompositionFlags> for UiCompositionFlags {
+    type Output = Self;
+    #[inline]
+    fn bitand(self, other: Self) -> Self {
+        UiCompositionFlags(self.0 & other.0)
+    }
+}
+impl ::std::ops::BitAndAssign for UiCompositionFlags {
+    #[inline]
+    fn bitand_assign(&mut self, rhs: UiCompositionFlags) {
+        self.0 &= rhs.0;
+    }
+}
+#[repr(transparent)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub struct UiCompositionFlags(pub ::std::os::raw::c_int);
 pub type PresentCallbackFunc = ::std::option::Option<
     unsafe extern "C" fn(
         params: *const PresentCallbackDescription,

@@ -23,10 +23,14 @@ impl Default for VkQueueInfoFFX {
         }
     }
 }
-pub const VK_COMPOSITION_MODE_NOT_FORCED_FFX: VkCompositonModeFFX = 0;
-pub const VK_COMPOSITION_MODE_GAME_QUEUE_FFX: VkCompositonModeFFX = 1;
-pub const VK_COMPOSITION_MODE_PRESENT_QUEUE_FFX: VkCompositonModeFFX = 2;
-pub type VkCompositonModeFFX = ::std::os::raw::c_int;
+#[repr(i32)]
+#[non_exhaustive]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub enum VkCompositonModeFFX {
+    VK_COMPOSITION_MODE_NOT_FORCED_FFX = 0,
+    VK_COMPOSITION_MODE_GAME_QUEUE_FFX = 1,
+    VK_COMPOSITION_MODE_PRESENT_QUEUE_FFX = 2,
+}
 #[doc = " Structure holding additional information to effectively replace the game swapchain by the frame interpolation one.\n Some notes on the queues:\n   - please pass the queue, its family (for queue family ownership transfer purposes) and an optional function if you want to control concurrent submissions\n   - game queue: the queue where the replacement of vkQueuePresentKHR is called. This queue should have Graphics and Compute capabilities (Transfer is implied as per Vulkan specification).\n                  It can be shared with the engine. No Submit function is necessary.\n                 The code assumes that the UI texture is owned by that queue family when present is called.\n   - async compute queue: optional queue with Compute capability (Transfer is implied as per Vulkan specification). If used by the engine, prefer not to enable the async compute path of FSR3 Frame interpolation.\n   - present queue: queue with Graphics, Compute or Transfer capability, and Present support. This queue cannot be used by the engine. Otherwise, some deadlock can occur.\n   - image acquire queue: this one doesn't need any capability. Strongly prefer a queue not used by the engine. The main graphics queue can work too but it might delay the signaling of the semaphore/fence when acquiring a new image, negatively impacting the performance."]
 #[repr(C)]
 pub struct VkFrameInterpolationInfoFFX {
@@ -188,11 +192,13 @@ unsafe extern "C" {
     pub fn SetFrameGenerationConfigToSwapchainVK(config: *const FrameGenerationConfig)
     -> ErrorCode;
 }
-pub const FFX_FI_SWAPCHAIN_CONFIGURE_KEY_WAITCALLBACK: FrameInterpolationSwapchainConfigureKey = 0;
-pub const FFX_FI_SWAPCHAIN_CONFIGURE_KEY_FRAMEPACINGTUNING:
-    FrameInterpolationSwapchainConfigureKey = 2;
-#[doc = "enum values should match enum FfxApiConfigureFrameGenerationSwapChainKeyVK"]
-pub type FrameInterpolationSwapchainConfigureKey = ::std::os::raw::c_int;
+#[repr(i32)]
+#[non_exhaustive]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub enum FrameInterpolationSwapchainConfigureKey {
+    WAITCALLBACK = 0,
+    FRAMEPACINGTUNING = 2,
+}
 unsafe extern "C" {
     #[doc = " Configures <c><i>FfxSwapchain</i></c> via KeyValue API post <c><i>FfxSwapchain</i></c> context creation\n\n @param [in] gameSwapChain           The <c><i>FfxSwapchain</i></c> to configure via KeyValue API\n @param [in] key                     The <c><i>FfxFrameInterpolationSwapchainConfigureKey</i></c> is key\n @param [in] valuePtr                The <c><i><void *></i></c> pointer to value. What this pointer deference to depends on key.\n\n @retval\n FFX_OK                              The operation completed successfully.\n @retval\n FFX_ERROR_INVALID_ARGUMENT          Could not query the interface for the frame interpolation swap chain.\n\n @ingroup VKFrameInterpolation"]
     #[link_name = "\u{1}ffxConfigureFrameInterpolationSwapchainVK"]

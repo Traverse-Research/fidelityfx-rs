@@ -5,45 +5,48 @@ pub const FRAMEINTERPOLATION_VERSION_MINOR: u32 = 1;
 pub const FRAMEINTERPOLATION_VERSION_PATCH: u32 = 3;
 pub const FRAMEINTERPOLATION_CONTEXT_COUNT: u32 = 1;
 pub const FRAMEINTERPOLATION_CONTEXT_SIZE: u32 = 131072;
-pub const FFX_FRAMEINTERPOLATION_PASS_RECONSTRUCT_AND_DILATE: FrameInterpolationPass = 0;
-pub const FFX_FRAMEINTERPOLATION_PASS_SETUP: FrameInterpolationPass = 1;
-pub const FFX_FRAMEINTERPOLATION_PASS_RECONSTRUCT_PREV_DEPTH: FrameInterpolationPass = 2;
-pub const FFX_FRAMEINTERPOLATION_PASS_GAME_MOTION_VECTOR_FIELD: FrameInterpolationPass = 3;
-pub const FFX_FRAMEINTERPOLATION_PASS_OPTICAL_FLOW_VECTOR_FIELD: FrameInterpolationPass = 4;
-pub const FFX_FRAMEINTERPOLATION_PASS_DISOCCLUSION_MASK: FrameInterpolationPass = 5;
-pub const FFX_FRAMEINTERPOLATION_PASS_INTERPOLATION: FrameInterpolationPass = 6;
-pub const FFX_FRAMEINTERPOLATION_PASS_INPAINTING_PYRAMID: FrameInterpolationPass = 7;
-pub const FFX_FRAMEINTERPOLATION_PASS_INPAINTING: FrameInterpolationPass = 8;
-pub const FFX_FRAMEINTERPOLATION_PASS_GAME_VECTOR_FIELD_INPAINTING_PYRAMID: FrameInterpolationPass =
-    9;
-pub const FFX_FRAMEINTERPOLATION_PASS_DEBUG_VIEW: FrameInterpolationPass = 10;
-#[doc = "< The number of passes performed by FrameInterpolation."]
-pub const FFX_FRAMEINTERPOLATION_PASS_COUNT: FrameInterpolationPass = 11;
+#[repr(i32)]
+#[non_exhaustive]
 #[doc = " An enumeration of all the passes which constitute the FSR3 algorithm.\n\n FSR3 is implemented as a composite of several compute passes each\n computing a key part of the final result. Each call to the\n <c><i>FfxFsr3ScheduleGpuJobFunc</i></c> callback function will\n correspond to a single pass included in <c><i>FfxFsr3Pass</i></c>. For a\n more comprehensive description of each pass, please refer to the FSR3\n reference documentation.\n\n Please note in some cases e.g.: <c><i>FFX_FSR3_PASS_ACCUMULATE</i></c>\n and <c><i>FFX_FSR3_PASS_ACCUMULATE_SHARPEN</i></c> either one pass or the\n other will be used (they are mutually exclusive). The choice of which will\n depend on the way the <c><i>FfxFsr3Context</i></c> is created and the\n precise contents of <c><i>FfxFsr3DispatchParamters</i></c> each time a call\n is made to <c><i>ffxFsr3ContextDispatch</i></c>.\n\n @ingroup FRAMEINTERPOLATIONFRAMEINTERPOLATION"]
-pub type FrameInterpolationPass = ::std::os::raw::c_int;
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub enum FrameInterpolationPass {
+    RECONSTRUCT_AND_DILATE = 0,
+    SETUP = 1,
+    RECONSTRUCT_PREV_DEPTH = 2,
+    GAME_MOTION_VECTOR_FIELD = 3,
+    OPTICAL_FLOW_VECTOR_FIELD = 4,
+    DISOCCLUSION_MASK = 5,
+    INTERPOLATION = 6,
+    INPAINTING_PYRAMID = 7,
+    INPAINTING = 8,
+    GAME_VECTOR_FIELD_INPAINTING_PYRAMID = 9,
+    DEBUG_VIEW = 10,
+    #[doc = "< The number of passes performed by FrameInterpolation."]
+    COUNT = 11,
+}
 impl FrameInterpolationInitializationFlagBits {
     #[doc = "< A bit indicating that the input depth buffer data provided is inverted [1..0]."]
-    pub const FFX_FRAMEINTERPOLATION_ENABLE_DEPTH_INVERTED:
-        FrameInterpolationInitializationFlagBits = FrameInterpolationInitializationFlagBits(1);
+    pub const ENABLE_DEPTH_INVERTED: FrameInterpolationInitializationFlagBits =
+        FrameInterpolationInitializationFlagBits(1);
     #[doc = "< A bit indicating that the input depth buffer data provided is using an infinite far plane."]
-    pub const FFX_FRAMEINTERPOLATION_ENABLE_DEPTH_INFINITE:
-        FrameInterpolationInitializationFlagBits = FrameInterpolationInitializationFlagBits(2);
+    pub const ENABLE_DEPTH_INFINITE: FrameInterpolationInitializationFlagBits =
+        FrameInterpolationInitializationFlagBits(2);
     #[doc = "< A bit indicating that the backend should use 1D textures."]
-    pub const FFX_FRAMEINTERPOLATION_ENABLE_TEXTURE1D_USAGE:
-        FrameInterpolationInitializationFlagBits = FrameInterpolationInitializationFlagBits(4);
+    pub const ENABLE_TEXTURE1D_USAGE: FrameInterpolationInitializationFlagBits =
+        FrameInterpolationInitializationFlagBits(4);
     #[doc = "< A bit indicating that HDR values are present in the imaging pipeline."]
-    pub const FFX_FRAMEINTERPOLATION_ENABLE_HDR_COLOR_INPUT:
-        FrameInterpolationInitializationFlagBits = FrameInterpolationInitializationFlagBits(8);
+    pub const ENABLE_HDR_COLOR_INPUT: FrameInterpolationInitializationFlagBits =
+        FrameInterpolationInitializationFlagBits(8);
     #[doc = "< A bit indicating if the motion vectors are rendered at display resolution."]
-    pub const FFX_FRAMEINTERPOLATION_ENABLE_DISPLAY_RESOLUTION_MOTION_VECTORS:
-        FrameInterpolationInitializationFlagBits = FrameInterpolationInitializationFlagBits(16);
-    pub const FFX_FRAMEINTERPOLATION_ENABLE_JITTER_MOTION_VECTORS:
-        FrameInterpolationInitializationFlagBits = FrameInterpolationInitializationFlagBits(32);
-    pub const FFX_FRAMEINTERPOLATION_ENABLE_ASYNC_SUPPORT:
-        FrameInterpolationInitializationFlagBits = FrameInterpolationInitializationFlagBits(64);
+    pub const ENABLE_DISPLAY_RESOLUTION_MOTION_VECTORS: FrameInterpolationInitializationFlagBits =
+        FrameInterpolationInitializationFlagBits(16);
+    pub const ENABLE_JITTER_MOTION_VECTORS: FrameInterpolationInitializationFlagBits =
+        FrameInterpolationInitializationFlagBits(32);
+    pub const ENABLE_ASYNC_SUPPORT: FrameInterpolationInitializationFlagBits =
+        FrameInterpolationInitializationFlagBits(64);
     #[doc = "< A bit indicating that the runtime should check some API values and report issues."]
-    pub const FFX_FRAMEINTERPOLATION_ENABLE_DEBUG_CHECKING:
-        FrameInterpolationInitializationFlagBits = FrameInterpolationInitializationFlagBits(128);
+    pub const ENABLE_DEBUG_CHECKING: FrameInterpolationInitializationFlagBits =
+        FrameInterpolationInitializationFlagBits(128);
 }
 impl ::std::ops::BitOr<FrameInterpolationInitializationFlagBits>
     for FrameInterpolationInitializationFlagBits
@@ -123,7 +126,7 @@ impl Default for FrameInterpolationSharedResourceDescriptions {
         }
     }
 }
-#[doc = " forward declarations"]
+#[doc = " A structure encapsulating the FidelityFX Super Resolution 2 context.\n\n This sets up an object which contains all persistent internal data and\n resources that are required by FSR3.\n\n The <c><i>FfxFsr3Context</i></c> object should have a lifetime matching\n your use of FSR3. Before destroying the FSR3 context care should be taken\n to ensure the GPU is not accessing the resources created or used by FSR3.\n It is therefore recommended that the GPU is idle before destroying the\n FSR3 context.\n\n @ingroup FRAMEINTERPOLATION"]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct FrameInterpolationContext {
@@ -223,21 +226,18 @@ unsafe extern "C" {
 }
 impl FrameInterpolationDispatchFlags {
     #[doc = "< A bit indicating that the debug tear lines will be drawn to the interpolated output."]
-    pub const FFX_FRAMEINTERPOLATION_DISPATCH_DRAW_DEBUG_TEAR_LINES:
-        FrameInterpolationDispatchFlags = FrameInterpolationDispatchFlags(1);
+    pub const DRAW_DEBUG_TEAR_LINES: FrameInterpolationDispatchFlags =
+        FrameInterpolationDispatchFlags(1);
     #[doc = "< A bit indicating that the debug reset indicators will be drawn to the generated output."]
-    pub const FFX_FRAMEINTERPOLATION_DISPATCH_DRAW_DEBUG_RESET_INDICATORS:
-        FrameInterpolationDispatchFlags = FrameInterpolationDispatchFlags(2);
+    pub const DRAW_DEBUG_RESET_INDICATORS: FrameInterpolationDispatchFlags =
+        FrameInterpolationDispatchFlags(2);
     #[doc = "< A bit indicating that the interpolated output resource will contain debug views with relevant information."]
-    pub const FFX_FRAMEINTERPOLATION_DISPATCH_DRAW_DEBUG_VIEW: FrameInterpolationDispatchFlags =
-        FrameInterpolationDispatchFlags(4);
+    pub const DRAW_DEBUG_VIEW: FrameInterpolationDispatchFlags = FrameInterpolationDispatchFlags(4);
     #[doc = "< A bit indicating that the debug pacing lines will be drawn to the generated output."]
-    pub const FFX_FRAMEINTERPOLATION_DISPATCH_DRAW_DEBUG_PACING_LINES:
-        FrameInterpolationDispatchFlags = FrameInterpolationDispatchFlags(8);
-    pub const FFX_FRAMEINTERPOLATION_DISPATCH_RESERVED_1: FrameInterpolationDispatchFlags =
-        FrameInterpolationDispatchFlags(16);
-    pub const FFX_FRAMEINTERPOLATION_DISPATCH_RESERVED_2: FrameInterpolationDispatchFlags =
-        FrameInterpolationDispatchFlags(32);
+    pub const DRAW_DEBUG_PACING_LINES: FrameInterpolationDispatchFlags =
+        FrameInterpolationDispatchFlags(8);
+    pub const RESERVED_1: FrameInterpolationDispatchFlags = FrameInterpolationDispatchFlags(16);
+    pub const RESERVED_2: FrameInterpolationDispatchFlags = FrameInterpolationDispatchFlags(32);
 }
 impl ::std::ops::BitOr<FrameInterpolationDispatchFlags> for FrameInterpolationDispatchFlags {
     type Output = Self;

@@ -143,11 +143,13 @@ unsafe extern "C" {
         config: *const FrameGenerationConfig,
     ) -> ErrorCode;
 }
-pub const FFX_FI_SWAPCHAIN_CONFIGURE_KEY_WAITCALLBACK: FrameInterpolationSwapchainConfigureKey = 0;
-pub const FFX_FI_SWAPCHAIN_CONFIGURE_KEY_FRAMEPACINGTUNING:
-    FrameInterpolationSwapchainConfigureKey = 2;
-#[doc = "enum value matches enum FfxApiConfigureFrameGenerationSwapChainKeyDX12"]
-pub type FrameInterpolationSwapchainConfigureKey = ::std::os::raw::c_int;
+#[repr(i32)]
+#[non_exhaustive]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub enum FrameInterpolationSwapchainConfigureKey {
+    WAITCALLBACK = 0,
+    FRAMEPACINGTUNING = 2,
+}
 unsafe extern "C" {
     #[doc = " Configures <c><i>FfxSwapchain</i></c> via KeyValue API post <c><i>FfxSwapchain</i></c> context creation\n\n @param [in] gameSwapChain           The <c><i>FfxSwapchain</i></c> to configure via KeyValue API\n @param [in] key                     The <c><i>FfxFrameInterpolationSwapchainConfigureKey</i></c> is key\n @param [in] valuePtr                The <c><i><void *></i></c> pointer to value. What this pointer deference to depends on key.\n\n @retval\n FFX_OK                              The operation completed successfully.\n @retval\n FFX_ERROR_INVALID_ARGUMENT          Could not query the interface for the frame interpolation swap chain.\n\n @ingroup DX12FrameInterpolation"]
     #[link_name = "\u{1}ffxConfigureFrameInterpolationSwapchainDX12"]
