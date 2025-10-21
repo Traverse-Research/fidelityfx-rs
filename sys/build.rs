@@ -70,6 +70,8 @@ fn compile_fidelityfx(api_dir: &Path, vk_include_dir: &Path) {
         .include(api_dir.join("src/components"))
         .include("FidelityFX/libs")
         // TODO: Generalize folder name
+        // WARNING! Global symbols for dx12 and vulkan shader permutations are identical.
+        // We can only compile for either dx12 OR vk.
         .include("FidelityFX/shader_permutations/dx12")
         .include(vk_include_dir);
 
