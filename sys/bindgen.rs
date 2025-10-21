@@ -41,7 +41,9 @@ impl bindgen::callbacks::ParseCallbacks for Renamer {
                 "FfxMsgType" => "FFX_MESSAGE_TYPE".to_owned(),
                 "FfxErrorCodes" => "FFX".to_owned(),
                 "FfxIndexFormat" => "FFX".to_owned(),
-                "FfxFsr3UpscalerConfigureKey" => "FFX_FSR3UPSCALER_CONFIGURE_KEY".to_owned(),
+                "FfxFsr3UpscalerConfigureKey" => {
+                    "FFX_FSR3UPSCALER_CONFIGURE_UPSCALE_KEY".to_owned()
+                }
                 e => {
                     // Fix broken CamelCase -> SNAKE_CASE conventions in FFX headers:
                     if let Some(e) = e.strip_prefix("FfxFsr3Upscaler") {
