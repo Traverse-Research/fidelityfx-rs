@@ -5,40 +5,45 @@ pub const FSR1_VERSION_MINOR: u32 = 2;
 pub const FSR1_VERSION_PATCH: u32 = 0;
 pub const FSR1_CONTEXT_COUNT: u32 = 2;
 pub const FSR1_CONTEXT_SIZE: u32 = 27448;
-#[doc = "< A pass which upscales the color buffer using easu."]
-pub const FFX_FSR1_PASS_EASU: Fsr1Pass = 0;
-#[doc = "< A pass which upscales the color buffer in preparation for rcas"]
-pub const FFX_FSR1_PASS_EASU_RCAS: Fsr1Pass = 1;
-#[doc = "< A pass which performs rcas sharpening on the upscaled image."]
-pub const FFX_FSR1_PASS_RCAS: Fsr1Pass = 2;
-#[doc = "< The number of passes performed by FSR2."]
-pub const FFX_FSR1_PASS_COUNT: Fsr1Pass = 3;
+#[repr(i32)]
+#[non_exhaustive]
 #[doc = " An enumeration of all the passes which constitute the FSR1 algorithm.\n\n FSR1 is implemented as a composite of several compute passes each\n computing a key part of the final result. Each call to the\n <c><i>FfxFsr1ScheduleGpuJobFunc</i></c> callback function will\n correspond to a single pass included in <c><i>FfxFsr1Pass</i></c>. For a\n more comprehensive description of each pass, please refer to the FSR1\n reference documentation.\n\n @ingroup ffxFsr1"]
-pub type Fsr1Pass = ::std::os::raw::c_int;
-#[doc = "< Perform upscaling with a per-dimension upscaling ratio of 1.3x."]
-pub const FFX_FSR1_QUALITY_MODE_ULTRA_QUALITY: Fsr1QualityMode = 0;
-#[doc = "< Perform upscaling with a per-dimension upscaling ratio of 1.5x."]
-pub const FFX_FSR1_QUALITY_MODE_QUALITY: Fsr1QualityMode = 1;
-#[doc = "< Perform upscaling with a per-dimension upscaling ratio of 1.7x."]
-pub const FFX_FSR1_QUALITY_MODE_BALANCED: Fsr1QualityMode = 2;
-#[doc = "< Perform upscaling with a per-dimension upscaling ratio of 2.0x."]
-pub const FFX_FSR1_QUALITY_MODE_PERFORMANCE: Fsr1QualityMode = 3;
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub enum Fsr1Pass {
+    #[doc = "< A pass which upscales the color buffer using easu."]
+    EASU = 0,
+    #[doc = "< A pass which upscales the color buffer in preparation for rcas"]
+    EASU_RCAS = 1,
+    #[doc = "< A pass which performs rcas sharpening on the upscaled image."]
+    RCAS = 2,
+    #[doc = "< The number of passes performed by FSR2."]
+    COUNT = 3,
+}
+#[repr(i32)]
+#[non_exhaustive]
 #[doc = " An enumeration of all the quality modes supported by FidelityFX Super\n Resolution 1 upscaling.\n\n In order to provide a consistent user experience across multiple\n applications which implement FSR1. It is strongly recommended that the\n following preset scaling factors are made available through your\n application's user interface.\n\n If your application does not expose the notion of preset scaling factors\n for upscaling algorithms (perhaps instead implementing a fixed ratio which\n is immutable) or implementing a more dynamic scaling scheme (such as\n dynamic resolution scaling), then there is no need to use these presets.\n\n @ingroup ffxFsr1"]
-pub type Fsr1QualityMode = ::std::os::raw::c_int;
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub enum Fsr1QualityMode {
+    #[doc = "< Perform upscaling with a per-dimension upscaling ratio of 1.3x."]
+    ULTRA_QUALITY = 0,
+    #[doc = "< Perform upscaling with a per-dimension upscaling ratio of 1.5x."]
+    QUALITY = 1,
+    #[doc = "< Perform upscaling with a per-dimension upscaling ratio of 1.7x."]
+    BALANCED = 2,
+    #[doc = "< Perform upscaling with a per-dimension upscaling ratio of 2.0x."]
+    PERFORMANCE = 3,
+}
 impl Fsr1InitializationFlagBits {
     #[doc = "< A bit indicating if we should use rcas."]
-    pub const FFX_FSR1_ENABLE_RCAS: Fsr1InitializationFlagBits = Fsr1InitializationFlagBits(1);
+    pub const ENABLE_RCAS: Fsr1InitializationFlagBits = Fsr1InitializationFlagBits(1);
     #[doc = "< A bit indicating if we should use passthrough alpha during rcas."]
-    pub const FFX_FSR1_RCAS_PASSTHROUGH_ALPHA: Fsr1InitializationFlagBits =
-        Fsr1InitializationFlagBits(2);
+    pub const RCAS_PASSTHROUGH_ALPHA: Fsr1InitializationFlagBits = Fsr1InitializationFlagBits(2);
     #[doc = "< A bit indicating if denoising is invoked during rcas."]
-    pub const FFX_FSR1_RCAS_DENOISE: Fsr1InitializationFlagBits = Fsr1InitializationFlagBits(4);
+    pub const RCAS_DENOISE: Fsr1InitializationFlagBits = Fsr1InitializationFlagBits(4);
     #[doc = "< A bit indicating if the input color data provided is using a high-dynamic range."]
-    pub const FFX_FSR1_ENABLE_HIGH_DYNAMIC_RANGE: Fsr1InitializationFlagBits =
-        Fsr1InitializationFlagBits(8);
+    pub const ENABLE_HIGH_DYNAMIC_RANGE: Fsr1InitializationFlagBits = Fsr1InitializationFlagBits(8);
     #[doc = "< A bit indicating that input/output resources require gamma conversions"]
-    pub const FFX_FSR1_ENABLE_SRGB_CONVERSIONS: Fsr1InitializationFlagBits =
-        Fsr1InitializationFlagBits(16);
+    pub const ENABLE_SRGB_CONVERSIONS: Fsr1InitializationFlagBits = Fsr1InitializationFlagBits(16);
 }
 impl ::std::ops::BitOr<Fsr1InitializationFlagBits> for Fsr1InitializationFlagBits {
     type Output = Self;

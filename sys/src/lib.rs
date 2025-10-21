@@ -6,6 +6,9 @@
 #![allow(clashing_extern_declarations)]
 #![allow(improper_ctypes)]
 
+mod error;
+pub use error::ErrorCode;
+
 include!("bindings.rs");
 
 pub mod frameinterpolation {
