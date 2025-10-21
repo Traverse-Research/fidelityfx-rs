@@ -212,8 +212,8 @@ FFX_API size_t ffxGetScratchMemorySizeVK(VkPhysicalDevice physicalDevice, size_t
 {
     uint32_t numExtensions = 0;
 
-    if (physicalDevice)
-        vkEnumerateDeviceExtensionProperties(physicalDevice, nullptr, &numExtensions, nullptr);
+    // if (physicalDevice)
+    //     vkEnumerateDeviceExtensionProperties(physicalDevice, nullptr, &numExtensions, nullptr);
 
     uint32_t extensionPropArraySize = sizeof(VkExtensionProperties) * numExtensions;
     uint32_t gpuJobDescArraySize = FFX_ALIGN_UP(maxContexts * FFX_MAX_GPU_JOBS * sizeof(FfxGpuJobDescription), sizeof(uint32_t));
@@ -312,7 +312,7 @@ uint32_t findMemoryTypeIndex(VkPhysicalDevice physicalDevice, VkMemoryRequiremen
     FFX_ASSERT(NULL != physicalDevice);
 
     VkPhysicalDeviceMemoryProperties memProperties;
-    vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memProperties);
+    // vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memProperties);
 
     uint32_t bestCandidate = UINT32_MAX;
 
@@ -876,8 +876,8 @@ FfxErrorCode CreateBackendContextVK(FfxInterface* backendInterface, FfxUInt32* e
         backendContext->extensionProperties = (VkExtensionProperties*)pMem;
 
         // if vkGetDeviceProcAddr is NULL, use the one from the vulkan header
-        if (vkDeviceContext->vkDeviceProcAddr == NULL)
-            vkDeviceContext->vkDeviceProcAddr = vkGetDeviceProcAddr;
+        // if (vkDeviceContext->vkDeviceProcAddr == NULL)
+        //     vkDeviceContext->vkDeviceProcAddr = vkGetDeviceProcAddr;
 
         if (vkDeviceContext->vkDevice != VK_NULL_HANDLE) {
             backendContext->device = vkDeviceContext->vkDevice;
@@ -931,8 +931,8 @@ FfxErrorCode CreateBackendContextVK(FfxInterface* backendInterface, FfxUInt32* e
 
         // enumerate all the device extensions
         backendContext->numDeviceExtensions = 0;
-        vkEnumerateDeviceExtensionProperties(backendContext->physicalDevice, nullptr, &backendContext->numDeviceExtensions, nullptr);
-        vkEnumerateDeviceExtensionProperties(backendContext->physicalDevice, nullptr, &backendContext->numDeviceExtensions, backendContext->extensionProperties);
+        // vkEnumerateDeviceExtensionProperties(backendContext->physicalDevice, nullptr, &backendContext->numDeviceExtensions, nullptr);
+        // vkEnumerateDeviceExtensionProperties(backendContext->physicalDevice, nullptr, &backendContext->numDeviceExtensions, backendContext->extensionProperties);
 
         // create a global descriptor pool to hold all descriptors we'll need
         VkDescriptorPoolCreateInfo descriptorPoolCreateInfo = {};
@@ -1081,7 +1081,7 @@ FfxErrorCode GetDeviceCapabilitiesVK(FfxInterface* backendInterface, FfxDeviceCa
             VkPhysicalDeviceProperties2 deviceProperties2 = {};
             deviceProperties2.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2;
             deviceProperties2.pNext = &subgroupSizeControlProperties;
-            vkGetPhysicalDeviceProperties2(context->physicalDevice, &deviceProperties2);
+            // vkGetPhysicalDeviceProperties2(context->physicalDevice, &deviceProperties2);
 
             deviceCapabilities->waveLaneCountMin = subgroupSizeControlProperties.minSubgroupSize;
             deviceCapabilities->waveLaneCountMax = subgroupSizeControlProperties.maxSubgroupSize;
@@ -1096,7 +1096,7 @@ FfxErrorCode GetDeviceCapabilitiesVK(FfxInterface* backendInterface, FfxDeviceCa
             physicalDeviceFeatures2.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
             physicalDeviceFeatures2.pNext = &shaderFloat18Int8Features;
 
-            vkGetPhysicalDeviceFeatures2(context->physicalDevice, &physicalDeviceFeatures2);
+            // vkGetPhysicalDeviceFeatures2(context->physicalDevice, &physicalDeviceFeatures2);
 
             deviceCapabilities->fp16Supported = (bool)shaderFloat18Int8Features.shaderFloat16;
         }
@@ -1110,7 +1110,7 @@ FfxErrorCode GetDeviceCapabilitiesVK(FfxInterface* backendInterface, FfxDeviceCa
             physicalDeviceFeatures2.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
             physicalDeviceFeatures2.pNext = &accelerationStructureFeatures;
 
-            vkGetPhysicalDeviceFeatures2(context->physicalDevice, &physicalDeviceFeatures2);
+            // vkGetPhysicalDeviceFeatures2(context->physicalDevice, &physicalDeviceFeatures2);
 
             deviceCapabilities->raytracingSupported = (bool)accelerationStructureFeatures.accelerationStructure;
         }
