@@ -1,7 +1,10 @@
-#![allow(non_upper_case_globals)]
-#![allow(non_camel_case_types)]
-#![allow(non_snake_case)]
-#![allow(clippy::excessive_precision)]
+#![allow(
+    non_upper_case_globals,
+    non_camel_case_types,
+    non_snake_case,
+    clippy::excessive_precision,
+    clippy::missing_safety_doc
+)]
 
 mod error;
 pub use error::ErrorCode;

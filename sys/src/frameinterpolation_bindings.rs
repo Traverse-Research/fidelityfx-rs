@@ -109,14 +109,6 @@ impl Default for FrameInterpolationContext {
         }
     }
 }
-unsafe extern "C" {
-    #[doc = " Create a FidelityFX Super Resolution 2 context from the parameters\n programmed to the <c><i>FfxFsr3CreateParams</i></c> structure.\n\n The context structure is the main object used to interact with the FSR3\n API, and is responsible for the management of the internal resources used\n by the FSR3 algorithm. When this API is called, multiple calls will be\n made via the pointers contained in the <c><i>callbacks</i></c> structure.\n These callbacks will attempt to retreive the device capabilities, and\n create the internal resources, and pipelines required by FSR3's\n frame-to-frame function. Depending on the precise configuration used when\n creating the <c><i>FfxFsr3Context</i></c> a different set of resources and\n pipelines might be requested via the callback functions.\n\n The flags included in the <c><i>flags</i></c> field of\n <c><i>FfxFsr3Context</i></c> how match the configuration of your\n application as well as the intended use of FSR3. It is important that these\n flags are set correctly (as well as a correct programmed\n <c><i>FfxFsr3DispatchDescription</i></c>) to ensure correct operation. It is\n recommended to consult the overview documentation for further details on\n how FSR3 should be integerated into an application.\n\n When the <c><i>FfxFsr3Context</i></c> is created, you should use the\n <c><i>ffxFsr3ContextDispatch</i></c> function each frame where FSR3\n upscaling should be applied. See the documentation of\n <c><i>ffxFsr3ContextDispatch</i></c> for more details.\n\n The <c><i>FfxFsr3Context</i></c> should be destroyed when use of it is\n completed, typically when an application is unloaded or FSR3 upscaling is\n disabled by a user. To destroy the FSR3 context you should call\n <c><i>ffxFsr3ContextDestroy</i></c>.\n\n @param [out] context                A pointer to a <c><i>FfxFsr3Context</i></c> structure to populate.\n @param [in]  contextDescription     A pointer to a <c><i>FfxFsr3ContextDescription</i></c> structure.\n\n @retval\n FFX_OK                              The operation completed successfully.\n @retval\n FFX_ERROR_CODE_NULL_POINTER         The operation failed because either <c><i>context</i></c> or <c><i>contextDescription</i></c> was <c><i>NULL</i></c>.\n @retval\n FFX_ERROR_INCOMPLETE_INTERFACE      The operation failed because the <c><i>FfxFsr3ContextDescription.callbacks</i></c>  was not fully specified.\n @retval\n FFX_ERROR_BACKEND_API_ERROR         The operation failed because of an error returned from the backend.\n\n @ingroup FRAMEINTERPOLATION"]
-    #[link_name = "\u{1}ffxFrameInterpolationContextCreate"]
-    pub fn FrameInterpolationContextCreate(
-        context: *mut FrameInterpolationContext,
-        contextDescription: *mut FrameInterpolationContextDescription,
-    ) -> ErrorCode;
-}
 impl FrameInterpolationDispatchFlags {
     #[doc = "< A bit indicating that the debug tear lines will be drawn to the interpolated output."]
     pub const DRAW_DEBUG_TEAR_LINES: FrameInterpolationDispatchFlags =
@@ -213,15 +205,68 @@ impl Default for FrameInterpolationDispatchDescription {
         }
     }
 }
-unsafe extern "C" {
-    #[link_name = "\u{1}ffxFrameInterpolationDispatch"]
-    pub fn FrameInterpolationDispatch(
+pub struct Functions {
+    __library: ::libloading::Library,
+    pub FrameInterpolationContextCreate: unsafe extern "C" fn(
+        context: *mut FrameInterpolationContext,
+        contextDescription: *mut FrameInterpolationContextDescription,
+    ) -> ErrorCode,
+    pub FrameInterpolationDispatch: unsafe extern "C" fn(
         context: *mut FrameInterpolationContext,
         params: *const FrameInterpolationDispatchDescription,
-    ) -> ErrorCode;
+    ) -> ErrorCode,
+    pub FrameInterpolationContextDestroy:
+        unsafe extern "C" fn(context: *mut FrameInterpolationContext) -> ErrorCode,
 }
-unsafe extern "C" {
+impl Functions {
+    pub unsafe fn new<P>(path: P) -> Result<Self, ::libloading::Error>
+    where
+        P: AsRef<::std::ffi::OsStr>,
+    {
+        let library = ::libloading::Library::new(path)?;
+        Self::from_library(library)
+    }
+    pub unsafe fn from_library<L>(library: L) -> Result<Self, ::libloading::Error>
+    where
+        L: Into<::libloading::Library>,
+    {
+        let __library = library.into();
+        let FrameInterpolationContextCreate = __library
+            .get(b"ffxFrameInterpolationContextCreate\0")
+            .map(|sym| *sym)?;
+        let FrameInterpolationDispatch = __library
+            .get(b"ffxFrameInterpolationDispatch\0")
+            .map(|sym| *sym)?;
+        let FrameInterpolationContextDestroy = __library
+            .get(b"ffxFrameInterpolationContextDestroy\0")
+            .map(|sym| *sym)?;
+        Ok(Functions {
+            __library,
+            FrameInterpolationContextCreate,
+            FrameInterpolationDispatch,
+            FrameInterpolationContextDestroy,
+        })
+    }
+    #[doc = " Create a FidelityFX Super Resolution 2 context from the parameters\n programmed to the <c><i>FfxFsr3CreateParams</i></c> structure.\n\n The context structure is the main object used to interact with the FSR3\n API, and is responsible for the management of the internal resources used\n by the FSR3 algorithm. When this API is called, multiple calls will be\n made via the pointers contained in the <c><i>callbacks</i></c> structure.\n These callbacks will attempt to retreive the device capabilities, and\n create the internal resources, and pipelines required by FSR3's\n frame-to-frame function. Depending on the precise configuration used when\n creating the <c><i>FfxFsr3Context</i></c> a different set of resources and\n pipelines might be requested via the callback functions.\n\n The flags included in the <c><i>flags</i></c> field of\n <c><i>FfxFsr3Context</i></c> how match the configuration of your\n application as well as the intended use of FSR3. It is important that these\n flags are set correctly (as well as a correct programmed\n <c><i>FfxFsr3DispatchDescription</i></c>) to ensure correct operation. It is\n recommended to consult the overview documentation for further details on\n how FSR3 should be integerated into an application.\n\n When the <c><i>FfxFsr3Context</i></c> is created, you should use the\n <c><i>ffxFsr3ContextDispatch</i></c> function each frame where FSR3\n upscaling should be applied. See the documentation of\n <c><i>ffxFsr3ContextDispatch</i></c> for more details.\n\n The <c><i>FfxFsr3Context</i></c> should be destroyed when use of it is\n completed, typically when an application is unloaded or FSR3 upscaling is\n disabled by a user. To destroy the FSR3 context you should call\n <c><i>ffxFsr3ContextDestroy</i></c>.\n\n @param [out] context                A pointer to a <c><i>FfxFsr3Context</i></c> structure to populate.\n @param [in]  contextDescription     A pointer to a <c><i>FfxFsr3ContextDescription</i></c> structure.\n\n @retval\n FFX_OK                              The operation completed successfully.\n @retval\n FFX_ERROR_CODE_NULL_POINTER         The operation failed because either <c><i>context</i></c> or <c><i>contextDescription</i></c> was <c><i>NULL</i></c>.\n @retval\n FFX_ERROR_INCOMPLETE_INTERFACE      The operation failed because the <c><i>FfxFsr3ContextDescription.callbacks</i></c>  was not fully specified.\n @retval\n FFX_ERROR_BACKEND_API_ERROR         The operation failed because of an error returned from the backend.\n\n @ingroup FRAMEINTERPOLATION"]
+    pub unsafe fn FrameInterpolationContextCreate(
+        &self,
+        context: *mut FrameInterpolationContext,
+        contextDescription: *mut FrameInterpolationContextDescription,
+    ) -> ErrorCode {
+        (self.FrameInterpolationContextCreate)(context, contextDescription)
+    }
+    pub unsafe fn FrameInterpolationDispatch(
+        &self,
+        context: *mut FrameInterpolationContext,
+        params: *const FrameInterpolationDispatchDescription,
+    ) -> ErrorCode {
+        (self.FrameInterpolationDispatch)(context, params)
+    }
     #[doc = " Destroy the FidelityFX Super Resolution context.\n\n @param [out] context                A pointer to a <c><i>FfxFsr3Context</i></c> structure to destroy.\n\n @retval\n FFX_OK                              The operation completed successfully.\n @retval\n FFX_ERROR_CODE_NULL_POINTER         The operation failed because either <c><i>context</i></c> was <c><i>NULL</i></c>.\n\n @ingroup FRAMEINTERPOLATION"]
-    #[link_name = "\u{1}ffxFrameInterpolationContextDestroy"]
-    pub fn FrameInterpolationContextDestroy(context: *mut FrameInterpolationContext) -> ErrorCode;
+    pub unsafe fn FrameInterpolationContextDestroy(
+        &self,
+        context: *mut FrameInterpolationContext,
+    ) -> ErrorCode {
+        (self.FrameInterpolationContextDestroy)(context)
+    }
 }

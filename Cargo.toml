@@ -1,2 +1,5 @@
 [workspace]
-members = ["sys"]
+members = [
+  "api_gen",
+  "sys",
+]

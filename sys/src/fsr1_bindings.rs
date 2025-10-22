@@ -139,40 +139,97 @@ impl Default for Fsr1Context {
         }
     }
 }
-unsafe extern "C" {
-    #[doc = " Create a FidelityFX Super Resolution 1.0 context from the parameters\n programmed to the <c><i>FfxFsr1ContextDescription</i></c> structure.\n\n The context structure is the main object used to interact with the Super\n Resoution 1.0 API, and is responsible for the management of the internal resources\n used by the FSR1 algorithm. When this API is called, multiple calls\n will be made via the pointers contained in the <c><i>callbacks</i></c>\n structure. These callbacks will attempt to retreive the device capabilities,\n and create the internal resources, and pipelines required by FSR1\n frame-to-frame function. Depending on the precise configuration used when\n creating the <c><i>FfxFsr1Context</i></c> a different set of resources and\n pipelines might be requested via the callback functions.\n\n The <c><i>FfxParallelSortContext</i></c> should be destroyed when use of it is\n completed, typically when an application is unloaded or FSR1\n upscaling is disabled by a user. To destroy the FSR1 context you\n should call <c><i>ffxFsr1ContextDestroy</i></c>.\n\n @param [out] pContext                A pointer to a <c><i>FfxFsr1Context</i></c> structure to populate.\n @param [in]  pContextDescription     A pointer to a <c><i>FfxFsr1ContextDescription</i></c> structure.\n\n @retval\n FFX_OK                              The operation completed successfully.\n @retval\n FFX_ERROR_CODE_NULL_POINTER         The operation failed because either <c><i>context</i></c> or <c><i>contextDescription</i></c> was <c><i>NULL</i></c>.\n @retval\n FFX_ERROR_INCOMPLETE_INTERFACE      The operation failed because the <c><i>FfxFsr1ContextDescription.callbacks</i></c>  was not fully specified.\n @retval\n FFX_ERROR_BACKEND_API_ERROR         The operation failed because of an error returned from the backend.\n\n @ingroup ffxFsr1"]
-    #[link_name = "\u{1}ffxFsr1ContextCreate"]
-    pub fn Fsr1ContextCreate(
+pub struct Functions {
+    __library: ::libloading::Library,
+    pub Fsr1ContextCreate: unsafe extern "C" fn(
         pContext: *mut Fsr1Context,
         pContextDescription: *const Fsr1ContextDescription,
-    ) -> ErrorCode;
-}
-unsafe extern "C" {
-    #[doc = " @param [out] pContext                A pointer to a <c><i>FfxFsr1Context</i></c> structure to populate.\n @param [in]  pDispatchDescription    A pointer to a <c><i>FfxFsr1DispatchDescription</i></c> structure.\n\n @retval\n FFX_OK                              The operation completed successfully.\n @retval\n FFX_ERROR_CODE_NULL_POINTER         The operation failed because either <c><i>context</i></c> or <c><i>dispatchDescription</i></c> was <c><i>NULL</i></c>.\n @retval\n FFX_ERROR_BACKEND_API_ERROR         The operation failed because of an error returned from the backend.\n\n @ingroup ffxFsr1"]
-    #[link_name = "\u{1}ffxFsr1ContextDispatch"]
-    pub fn Fsr1ContextDispatch(
+    ) -> ErrorCode,
+    pub Fsr1ContextDispatch: unsafe extern "C" fn(
         pContext: *mut Fsr1Context,
         pDispatchDescription: *const Fsr1DispatchDescription,
-    ) -> ErrorCode;
-}
-unsafe extern "C" {
-    #[doc = " Destroy the FidelityFX FSR 1 context.\n\n @param [out] pContext                A pointer to a <c><i>FfxFsr1Context</i></c> structure to destroy.\n\n @retval\n FFX_OK                              The operation completed successfully.\n @retval\n FFX_ERROR_CODE_NULL_POINTER         The operation failed because either <c><i>context</i></c> was <c><i>NULL</i></c>.\n\n @ingroup ffxFsr1"]
-    #[link_name = "\u{1}ffxFsr1ContextDestroy"]
-    pub fn Fsr1ContextDestroy(pContext: *mut Fsr1Context) -> ErrorCode;
-}
-unsafe extern "C" {
-    #[doc = " Get the upscale ratio from the quality mode.\n\n The following table enumerates the mapping of the quality modes to\n per-dimension scaling ratios.\n\n Quality preset                                        | Scale factor\n ----------------------------------------------------- | -------------\n <c><i>FFX_FSR1_QUALITY_MODE_ULTRA_QUALITY</i></c>     | 1.3x\n <c><i>FFX_FSR1_QUALITY_MODE_QUALITY</i></c>           | 1.5x\n <c><i>FFX_FSR1_QUALITY_MODE_BALANCED</i></c>          | 1.7x\n <c><i>FFX_FSR1_QUALITY_MODE_PERFORMANCE</i></c>       | 2.0x\n\n Passing an invalid <c><i>qualityMode</i></c> will return 0.0f.\n\n @param [in] qualityMode             The quality mode preset.\n\n @returns\n The upscaling the per-dimension upscaling ratio for\n <c><i>qualityMode</i></c> according to the table above.\n\n @ingroup ffxFsr1"]
-    #[link_name = "\u{1}ffxFsr1GetUpscaleRatioFromQualityMode"]
-    pub fn Fsr1GetUpscaleRatioFromQualityMode(qualityMode: Fsr1QualityMode) -> f32;
-}
-unsafe extern "C" {
-    #[doc = " A helper function to calculate the rendering resolution from a target\n resolution and desired quality level.\n\n This function applies the scaling factor returned by\n <c><i>ffxFsr1GetUpscaleRatioFromQualityMode</i></c> to each dimension.\n\n @param [out] pRenderWidth            A pointer to a <c>uint32_t</c> which will hold the calculated render resolution width.\n @param [out] pRenderHeight           A pointer to a <c>uint32_t</c> which will hold the calculated render resolution height.\n @param [in] displayWidth            The target display resolution width.\n @param [in] displayHeight           The target display resolution height.\n @param [in] qualityMode             The desired quality mode for FSR1 upscaling.\n\n @retval\n FFX_OK                              The operation completed successfully.\n @retval\n FFX_ERROR_INVALID_POINTER           Either <c><i>renderWidth</i></c> or <c><i>renderHeight</i></c> was <c>NULL</c>.\n @retval\n FFX_ERROR_INVALID_ENUM              An invalid quality mode was specified.\n\n @ingroup ffxFsr1"]
-    #[link_name = "\u{1}ffxFsr1GetRenderResolutionFromQualityMode"]
-    pub fn Fsr1GetRenderResolutionFromQualityMode(
+    ) -> ErrorCode,
+    pub Fsr1ContextDestroy: unsafe extern "C" fn(pContext: *mut Fsr1Context) -> ErrorCode,
+    pub Fsr1GetUpscaleRatioFromQualityMode:
+        unsafe extern "C" fn(qualityMode: Fsr1QualityMode) -> f32,
+    pub Fsr1GetRenderResolutionFromQualityMode: unsafe extern "C" fn(
         pRenderWidth: *mut u32,
         pRenderHeight: *mut u32,
         displayWidth: u32,
         displayHeight: u32,
         qualityMode: Fsr1QualityMode,
-    ) -> ErrorCode;
+    ) -> ErrorCode,
+}
+impl Functions {
+    pub unsafe fn new<P>(path: P) -> Result<Self, ::libloading::Error>
+    where
+        P: AsRef<::std::ffi::OsStr>,
+    {
+        let library = ::libloading::Library::new(path)?;
+        Self::from_library(library)
+    }
+    pub unsafe fn from_library<L>(library: L) -> Result<Self, ::libloading::Error>
+    where
+        L: Into<::libloading::Library>,
+    {
+        let __library = library.into();
+        let Fsr1ContextCreate = __library.get(b"ffxFsr1ContextCreate\0").map(|sym| *sym)?;
+        let Fsr1ContextDispatch = __library.get(b"ffxFsr1ContextDispatch\0").map(|sym| *sym)?;
+        let Fsr1ContextDestroy = __library.get(b"ffxFsr1ContextDestroy\0").map(|sym| *sym)?;
+        let Fsr1GetUpscaleRatioFromQualityMode = __library
+            .get(b"ffxFsr1GetUpscaleRatioFromQualityMode\0")
+            .map(|sym| *sym)?;
+        let Fsr1GetRenderResolutionFromQualityMode = __library
+            .get(b"ffxFsr1GetRenderResolutionFromQualityMode\0")
+            .map(|sym| *sym)?;
+        Ok(Functions {
+            __library,
+            Fsr1ContextCreate,
+            Fsr1ContextDispatch,
+            Fsr1ContextDestroy,
+            Fsr1GetUpscaleRatioFromQualityMode,
+            Fsr1GetRenderResolutionFromQualityMode,
+        })
+    }
+    #[doc = " Create a FidelityFX Super Resolution 1.0 context from the parameters\n programmed to the <c><i>FfxFsr1ContextDescription</i></c> structure.\n\n The context structure is the main object used to interact with the Super\n Resoution 1.0 API, and is responsible for the management of the internal resources\n used by the FSR1 algorithm. When this API is called, multiple calls\n will be made via the pointers contained in the <c><i>callbacks</i></c>\n structure. These callbacks will attempt to retreive the device capabilities,\n and create the internal resources, and pipelines required by FSR1\n frame-to-frame function. Depending on the precise configuration used when\n creating the <c><i>FfxFsr1Context</i></c> a different set of resources and\n pipelines might be requested via the callback functions.\n\n The <c><i>FfxParallelSortContext</i></c> should be destroyed when use of it is\n completed, typically when an application is unloaded or FSR1\n upscaling is disabled by a user. To destroy the FSR1 context you\n should call <c><i>ffxFsr1ContextDestroy</i></c>.\n\n @param [out] pContext                A pointer to a <c><i>FfxFsr1Context</i></c> structure to populate.\n @param [in]  pContextDescription     A pointer to a <c><i>FfxFsr1ContextDescription</i></c> structure.\n\n @retval\n FFX_OK                              The operation completed successfully.\n @retval\n FFX_ERROR_CODE_NULL_POINTER         The operation failed because either <c><i>context</i></c> or <c><i>contextDescription</i></c> was <c><i>NULL</i></c>.\n @retval\n FFX_ERROR_INCOMPLETE_INTERFACE      The operation failed because the <c><i>FfxFsr1ContextDescription.callbacks</i></c>  was not fully specified.\n @retval\n FFX_ERROR_BACKEND_API_ERROR         The operation failed because of an error returned from the backend.\n\n @ingroup ffxFsr1"]
+    pub unsafe fn Fsr1ContextCreate(
+        &self,
+        pContext: *mut Fsr1Context,
+        pContextDescription: *const Fsr1ContextDescription,
+    ) -> ErrorCode {
+        (self.Fsr1ContextCreate)(pContext, pContextDescription)
+    }
+    #[doc = " @param [out] pContext                A pointer to a <c><i>FfxFsr1Context</i></c> structure to populate.\n @param [in]  pDispatchDescription    A pointer to a <c><i>FfxFsr1DispatchDescription</i></c> structure.\n\n @retval\n FFX_OK                              The operation completed successfully.\n @retval\n FFX_ERROR_CODE_NULL_POINTER         The operation failed because either <c><i>context</i></c> or <c><i>dispatchDescription</i></c> was <c><i>NULL</i></c>.\n @retval\n FFX_ERROR_BACKEND_API_ERROR         The operation failed because of an error returned from the backend.\n\n @ingroup ffxFsr1"]
+    pub unsafe fn Fsr1ContextDispatch(
+        &self,
+        pContext: *mut Fsr1Context,
+        pDispatchDescription: *const Fsr1DispatchDescription,
+    ) -> ErrorCode {
+        (self.Fsr1ContextDispatch)(pContext, pDispatchDescription)
+    }
+    #[doc = " Destroy the FidelityFX FSR 1 context.\n\n @param [out] pContext                A pointer to a <c><i>FfxFsr1Context</i></c> structure to destroy.\n\n @retval\n FFX_OK                              The operation completed successfully.\n @retval\n FFX_ERROR_CODE_NULL_POINTER         The operation failed because either <c><i>context</i></c> was <c><i>NULL</i></c>.\n\n @ingroup ffxFsr1"]
+    pub unsafe fn Fsr1ContextDestroy(&self, pContext: *mut Fsr1Context) -> ErrorCode {
+        (self.Fsr1ContextDestroy)(pContext)
+    }
+    #[doc = " Get the upscale ratio from the quality mode.\n\n The following table enumerates the mapping of the quality modes to\n per-dimension scaling ratios.\n\n Quality preset                                        | Scale factor\n ----------------------------------------------------- | -------------\n <c><i>FFX_FSR1_QUALITY_MODE_ULTRA_QUALITY</i></c>     | 1.3x\n <c><i>FFX_FSR1_QUALITY_MODE_QUALITY</i></c>           | 1.5x\n <c><i>FFX_FSR1_QUALITY_MODE_BALANCED</i></c>          | 1.7x\n <c><i>FFX_FSR1_QUALITY_MODE_PERFORMANCE</i></c>       | 2.0x\n\n Passing an invalid <c><i>qualityMode</i></c> will return 0.0f.\n\n @param [in] qualityMode             The quality mode preset.\n\n @returns\n The upscaling the per-dimension upscaling ratio for\n <c><i>qualityMode</i></c> according to the table above.\n\n @ingroup ffxFsr1"]
+    pub unsafe fn Fsr1GetUpscaleRatioFromQualityMode(&self, qualityMode: Fsr1QualityMode) -> f32 {
+        (self.Fsr1GetUpscaleRatioFromQualityMode)(qualityMode)
+    }
+    #[doc = " A helper function to calculate the rendering resolution from a target\n resolution and desired quality level.\n\n This function applies the scaling factor returned by\n <c><i>ffxFsr1GetUpscaleRatioFromQualityMode</i></c> to each dimension.\n\n @param [out] pRenderWidth            A pointer to a <c>uint32_t</c> which will hold the calculated render resolution width.\n @param [out] pRenderHeight           A pointer to a <c>uint32_t</c> which will hold the calculated render resolution height.\n @param [in] displayWidth            The target display resolution width.\n @param [in] displayHeight           The target display resolution height.\n @param [in] qualityMode             The desired quality mode for FSR1 upscaling.\n\n @retval\n FFX_OK                              The operation completed successfully.\n @retval\n FFX_ERROR_INVALID_POINTER           Either <c><i>renderWidth</i></c> or <c><i>renderHeight</i></c> was <c>NULL</c>.\n @retval\n FFX_ERROR_INVALID_ENUM              An invalid quality mode was specified.\n\n @ingroup ffxFsr1"]
+    pub unsafe fn Fsr1GetRenderResolutionFromQualityMode(
+        &self,
+        pRenderWidth: *mut u32,
+        pRenderHeight: *mut u32,
+        displayWidth: u32,
+        displayHeight: u32,
+        qualityMode: Fsr1QualityMode,
+    ) -> ErrorCode {
+        (self.Fsr1GetRenderResolutionFromQualityMode)(
+            pRenderWidth,
+            pRenderHeight,
+            displayWidth,
+            displayHeight,
+            qualityMode,
+        )
+    }
 }
