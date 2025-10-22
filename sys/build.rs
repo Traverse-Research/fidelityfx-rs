@@ -68,6 +68,7 @@ fn compile_fidelityfx(sdk_dir: &Path, vk_include_dir: &Path) {
         .include(sdk_dir.join("src/backends/shared"))
         // For the shader headers
         .include(sdk_dir.join("src/components"))
+        .include("FidelityFX/libs")
         // WARNING: The permutations for Vulkan and Dx12 have the same global symbol names and "will
         // not be able to coexist and link statically".  Upstream solves this by shipping a separate
         // DLL for Vulkan and Dx12, but this crate here only includes Dx12 shaders.

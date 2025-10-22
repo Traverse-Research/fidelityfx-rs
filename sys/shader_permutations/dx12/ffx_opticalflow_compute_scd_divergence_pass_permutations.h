@@ -1,4 +1,4 @@
-#include "ffx_opticalflow_compute_scd_divergence_pass_f1d5e2437515cea543a1af84ebbbda4b.h"
+#include "ffx_opticalflow_compute_scd_divergence_pass_f53c5f5ba2588fa03c4cfbf66dffbb56.h"
 
 typedef union ffx_opticalflow_compute_scd_divergence_pass_PermutationKey {
     struct {
@@ -61,6 +61,6 @@ static const uint32_t g_ffx_opticalflow_compute_scd_divergence_pass_IndirectionT
 };
 
 static const ffx_opticalflow_compute_scd_divergence_pass_PermutationInfo g_ffx_opticalflow_compute_scd_divergence_pass_PermutationInfo[] = {
-    { g_ffx_opticalflow_compute_scd_divergence_pass_f1d5e2437515cea543a1af84ebbbda4b_size, g_ffx_opticalflow_compute_scd_divergence_pass_f1d5e2437515cea543a1af84ebbbda4b_data, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, g_ffx_opticalflow_compute_scd_divergence_pass_f1d5e2437515cea543a1af84ebbbda4b_TextureUAVResourceNames, g_ffx_opticalflow_compute_scd_divergence_pass_f1d5e2437515cea543a1af84ebbbda4b_TextureUAVResourceBindings, g_ffx_opticalflow_compute_scd_divergence_pass_f1d5e2437515cea543a1af84ebbbda4b_TextureUAVResourceCounts, g_ffx_opticalflow_compute_scd_divergence_pass_f1d5e2437515cea543a1af84ebbbda4b_TextureUAVResourceSpaces, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
+    { g_ffx_opticalflow_compute_scd_divergence_pass_f53c5f5ba2588fa03c4cfbf66dffbb56_size, g_ffx_opticalflow_compute_scd_divergence_pass_f53c5f5ba2588fa03c4cfbf66dffbb56_data, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, g_ffx_opticalflow_compute_scd_divergence_pass_f53c5f5ba2588fa03c4cfbf66dffbb56_TextureUAVResourceNames, g_ffx_opticalflow_compute_scd_divergence_pass_f53c5f5ba2588fa03c4cfbf66dffbb56_TextureUAVResourceBindings, g_ffx_opticalflow_compute_scd_divergence_pass_f53c5f5ba2588fa03c4cfbf66dffbb56_TextureUAVResourceCounts, g_ffx_opticalflow_compute_scd_divergence_pass_f53c5f5ba2588fa03c4cfbf66dffbb56_TextureUAVResourceSpaces, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
 };
 

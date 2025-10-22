@@ -1,13 +1,13 @@
-#include "ffx_fsr2_lock_pass_wave64_16bit_a52197128a48ed3e918ac274fc4373cc.h"
-#include "ffx_fsr2_lock_pass_wave64_16bit_53d3322ec3efa451fdeed48ee2b5ac16.h"
+#include "ffx_fsr2_lock_pass_wave64_16bit_b6f3e97ef96c22427278281dc1bbb876.h"
+#include "ffx_fsr2_lock_pass_wave64_16bit_10bea83bf9b3562fb60c4c15e4e3c361.h"
 
 typedef union ffx_fsr2_lock_pass_wave64_16bit_PermutationKey {
     struct {
+        uint32_t FFX_FSR2_OPTION_JITTERED_MOTION_VECTORS : 1;
+        uint32_t FFX_FSR2_OPTION_INVERTED_DEPTH : 1;
         uint32_t FFX_FSR2_OPTION_REPROJECT_USE_LANCZOS_TYPE : 1;
         uint32_t FFX_FSR2_OPTION_HDR_COLOR_INPUT : 1;
         uint32_t FFX_FSR2_OPTION_LOW_RESOLUTION_MOTION_VECTORS : 1;
-        uint32_t FFX_FSR2_OPTION_JITTERED_MOTION_VECTORS : 1;
-        uint32_t FFX_FSR2_OPTION_INVERTED_DEPTH : 1;
         uint32_t FFX_FSR2_OPTION_APPLY_SHARPENING : 1;
     };
     uint32_t index;
@@ -62,74 +62,74 @@ typedef struct ffx_fsr2_lock_pass_wave64_16bit_PermutationInfo {
 } ffx_fsr2_lock_pass_wave64_16bit_PermutationInfo;
 
 static const uint32_t g_ffx_fsr2_lock_pass_wave64_16bit_IndirectionTable[] = {
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    1,
-    1,
-    1,
-    1,
-    1,
-    1,
-    1,
-    1,
-    1,
-    1,
-    1,
-    1,
-    1,
-    1,
     1,
     1,
     0,
     0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
+    1,
+    1,
     0,
     0,
     1,
     1,
+    0,
+    0,
     1,
     1,
+    0,
+    0,
     1,
     1,
+    0,
+    0,
     1,
     1,
+    0,
+    0,
     1,
     1,
+    0,
+    0,
     1,
     1,
+    0,
+    0,
     1,
     1,
+    0,
+    0,
     1,
     1,
+    0,
+    0,
+    1,
+    1,
+    0,
+    0,
+    1,
+    1,
+    0,
+    0,
+    1,
+    1,
+    0,
+    0,
+    1,
+    1,
+    0,
+    0,
+    1,
+    1,
+    0,
+    0,
+    1,
+    1,
+    0,
+    0,
 };
 
 static const ffx_fsr2_lock_pass_wave64_16bit_PermutationInfo g_ffx_fsr2_lock_pass_wave64_16bit_PermutationInfo[] = {
-    { g_ffx_fsr2_lock_pass_wave64_16bit_a52197128a48ed3e918ac274fc4373cc_size, g_ffx_fsr2_lock_pass_wave64_16bit_a52197128a48ed3e918ac274fc4373cc_data, 1, g_ffx_fsr2_lock_pass_wave64_16bit_a52197128a48ed3e918ac274fc4373cc_CBVResourceNames, g_ffx_fsr2_lock_pass_wave64_16bit_a52197128a48ed3e918ac274fc4373cc_CBVResourceBindings, g_ffx_fsr2_lock_pass_wave64_16bit_a52197128a48ed3e918ac274fc4373cc_CBVResourceCounts, g_ffx_fsr2_lock_pass_wave64_16bit_a52197128a48ed3e918ac274fc4373cc_CBVResourceSets, 1, g_ffx_fsr2_lock_pass_wave64_16bit_a52197128a48ed3e918ac274fc4373cc_TextureSRVResourceNames, g_ffx_fsr2_lock_pass_wave64_16bit_a52197128a48ed3e918ac274fc4373cc_TextureSRVResourceBindings, g_ffx_fsr2_lock_pass_wave64_16bit_a52197128a48ed3e918ac274fc4373cc_TextureSRVResourceCounts, g_ffx_fsr2_lock_pass_wave64_16bit_a52197128a48ed3e918ac274fc4373cc_TextureSRVResourceSets, 2, g_ffx_fsr2_lock_pass_wave64_16bit_a52197128a48ed3e918ac274fc4373cc_TextureUAVResourceNames, g_ffx_fsr2_lock_pass_wave64_16bit_a52197128a48ed3e918ac274fc4373cc_TextureUAVResourceBindings, g_ffx_fsr2_lock_pass_wave64_16bit_a52197128a48ed3e918ac274fc4373cc_TextureUAVResourceCounts, g_ffx_fsr2_lock_pass_wave64_16bit_a52197128a48ed3e918ac274fc4373cc_TextureUAVResourceSets, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
-    { g_ffx_fsr2_lock_pass_wave64_16bit_53d3322ec3efa451fdeed48ee2b5ac16_size, g_ffx_fsr2_lock_pass_wave64_16bit_53d3322ec3efa451fdeed48ee2b5ac16_data, 1, g_ffx_fsr2_lock_pass_wave64_16bit_53d3322ec3efa451fdeed48ee2b5ac16_CBVResourceNames, g_ffx_fsr2_lock_pass_wave64_16bit_53d3322ec3efa451fdeed48ee2b5ac16_CBVResourceBindings, g_ffx_fsr2_lock_pass_wave64_16bit_53d3322ec3efa451fdeed48ee2b5ac16_CBVResourceCounts, g_ffx_fsr2_lock_pass_wave64_16bit_53d3322ec3efa451fdeed48ee2b5ac16_CBVResourceSets, 1, g_ffx_fsr2_lock_pass_wave64_16bit_53d3322ec3efa451fdeed48ee2b5ac16_TextureSRVResourceNames, g_ffx_fsr2_lock_pass_wave64_16bit_53d3322ec3efa451fdeed48ee2b5ac16_TextureSRVResourceBindings, g_ffx_fsr2_lock_pass_wave64_16bit_53d3322ec3efa451fdeed48ee2b5ac16_TextureSRVResourceCounts, g_ffx_fsr2_lock_pass_wave64_16bit_53d3322ec3efa451fdeed48ee2b5ac16_TextureSRVResourceSets, 2, g_ffx_fsr2_lock_pass_wave64_16bit_53d3322ec3efa451fdeed48ee2b5ac16_TextureUAVResourceNames, g_ffx_fsr2_lock_pass_wave64_16bit_53d3322ec3efa451fdeed48ee2b5ac16_TextureUAVResourceBindings, g_ffx_fsr2_lock_pass_wave64_16bit_53d3322ec3efa451fdeed48ee2b5ac16_TextureUAVResourceCounts, g_ffx_fsr2_lock_pass_wave64_16bit_53d3322ec3efa451fdeed48ee2b5ac16_TextureUAVResourceSets, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
+    { g_ffx_fsr2_lock_pass_wave64_16bit_b6f3e97ef96c22427278281dc1bbb876_size, g_ffx_fsr2_lock_pass_wave64_16bit_b6f3e97ef96c22427278281dc1bbb876_data, 1, g_ffx_fsr2_lock_pass_wave64_16bit_b6f3e97ef96c22427278281dc1bbb876_CBVResourceNames, g_ffx_fsr2_lock_pass_wave64_16bit_b6f3e97ef96c22427278281dc1bbb876_CBVResourceBindings, g_ffx_fsr2_lock_pass_wave64_16bit_b6f3e97ef96c22427278281dc1bbb876_CBVResourceCounts, g_ffx_fsr2_lock_pass_wave64_16bit_b6f3e97ef96c22427278281dc1bbb876_CBVResourceSets, 1, g_ffx_fsr2_lock_pass_wave64_16bit_b6f3e97ef96c22427278281dc1bbb876_TextureSRVResourceNames, g_ffx_fsr2_lock_pass_wave64_16bit_b6f3e97ef96c22427278281dc1bbb876_TextureSRVResourceBindings, g_ffx_fsr2_lock_pass_wave64_16bit_b6f3e97ef96c22427278281dc1bbb876_TextureSRVResourceCounts, g_ffx_fsr2_lock_pass_wave64_16bit_b6f3e97ef96c22427278281dc1bbb876_TextureSRVResourceSets, 2, g_ffx_fsr2_lock_pass_wave64_16bit_b6f3e97ef96c22427278281dc1bbb876_TextureUAVResourceNames, g_ffx_fsr2_lock_pass_wave64_16bit_b6f3e97ef96c22427278281dc1bbb876_TextureUAVResourceBindings, g_ffx_fsr2_lock_pass_wave64_16bit_b6f3e97ef96c22427278281dc1bbb876_TextureUAVResourceCounts, g_ffx_fsr2_lock_pass_wave64_16bit_b6f3e97ef96c22427278281dc1bbb876_TextureUAVResourceSets, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
+    { g_ffx_fsr2_lock_pass_wave64_16bit_10bea83bf9b3562fb60c4c15e4e3c361_size, g_ffx_fsr2_lock_pass_wave64_16bit_10bea83bf9b3562fb60c4c15e4e3c361_data, 1, g_ffx_fsr2_lock_pass_wave64_16bit_10bea83bf9b3562fb60c4c15e4e3c361_CBVResourceNames, g_ffx_fsr2_lock_pass_wave64_16bit_10bea83bf9b3562fb60c4c15e4e3c361_CBVResourceBindings, g_ffx_fsr2_lock_pass_wave64_16bit_10bea83bf9b3562fb60c4c15e4e3c361_CBVResourceCounts, g_ffx_fsr2_lock_pass_wave64_16bit_10bea83bf9b3562fb60c4c15e4e3c361_CBVResourceSets, 1, g_ffx_fsr2_lock_pass_wave64_16bit_10bea83bf9b3562fb60c4c15e4e3c361_TextureSRVResourceNames, g_ffx_fsr2_lock_pass_wave64_16bit_10bea83bf9b3562fb60c4c15e4e3c361_TextureSRVResourceBindings, g_ffx_fsr2_lock_pass_wave64_16bit_10bea83bf9b3562fb60c4c15e4e3c361_TextureSRVResourceCounts, g_ffx_fsr2_lock_pass_wave64_16bit_10bea83bf9b3562fb60c4c15e4e3c361_TextureSRVResourceSets, 2, g_ffx_fsr2_lock_pass_wave64_16bit_10bea83bf9b3562fb60c4c15e4e3c361_TextureUAVResourceNames, g_ffx_fsr2_lock_pass_wave64_16bit_10bea83bf9b3562fb60c4c15e4e3c361_TextureUAVResourceBindings, g_ffx_fsr2_lock_pass_wave64_16bit_10bea83bf9b3562fb60c4c15e4e3c361_TextureUAVResourceCounts, g_ffx_fsr2_lock_pass_wave64_16bit_10bea83bf9b3562fb60c4c15e4e3c361_TextureUAVResourceSets, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
 };
 
