@@ -236,68 +236,147 @@ impl Default for Fsr2Context {
         }
     }
 }
-unsafe extern "C" {
-    #[doc = " Create a FidelityFX Super Resolution 2 context from the parameters\n programmed to the <c><i>FfxFsr2CreateParams</i></c> structure.\n\n The context structure is the main object used to interact with the FSR2\n API, and is responsible for the management of the internal resources used\n by the FSR2 algorithm. When this API is called, multiple calls will be\n made via the pointers contained in the <c><i>callbacks</i></c> structure.\n These callbacks will attempt to retreive the device capabilities, and\n create the internal resources, and pipelines required by FSR2's\n frame-to-frame function. Depending on the precise configuration used when\n creating the <c><i>FfxFsr2Context</i></c> a different set of resources and\n pipelines might be requested via the callback functions.\n\n The flags included in the <c><i>flags</i></c> field of\n <c><i>FfxFsr2Context</i></c> how match the configuration of your\n application as well as the intended use of FSR2. It is important that these\n flags are set correctly (as well as a correct programmed\n <c><i>FfxFsr2DispatchDescription</i></c>) to ensure correct operation. It is\n recommended to consult the overview documentation for further details on\n how FSR2 should be integerated into an application.\n\n When the <c><i>FfxFsr2Context</i></c> is created, you should use the\n <c><i>ffxFsr2ContextDispatch</i></c> function each frame where FSR2\n upscaling should be applied. See the documentation of\n <c><i>ffxFsr2ContextDispatch</i></c> for more details.\n\n The <c><i>FfxFsr2Context</i></c> should be destroyed when use of it is\n completed, typically when an application is unloaded or FSR2 upscaling is\n disabled by a user. To destroy the FSR2 context you should call\n <c><i>ffxFsr2ContextDestroy</i></c>.\n\n @param [out] pContext                A pointer to a <c><i>FfxFsr2Context</i></c> structure to populate.\n @param [in]  pContextDescription     A pointer to a <c><i>FfxFsr2ContextDescription</i></c> structure.\n\n @retval\n FFX_OK                              The operation completed successfully.\n @retval\n FFX_ERROR_CODE_NULL_POINTER         The operation failed because either <c><i>context</i></c> or <c><i>contextDescription</i></c> was <c><i>NULL</i></c>.\n @retval\n FFX_ERROR_INCOMPLETE_INTERFACE      The operation failed because the <c><i>FfxFsr2ContextDescription.callbacks</i></c>  was not fully specified.\n @retval\n FFX_ERROR_BACKEND_API_ERROR         The operation failed because of an error returned from the backend.\n\n @ingroup ffxFsr2"]
-    #[link_name = "\u{1}ffxFsr2ContextCreate"]
-    pub fn Fsr2ContextCreate(
+pub struct Functions {
+    __library: ::libloading::Library,
+    pub Fsr2ContextCreate: unsafe extern "C" fn(
         pContext: *mut Fsr2Context,
         pContextDescription: *const Fsr2ContextDescription,
-    ) -> ErrorCode;
-}
-unsafe extern "C" {
-    #[doc = " Dispatch the various passes that constitute FidelityFX Super Resolution 2.\n\n FSR2 is a composite effect, meaning that it is compromised of multiple\n constituent passes (implemented as one or more clears, copies and compute\n dispatches). The <c><i>ffxFsr2ContextDispatch</i></c> function is the\n function which (via the use of the functions contained in the\n <c><i>callbacks</i></c> field of the <c><i>FfxFsr2Context</i></c>\n structure) utlimately generates the sequence of graphics API calls required\n each frame.\n\n As with the creation of the <c><i>FfxFsr2Context</i></c> correctly\n programming the <c><i>FfxFsr2DispatchDescription</i></c> is key to ensuring\n the correct operation of FSR2. It is particularly important to ensure that\n camera jitter is correctly applied to your application's projection matrix\n (or camera origin for raytraced applications). FSR2 provides the\n <c><i>ffxFsr2GetJitterPhaseCount</i></c> and\n <c><i>ffxFsr2GetJitterOffset</i></c> entry points to help applications\n correctly compute the camera jitter. Whatever jitter pattern is used by the\n application it should be correctly programmed to the\n <c><i>jitterOffset</i></c> field of the <c><i>dispatchDescription</i></c>\n structure. For more guidance on camera jitter please consult the\n documentation for <c><i>ffxFsr2GetJitterOffset</i></c> as well as the\n accompanying overview documentation for FSR2.\n\n @param [in] pContext                 A pointer to a <c><i>FfxFsr2Context</i></c> structure.\n @param [in] pDispatchDescription     A pointer to a <c><i>FfxFsr2DispatchDescription</i></c> structure.\n\n @retval\n FFX_OK                              The operation completed successfully.\n @retval\n FFX_ERROR_CODE_NULL_POINTER         The operation failed because either <c><i>context</i></c> or <c><i>dispatchDescription</i></c> was <c><i>NULL</i></c>.\n @retval\n FFX_ERROR_OUT_OF_RANGE              The operation failed because <c><i>dispatchDescription.renderSize</i></c> was larger than the maximum render resolution.\n @retval\n FFX_ERROR_NULL_DEVICE               The operation failed because the device inside the context was <c><i>NULL</i></c>.\n @retval\n FFX_ERROR_BACKEND_API_ERROR         The operation failed because of an error returned from the backend.\n\n @ingroup ffxFsr2"]
-    #[link_name = "\u{1}ffxFsr2ContextDispatch"]
-    pub fn Fsr2ContextDispatch(
+    ) -> ErrorCode,
+    pub Fsr2ContextDispatch: unsafe extern "C" fn(
         pContext: *mut Fsr2Context,
         pDispatchDescription: *const Fsr2DispatchDescription,
-    ) -> ErrorCode;
-}
-unsafe extern "C" {
-    #[doc = " A helper function generate a Reactive mask from an opaque only texure and one containing translucent objects.\n\n @param [in] pContext                 A pointer to a <c><i>FfxFsr2Context</i></c> structure.\n @param [in] pParams                  A pointer to a <c><i>FfxFsr2GenerateReactiveDescription</i></c> structure\n\n @retval\n FFX_OK                              The operation completed successfully.\n\n @ingroup ffxFsr2"]
-    #[link_name = "\u{1}ffxFsr2ContextGenerateReactiveMask"]
-    pub fn Fsr2ContextGenerateReactiveMask(
+    ) -> ErrorCode,
+    pub Fsr2ContextGenerateReactiveMask: unsafe extern "C" fn(
         pContext: *mut Fsr2Context,
         pParams: *const Fsr2GenerateReactiveDescription,
-    ) -> ErrorCode;
-}
-unsafe extern "C" {
-    #[doc = " Destroy the FidelityFX Super Resolution context.\n\n @param [out] pContext                A pointer to a <c><i>FfxFsr2Context</i></c> structure to destroy.\n\n @retval\n FFX_OK                              The operation completed successfully.\n @retval\n FFX_ERROR_CODE_NULL_POINTER         The operation failed because either <c><i>context</i></c> was <c><i>NULL</i></c>.\n\n @ingroup ffxFsr2"]
-    #[link_name = "\u{1}ffxFsr2ContextDestroy"]
-    pub fn Fsr2ContextDestroy(pContext: *mut Fsr2Context) -> ErrorCode;
-}
-unsafe extern "C" {
-    #[doc = " Get the upscale ratio from the quality mode.\n\n The following table enumerates the mapping of the quality modes to\n per-dimension scaling ratios.\n\n Quality preset                                        | Scale factor\n ----------------------------------------------------- | -------------\n <c><i>FFX_FSR2_QUALITY_MODE_QUALITY</i></c>           | 1.5x\n <c><i>FFX_FSR2_QUALITY_MODE_BALANCED</i></c>          | 1.7x\n <c><i>FFX_FSR2_QUALITY_MODE_PERFORMANCE</i></c>       | 2.0x\n <c><i>FFX_FSR2_QUALITY_MODE_ULTRA_PERFORMANCE</i></c> | 3.0x\n\n Passing an invalid <c><i>qualityMode</i></c> will return 0.0f.\n\n @param [in] qualityMode             The quality mode preset.\n\n @returns\n The upscaling the per-dimension upscaling ratio for\n <c><i>qualityMode</i></c> according to the table above.\n\n @ingroup ffxFsr2"]
-    #[link_name = "\u{1}ffxFsr2GetUpscaleRatioFromQualityMode"]
-    pub fn Fsr2GetUpscaleRatioFromQualityMode(qualityMode: Fsr2QualityMode) -> f32;
-}
-unsafe extern "C" {
-    #[doc = " A helper function to calculate the rendering resolution from a target\n resolution and desired quality level.\n\n This function applies the scaling factor returned by\n <c><i>ffxFsr2GetUpscaleRatioFromQualityMode</i></c> to each dimension.\n\n @param [out] pRenderWidth            A pointer to a <c>uint32_t</c> which will hold the calculated render resolution width.\n @param [out] pRenderHeight           A pointer to a <c>uint32_t</c> which will hold the calculated render resolution height.\n @param [in] displayWidth            The target display resolution width.\n @param [in] displayHeight           The target display resolution height.\n @param [in] qualityMode             The desired quality mode for FSR 2 upscaling.\n\n @retval\n FFX_OK                              The operation completed successfully.\n @retval\n FFX_ERROR_INVALID_POINTER           Either <c><i>renderWidth</i></c> or <c><i>renderHeight</i></c> was <c>NULL</c>.\n @retval\n FFX_ERROR_INVALID_ENUM              An invalid quality mode was specified.\n\n @ingroup ffxFsr2"]
-    #[link_name = "\u{1}ffxFsr2GetRenderResolutionFromQualityMode"]
-    pub fn Fsr2GetRenderResolutionFromQualityMode(
+    ) -> ErrorCode,
+    pub Fsr2ContextDestroy: unsafe extern "C" fn(pContext: *mut Fsr2Context) -> ErrorCode,
+    pub Fsr2GetUpscaleRatioFromQualityMode:
+        unsafe extern "C" fn(qualityMode: Fsr2QualityMode) -> f32,
+    pub Fsr2GetRenderResolutionFromQualityMode: unsafe extern "C" fn(
         pRenderWidth: *mut u32,
         pRenderHeight: *mut u32,
         displayWidth: u32,
         displayHeight: u32,
         qualityMode: Fsr2QualityMode,
-    ) -> ErrorCode;
-}
-unsafe extern "C" {
-    #[doc = " A helper function to calculate the jitter phase count from display\n resolution.\n\n For more detailed information about the application of camera jitter to\n your application's rendering please refer to the\n <c><i>ffxFsr2GetJitterOffset</i></c> function.\n\n The table below shows the jitter phase count which this function\n would return for each of the quality presets.\n\n Quality preset                                        | Scale factor  | Phase count\n ----------------------------------------------------- | ------------- | ---------------\n <c><i>FFX_FSR2_QUALITY_MODE_QUALITY</i></c>           | 1.5x          | 18\n <c><i>FFX_FSR2_QUALITY_MODE_BALANCED</i></c>          | 1.7x          | 23\n <c><i>FFX_FSR2_QUALITY_MODE_PERFORMANCE</i></c>       | 2.0x          | 32\n <c><i>FFX_FSR2_QUALITY_MODE_ULTRA_PERFORMANCE</i></c> | 3.0x          | 72\n Custom                                                | [1..n]x       | ceil(8*n^2)\n\n @param [in] renderWidth             The render resolution width.\n @param [in] displayWidth            The display resolution width.\n\n @returns\n The jitter phase count for the scaling factor between <c><i>renderWidth</i></c> and <c><i>displayWidth</i></c>.\n\n @ingroup ffxFsr2"]
-    #[link_name = "\u{1}ffxFsr2GetJitterPhaseCount"]
-    pub fn Fsr2GetJitterPhaseCount(renderWidth: i32, displayWidth: i32) -> i32;
-}
-unsafe extern "C" {
-    #[doc = " A helper function to calculate the subpixel jitter offset.\n\n FSR2 relies on the application to apply sub-pixel jittering while rendering.\n This is typically included in the projection matrix of the camera. To make\n the application of camera jitter simple, the FSR2 API provides a small set\n of utility function which computes the sub-pixel jitter offset for a\n particular frame within a sequence of separate jitter offsets. To begin, the\n index within the jitter phase must be computed. To calculate the\n sequence's length, you can call the <c><i>ffxFsr2GetJitterPhaseCount</i></c>\n function. The index should be a value which is incremented each frame modulo\n the length of the sequence computed by <c><i>ffxFsr2GetJitterPhaseCount</i></c>.\n The index within the jitter phase  is passed to\n <c><i>ffxFsr2GetJitterOffset</i></c> via the <c><i>index</i></c> parameter.\n\n This function uses a Halton(2,3) sequence to compute the jitter offset.\n The ultimate index used for the sequence is <c><i>index</i></c> %\n <c><i>phaseCount</i></c>.\n\n It is important to understand that the values returned from the\n <c><i>ffxFsr2GetJitterOffset</i></c> function are in unit pixel space, and\n in order to composite this correctly into a projection matrix we must\n convert them into projection offsets. This is done as per the pseudo code\n listing which is shown below.\n\n     const int32_t jitterPhaseCount = ffxFsr2GetJitterPhaseCount(renderWidth, displayWidth);\n\n     float jitterX = 0;\n     float jitterY = 0;\n     ffxFsr2GetJitterOffset(&jitterX, &jitterY, index, jitterPhaseCount);\n\n     const float jitterX = 2.0f * jitterX / (float)renderWidth;\n     const float jitterY = -2.0f * jitterY / (float)renderHeight;\n     const Matrix4 jitterTranslationMatrix = translateMatrix(Matrix3::identity, Vector3(jitterX, jitterY, 0));\n     const Matrix4 jitteredProjectionMatrix = jitterTranslationMatrix * projectionMatrix;\n\n Jitter should be applied to all rendering. This includes opaque, alpha\n transparent, and raytraced objects. For rasterized objects, the sub-pixel\n jittering values calculated by the <c><i>iffxFsr2GetJitterOffset</i></c>\n function can be applied to the camera projection matrix which is ultimately\n used to perform transformations during vertex shading. For raytraced\n rendering, the sub-pixel jitter should be applied to the ray's origin,\n often the camera's position.\n\n Whether you elect to use the <c><i>ffxFsr2GetJitterOffset</i></c> function\n or your own sequence generator, you must program the\n <c><i>jitterOffset</i></c> field of the\n <c><i>FfxFsr2DispatchParameters</i></c> structure in order to inform FSR2\n of the jitter offset that has been applied in order to render each frame.\n\n If not using the recommended <c><i>ffxFsr2GetJitterOffset</i></c> function,\n care should be taken that your jitter sequence never generates a null vector;\n that is value of 0 in both the X and Y dimensions.\n\n @param [out] pOutX                   A pointer to a <c>float</c> which will contain the subpixel jitter offset for the x dimension.\n @param [out] pOutY                   A pointer to a <c>float</c> which will contain the subpixel jitter offset for the y dimension.\n @param [in] index                   The index within the jitter sequence.\n @param [in] phaseCount              The length of jitter phase. See <c><i>ffxFsr2GetJitterPhaseCount</i></c>.\n\n @retval\n FFX_OK                              The operation completed successfully.\n @retval\n FFX_ERROR_INVALID_POINTER           Either <c><i>outX</i></c> or <c><i>outY</i></c> was <c>NULL</c>.\n @retval\n FFX_ERROR_INVALID_ARGUMENT          Argument <c><i>phaseCount</i></c> must be greater than 0.\n\n @ingroup ffxFsr2"]
-    #[link_name = "\u{1}ffxFsr2GetJitterOffset"]
-    pub fn Fsr2GetJitterOffset(
+    ) -> ErrorCode,
+    pub Fsr2GetJitterPhaseCount: unsafe extern "C" fn(renderWidth: i32, displayWidth: i32) -> i32,
+    pub Fsr2GetJitterOffset: unsafe extern "C" fn(
         pOutX: *mut f32,
         pOutY: *mut f32,
         index: i32,
         phaseCount: i32,
-    ) -> ErrorCode;
+    ) -> ErrorCode,
+    pub Fsr2ResourceIsNull: unsafe extern "C" fn(resource: Resource) -> bool,
 }
-unsafe extern "C" {
+impl Functions {
+    pub unsafe fn new<P>(path: P) -> Result<Self, ::libloading::Error>
+    where
+        P: AsRef<::std::ffi::OsStr>,
+    {
+        let library = ::libloading::Library::new(path)?;
+        Self::from_library(library)
+    }
+    pub unsafe fn from_library<L>(library: L) -> Result<Self, ::libloading::Error>
+    where
+        L: Into<::libloading::Library>,
+    {
+        let __library = library.into();
+        let Fsr2ContextCreate = __library.get(b"ffxFsr2ContextCreate\0").map(|sym| *sym)?;
+        let Fsr2ContextDispatch = __library.get(b"ffxFsr2ContextDispatch\0").map(|sym| *sym)?;
+        let Fsr2ContextGenerateReactiveMask = __library
+            .get(b"ffxFsr2ContextGenerateReactiveMask\0")
+            .map(|sym| *sym)?;
+        let Fsr2ContextDestroy = __library.get(b"ffxFsr2ContextDestroy\0").map(|sym| *sym)?;
+        let Fsr2GetUpscaleRatioFromQualityMode = __library
+            .get(b"ffxFsr2GetUpscaleRatioFromQualityMode\0")
+            .map(|sym| *sym)?;
+        let Fsr2GetRenderResolutionFromQualityMode = __library
+            .get(b"ffxFsr2GetRenderResolutionFromQualityMode\0")
+            .map(|sym| *sym)?;
+        let Fsr2GetJitterPhaseCount = __library
+            .get(b"ffxFsr2GetJitterPhaseCount\0")
+            .map(|sym| *sym)?;
+        let Fsr2GetJitterOffset = __library.get(b"ffxFsr2GetJitterOffset\0").map(|sym| *sym)?;
+        let Fsr2ResourceIsNull = __library.get(b"ffxFsr2ResourceIsNull\0").map(|sym| *sym)?;
+        Ok(Functions {
+            __library,
+            Fsr2ContextCreate,
+            Fsr2ContextDispatch,
+            Fsr2ContextGenerateReactiveMask,
+            Fsr2ContextDestroy,
+            Fsr2GetUpscaleRatioFromQualityMode,
+            Fsr2GetRenderResolutionFromQualityMode,
+            Fsr2GetJitterPhaseCount,
+            Fsr2GetJitterOffset,
+            Fsr2ResourceIsNull,
+        })
+    }
+    #[doc = " Create a FidelityFX Super Resolution 2 context from the parameters\n programmed to the <c><i>FfxFsr2CreateParams</i></c> structure.\n\n The context structure is the main object used to interact with the FSR2\n API, and is responsible for the management of the internal resources used\n by the FSR2 algorithm. When this API is called, multiple calls will be\n made via the pointers contained in the <c><i>callbacks</i></c> structure.\n These callbacks will attempt to retreive the device capabilities, and\n create the internal resources, and pipelines required by FSR2's\n frame-to-frame function. Depending on the precise configuration used when\n creating the <c><i>FfxFsr2Context</i></c> a different set of resources and\n pipelines might be requested via the callback functions.\n\n The flags included in the <c><i>flags</i></c> field of\n <c><i>FfxFsr2Context</i></c> how match the configuration of your\n application as well as the intended use of FSR2. It is important that these\n flags are set correctly (as well as a correct programmed\n <c><i>FfxFsr2DispatchDescription</i></c>) to ensure correct operation. It is\n recommended to consult the overview documentation for further details on\n how FSR2 should be integerated into an application.\n\n When the <c><i>FfxFsr2Context</i></c> is created, you should use the\n <c><i>ffxFsr2ContextDispatch</i></c> function each frame where FSR2\n upscaling should be applied. See the documentation of\n <c><i>ffxFsr2ContextDispatch</i></c> for more details.\n\n The <c><i>FfxFsr2Context</i></c> should be destroyed when use of it is\n completed, typically when an application is unloaded or FSR2 upscaling is\n disabled by a user. To destroy the FSR2 context you should call\n <c><i>ffxFsr2ContextDestroy</i></c>.\n\n @param [out] pContext                A pointer to a <c><i>FfxFsr2Context</i></c> structure to populate.\n @param [in]  pContextDescription     A pointer to a <c><i>FfxFsr2ContextDescription</i></c> structure.\n\n @retval\n FFX_OK                              The operation completed successfully.\n @retval\n FFX_ERROR_CODE_NULL_POINTER         The operation failed because either <c><i>context</i></c> or <c><i>contextDescription</i></c> was <c><i>NULL</i></c>.\n @retval\n FFX_ERROR_INCOMPLETE_INTERFACE      The operation failed because the <c><i>FfxFsr2ContextDescription.callbacks</i></c>  was not fully specified.\n @retval\n FFX_ERROR_BACKEND_API_ERROR         The operation failed because of an error returned from the backend.\n\n @ingroup ffxFsr2"]
+    pub unsafe fn Fsr2ContextCreate(
+        &self,
+        pContext: *mut Fsr2Context,
+        pContextDescription: *const Fsr2ContextDescription,
+    ) -> ErrorCode {
+        (self.Fsr2ContextCreate)(pContext, pContextDescription)
+    }
+    #[doc = " Dispatch the various passes that constitute FidelityFX Super Resolution 2.\n\n FSR2 is a composite effect, meaning that it is compromised of multiple\n constituent passes (implemented as one or more clears, copies and compute\n dispatches). The <c><i>ffxFsr2ContextDispatch</i></c> function is the\n function which (via the use of the functions contained in the\n <c><i>callbacks</i></c> field of the <c><i>FfxFsr2Context</i></c>\n structure) utlimately generates the sequence of graphics API calls required\n each frame.\n\n As with the creation of the <c><i>FfxFsr2Context</i></c> correctly\n programming the <c><i>FfxFsr2DispatchDescription</i></c> is key to ensuring\n the correct operation of FSR2. It is particularly important to ensure that\n camera jitter is correctly applied to your application's projection matrix\n (or camera origin for raytraced applications). FSR2 provides the\n <c><i>ffxFsr2GetJitterPhaseCount</i></c> and\n <c><i>ffxFsr2GetJitterOffset</i></c> entry points to help applications\n correctly compute the camera jitter. Whatever jitter pattern is used by the\n application it should be correctly programmed to the\n <c><i>jitterOffset</i></c> field of the <c><i>dispatchDescription</i></c>\n structure. For more guidance on camera jitter please consult the\n documentation for <c><i>ffxFsr2GetJitterOffset</i></c> as well as the\n accompanying overview documentation for FSR2.\n\n @param [in] pContext                 A pointer to a <c><i>FfxFsr2Context</i></c> structure.\n @param [in] pDispatchDescription     A pointer to a <c><i>FfxFsr2DispatchDescription</i></c> structure.\n\n @retval\n FFX_OK                              The operation completed successfully.\n @retval\n FFX_ERROR_CODE_NULL_POINTER         The operation failed because either <c><i>context</i></c> or <c><i>dispatchDescription</i></c> was <c><i>NULL</i></c>.\n @retval\n FFX_ERROR_OUT_OF_RANGE              The operation failed because <c><i>dispatchDescription.renderSize</i></c> was larger than the maximum render resolution.\n @retval\n FFX_ERROR_NULL_DEVICE               The operation failed because the device inside the context was <c><i>NULL</i></c>.\n @retval\n FFX_ERROR_BACKEND_API_ERROR         The operation failed because of an error returned from the backend.\n\n @ingroup ffxFsr2"]
+    pub unsafe fn Fsr2ContextDispatch(
+        &self,
+        pContext: *mut Fsr2Context,
+        pDispatchDescription: *const Fsr2DispatchDescription,
+    ) -> ErrorCode {
+        (self.Fsr2ContextDispatch)(pContext, pDispatchDescription)
+    }
+    #[doc = " A helper function generate a Reactive mask from an opaque only texure and one containing translucent objects.\n\n @param [in] pContext                 A pointer to a <c><i>FfxFsr2Context</i></c> structure.\n @param [in] pParams                  A pointer to a <c><i>FfxFsr2GenerateReactiveDescription</i></c> structure\n\n @retval\n FFX_OK                              The operation completed successfully.\n\n @ingroup ffxFsr2"]
+    pub unsafe fn Fsr2ContextGenerateReactiveMask(
+        &self,
+        pContext: *mut Fsr2Context,
+        pParams: *const Fsr2GenerateReactiveDescription,
+    ) -> ErrorCode {
+        (self.Fsr2ContextGenerateReactiveMask)(pContext, pParams)
+    }
+    #[doc = " Destroy the FidelityFX Super Resolution context.\n\n @param [out] pContext                A pointer to a <c><i>FfxFsr2Context</i></c> structure to destroy.\n\n @retval\n FFX_OK                              The operation completed successfully.\n @retval\n FFX_ERROR_CODE_NULL_POINTER         The operation failed because either <c><i>context</i></c> was <c><i>NULL</i></c>.\n\n @ingroup ffxFsr2"]
+    pub unsafe fn Fsr2ContextDestroy(&self, pContext: *mut Fsr2Context) -> ErrorCode {
+        (self.Fsr2ContextDestroy)(pContext)
+    }
+    #[doc = " Get the upscale ratio from the quality mode.\n\n The following table enumerates the mapping of the quality modes to\n per-dimension scaling ratios.\n\n Quality preset                                        | Scale factor\n ----------------------------------------------------- | -------------\n <c><i>FFX_FSR2_QUALITY_MODE_QUALITY</i></c>           | 1.5x\n <c><i>FFX_FSR2_QUALITY_MODE_BALANCED</i></c>          | 1.7x\n <c><i>FFX_FSR2_QUALITY_MODE_PERFORMANCE</i></c>       | 2.0x\n <c><i>FFX_FSR2_QUALITY_MODE_ULTRA_PERFORMANCE</i></c> | 3.0x\n\n Passing an invalid <c><i>qualityMode</i></c> will return 0.0f.\n\n @param [in] qualityMode             The quality mode preset.\n\n @returns\n The upscaling the per-dimension upscaling ratio for\n <c><i>qualityMode</i></c> according to the table above.\n\n @ingroup ffxFsr2"]
+    pub unsafe fn Fsr2GetUpscaleRatioFromQualityMode(&self, qualityMode: Fsr2QualityMode) -> f32 {
+        (self.Fsr2GetUpscaleRatioFromQualityMode)(qualityMode)
+    }
+    #[doc = " A helper function to calculate the rendering resolution from a target\n resolution and desired quality level.\n\n This function applies the scaling factor returned by\n <c><i>ffxFsr2GetUpscaleRatioFromQualityMode</i></c> to each dimension.\n\n @param [out] pRenderWidth            A pointer to a <c>uint32_t</c> which will hold the calculated render resolution width.\n @param [out] pRenderHeight           A pointer to a <c>uint32_t</c> which will hold the calculated render resolution height.\n @param [in] displayWidth            The target display resolution width.\n @param [in] displayHeight           The target display resolution height.\n @param [in] qualityMode             The desired quality mode for FSR 2 upscaling.\n\n @retval\n FFX_OK                              The operation completed successfully.\n @retval\n FFX_ERROR_INVALID_POINTER           Either <c><i>renderWidth</i></c> or <c><i>renderHeight</i></c> was <c>NULL</c>.\n @retval\n FFX_ERROR_INVALID_ENUM              An invalid quality mode was specified.\n\n @ingroup ffxFsr2"]
+    pub unsafe fn Fsr2GetRenderResolutionFromQualityMode(
+        &self,
+        pRenderWidth: *mut u32,
+        pRenderHeight: *mut u32,
+        displayWidth: u32,
+        displayHeight: u32,
+        qualityMode: Fsr2QualityMode,
+    ) -> ErrorCode {
+        (self.Fsr2GetRenderResolutionFromQualityMode)(
+            pRenderWidth,
+            pRenderHeight,
+            displayWidth,
+            displayHeight,
+            qualityMode,
+        )
+    }
+    #[doc = " A helper function to calculate the jitter phase count from display\n resolution.\n\n For more detailed information about the application of camera jitter to\n your application's rendering please refer to the\n <c><i>ffxFsr2GetJitterOffset</i></c> function.\n\n The table below shows the jitter phase count which this function\n would return for each of the quality presets.\n\n Quality preset                                        | Scale factor  | Phase count\n ----------------------------------------------------- | ------------- | ---------------\n <c><i>FFX_FSR2_QUALITY_MODE_QUALITY</i></c>           | 1.5x          | 18\n <c><i>FFX_FSR2_QUALITY_MODE_BALANCED</i></c>          | 1.7x          | 23\n <c><i>FFX_FSR2_QUALITY_MODE_PERFORMANCE</i></c>       | 2.0x          | 32\n <c><i>FFX_FSR2_QUALITY_MODE_ULTRA_PERFORMANCE</i></c> | 3.0x          | 72\n Custom                                                | [1..n]x       | ceil(8*n^2)\n\n @param [in] renderWidth             The render resolution width.\n @param [in] displayWidth            The display resolution width.\n\n @returns\n The jitter phase count for the scaling factor between <c><i>renderWidth</i></c> and <c><i>displayWidth</i></c>.\n\n @ingroup ffxFsr2"]
+    pub unsafe fn Fsr2GetJitterPhaseCount(&self, renderWidth: i32, displayWidth: i32) -> i32 {
+        (self.Fsr2GetJitterPhaseCount)(renderWidth, displayWidth)
+    }
+    #[doc = " A helper function to calculate the subpixel jitter offset.\n\n FSR2 relies on the application to apply sub-pixel jittering while rendering.\n This is typically included in the projection matrix of the camera. To make\n the application of camera jitter simple, the FSR2 API provides a small set\n of utility function which computes the sub-pixel jitter offset for a\n particular frame within a sequence of separate jitter offsets. To begin, the\n index within the jitter phase must be computed. To calculate the\n sequence's length, you can call the <c><i>ffxFsr2GetJitterPhaseCount</i></c>\n function. The index should be a value which is incremented each frame modulo\n the length of the sequence computed by <c><i>ffxFsr2GetJitterPhaseCount</i></c>.\n The index within the jitter phase  is passed to\n <c><i>ffxFsr2GetJitterOffset</i></c> via the <c><i>index</i></c> parameter.\n\n This function uses a Halton(2,3) sequence to compute the jitter offset.\n The ultimate index used for the sequence is <c><i>index</i></c> %\n <c><i>phaseCount</i></c>.\n\n It is important to understand that the values returned from the\n <c><i>ffxFsr2GetJitterOffset</i></c> function are in unit pixel space, and\n in order to composite this correctly into a projection matrix we must\n convert them into projection offsets. This is done as per the pseudo code\n listing which is shown below.\n\n     const int32_t jitterPhaseCount = ffxFsr2GetJitterPhaseCount(renderWidth, displayWidth);\n\n     float jitterX = 0;\n     float jitterY = 0;\n     ffxFsr2GetJitterOffset(&jitterX, &jitterY, index, jitterPhaseCount);\n\n     const float jitterX = 2.0f * jitterX / (float)renderWidth;\n     const float jitterY = -2.0f * jitterY / (float)renderHeight;\n     const Matrix4 jitterTranslationMatrix = translateMatrix(Matrix3::identity, Vector3(jitterX, jitterY, 0));\n     const Matrix4 jitteredProjectionMatrix = jitterTranslationMatrix * projectionMatrix;\n\n Jitter should be applied to all rendering. This includes opaque, alpha\n transparent, and raytraced objects. For rasterized objects, the sub-pixel\n jittering values calculated by the <c><i>iffxFsr2GetJitterOffset</i></c>\n function can be applied to the camera projection matrix which is ultimately\n used to perform transformations during vertex shading. For raytraced\n rendering, the sub-pixel jitter should be applied to the ray's origin,\n often the camera's position.\n\n Whether you elect to use the <c><i>ffxFsr2GetJitterOffset</i></c> function\n or your own sequence generator, you must program the\n <c><i>jitterOffset</i></c> field of the\n <c><i>FfxFsr2DispatchParameters</i></c> structure in order to inform FSR2\n of the jitter offset that has been applied in order to render each frame.\n\n If not using the recommended <c><i>ffxFsr2GetJitterOffset</i></c> function,\n care should be taken that your jitter sequence never generates a null vector;\n that is value of 0 in both the X and Y dimensions.\n\n @param [out] pOutX                   A pointer to a <c>float</c> which will contain the subpixel jitter offset for the x dimension.\n @param [out] pOutY                   A pointer to a <c>float</c> which will contain the subpixel jitter offset for the y dimension.\n @param [in] index                   The index within the jitter sequence.\n @param [in] phaseCount              The length of jitter phase. See <c><i>ffxFsr2GetJitterPhaseCount</i></c>.\n\n @retval\n FFX_OK                              The operation completed successfully.\n @retval\n FFX_ERROR_INVALID_POINTER           Either <c><i>outX</i></c> or <c><i>outY</i></c> was <c>NULL</c>.\n @retval\n FFX_ERROR_INVALID_ARGUMENT          Argument <c><i>phaseCount</i></c> must be greater than 0.\n\n @ingroup ffxFsr2"]
+    pub unsafe fn Fsr2GetJitterOffset(
+        &self,
+        pOutX: *mut f32,
+        pOutY: *mut f32,
+        index: i32,
+        phaseCount: i32,
+    ) -> ErrorCode {
+        (self.Fsr2GetJitterOffset)(pOutX, pOutY, index, phaseCount)
+    }
     #[doc = " A helper function to check if a resource is\n <c><i>FFX_FSR2_RESOURCE_IDENTIFIER_NULL</i></c>.\n\n @param [in] resource                A <c><i>FfxResource</i></c>.\n\n @returns\n true                                The <c><i>resource</i></c> was not <c><i>FFX_FSR2_RESOURCE_IDENTIFIER_NULL</i></c>.\n @returns\n false                               The <c><i>resource</i></c> was <c><i>FFX_FSR2_RESOURCE_IDENTIFIER_NULL</i></c>.\n\n @ingroup ffxFsr2"]
-    #[link_name = "\u{1}ffxFsr2ResourceIsNull"]
-    pub fn Fsr2ResourceIsNull(resource: Resource) -> bool;
+    pub unsafe fn Fsr2ResourceIsNull(&self, resource: Resource) -> bool {
+        (self.Fsr2ResourceIsNull)(resource)
+    }
 }
