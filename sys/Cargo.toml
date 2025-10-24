@@ -13,20 +13,10 @@ keywords = ["fidelityfx", "fsr", "upscaling", "vulkan", "d3d12"]
 rust-version = "1.74"
 
 [dependencies]
+libloading = "0.8"
 ash = { version = "0.38", optional = true, default-features = false }
-glob = "0.3"
-widestring = "1.0"
-
-[build-dependencies]
-# Pin version to have control over how everything is generated (there is a CI
-# check that validates that all files are generated as currently checked in):
-bindgen = { version = "=0.72.1", optional = true }
-cc = "1.0.83"
-glob = "0.3"
-heck = "0.5"
 
 [features]
 default = ["vulkan", "dx12"]
 vulkan = ["dep:ash"]
 dx12 = []
-generate-bindings = ["dep:bindgen"]
