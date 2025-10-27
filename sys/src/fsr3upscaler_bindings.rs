@@ -310,106 +310,242 @@ impl Default for Fsr3UpscalerContext {
         }
     }
 }
-unsafe extern "C" {
-    #[doc = " Create a FidelityFX Super Resolution 3 context from the parameters\n programmed to the <c><i>FfxFsr3UpscalerCreateParams</i></c> structure.\n\n The context structure is the main object used to interact with the FSR3\n API, and is responsible for the management of the internal resources used\n by the FSR3 algorithm. When this API is called, multiple calls will be\n made via the pointers contained in the <c><i>callbacks</i></c> structure.\n These callbacks will attempt to retreive the device capabilities, and\n create the internal resources, and pipelines required by FSR3's\n frame-to-frame function. Depending on the precise configuration used when\n creating the <c><i>FfxFsr3UpscalerContext</i></c> a different set of resources and\n pipelines might be requested via the callback functions.\n\n The flags included in the <c><i>flags</i></c> field of\n <c><i>FfxFsr3UpscalerContext</i></c> how match the configuration of your\n application as well as the intended use of FSR3. It is important that these\n flags are set correctly (as well as a correct programmed\n <c><i>FfxFsr3UpscalerDispatchDescription</i></c>) to ensure correct operation. It is\n recommended to consult the overview documentation for further details on\n how FSR3 should be integerated into an application.\n\n When the <c><i>FfxFsr3UpscalerContext</i></c> is created, you should use the\n <c><i>ffxFsr3UpscalerContextDispatch</i></c> function each frame where FSR3\n upscaling should be applied. See the documentation of\n <c><i>ffxFsr3UpscalerContextDispatch</i></c> for more details.\n\n The <c><i>FfxFsr3UpscalerContext</i></c> should be destroyed when use of it is\n completed, typically when an application is unloaded or FSR3 upscaling is\n disabled by a user. To destroy the FSR3 context you should call\n <c><i>ffxFsr3UpscalerContextDestroy</i></c>.\n\n @param [out] pContext                A pointer to a <c><i>FfxFsr3UpscalerContext</i></c> structure to populate.\n @param [in]  pContextDescription     A pointer to a <c><i>FfxFsr3UpscalerContextDescription</i></c> structure.\n\n @retval\n FFX_OK                              The operation completed successfully.\n @retval\n FFX_ERROR_CODE_NULL_POINTER         The operation failed because either <c><i>context</i></c> or <c><i>contextDescription</i></c> was <c><i>NULL</i></c>.\n @retval\n FFX_ERROR_INCOMPLETE_INTERFACE      The operation failed because the <c><i>FfxFsr3UpscalerContextDescription.callbacks</i></c>  was not fully specified.\n @retval\n FFX_ERROR_BACKEND_API_ERROR         The operation failed because of an error returned from the backend.\n\n @ingroup ffxFsr3Upscaler"]
-    #[link_name = "\u{1}ffxFsr3UpscalerContextCreate"]
-    pub fn Fsr3UpscalerContextCreate(
+pub struct Functions {
+    __library: ::libloading::Library,
+    pub Fsr3UpscalerContextCreate: unsafe extern "C" fn(
         pContext: *mut Fsr3UpscalerContext,
         pContextDescription: *const Fsr3UpscalerContextDescription,
-    ) -> ErrorCode;
-}
-unsafe extern "C" {
-    #[doc = " Provides the descriptions for shared resources that must be allocated for this effect.\n\n @param [in] context\t\t\t\t\tA pointer to a <c><i>FfxFsr3UpscalerContext</i></c> structure.\n @param [out] SharedResources\t\tA pointer to a <c><i>FfxFsr3UpscalerSharedResourceDescriptions</i></c> to populate.\n\n @returns\n FFX_OK\t\t\t\t\t\t\t\tThe operation completed successfully.\n @returns\n Anything else\t\t\t\t\t\tThe operation failed.\n\n @ingroup ffxFsr3Upscaler"]
-    #[link_name = "\u{1}ffxFsr3UpscalerGetSharedResourceDescriptions"]
-    pub fn Fsr3UpscalerGetSharedResourceDescriptions(
+    ) -> ErrorCode,
+    pub Fsr3UpscalerGetSharedResourceDescriptions: unsafe extern "C" fn(
         context: *mut Fsr3UpscalerContext,
         SharedResources: *mut Fsr3UpscalerSharedResourceDescriptions,
-    ) -> ErrorCode;
-}
-unsafe extern "C" {
-    #[doc = " Get GPU memory usage of the FidelityFX Super Resolution context.\n\n @param [in]  pContext                A pointer to a <c><i>FfxFsr3UpscalerContext</i></c> structure.\n @param [out] pVramUsage              A pointer to a <c><i>FfxEffectMemoryUsage</i></c> structure.\n\n @retval\n FFX_OK                              The operation completed successfully.\n @retval\n FFX_ERROR_CODE_NULL_POINTER         The operation failed because either <c><i>context</i></c> or <c><i>vramUsage</i></c> were <c><i>NULL</i></c>.\n\n @ingroup ffxFsr3Upscaler"]
-    #[link_name = "\u{1}ffxFsr3UpscalerContextGetGpuMemoryUsage"]
-    pub fn Fsr3UpscalerContextGetGpuMemoryUsage(
+    ) -> ErrorCode,
+    pub Fsr3UpscalerContextGetGpuMemoryUsage: unsafe extern "C" fn(
         pContext: *mut Fsr3UpscalerContext,
         pVramUsage: *mut EffectMemoryUsage,
-    ) -> ErrorCode;
-}
-unsafe extern "C" {
-    #[doc = " Dispatch the various passes that constitute FidelityFX Super Resolution 3.\n\n FSR3 is a composite effect, meaning that it is compromised of multiple\n constituent passes (implemented as one or more clears, copies and compute\n dispatches). The <c><i>ffxFsr3UpscalerContextDispatch</i></c> function is the\n function which (via the use of the functions contained in the\n <c><i>callbacks</i></c> field of the <c><i>FfxFsr3UpscalerContext</i></c>\n structure) utlimately generates the sequence of graphics API calls required\n each frame.\n\n As with the creation of the <c><i>FfxFsr3UpscalerContext</i></c> correctly\n programming the <c><i>FfxFsr3UpscalerDispatchDescription</i></c> is key to ensuring\n the correct operation of FSR3. It is particularly important to ensure that\n camera jitter is correctly applied to your application's projection matrix\n (or camera origin for raytraced applications). FSR3 provides the\n <c><i>ffxFsr3UpscalerGetJitterPhaseCount</i></c> and\n <c><i>ffxFsr3UpscalerGetJitterOffset</i></c> entry points to help applications\n correctly compute the camera jitter. Whatever jitter pattern is used by the\n application it should be correctly programmed to the\n <c><i>jitterOffset</i></c> field of the <c><i>dispatchDescription</i></c>\n structure. For more guidance on camera jitter please consult the\n documentation for <c><i>ffxFsr3UpscalerGetJitterOffset</i></c> as well as the\n accompanying overview documentation for FSR3.\n\n @param [in] pContext                 A pointer to a <c><i>FfxFsr3UpscalerContext</i></c> structure.\n @param [in] pDispatchDescription     A pointer to a <c><i>FfxFsr3UpscalerDispatchDescription</i></c> structure.\n\n @retval\n FFX_OK                              The operation completed successfully.\n @retval\n FFX_ERROR_CODE_NULL_POINTER         The operation failed because either <c><i>context</i></c> or <c><i>dispatchDescription</i></c> was <c><i>NULL</i></c>.\n @retval\n FFX_ERROR_OUT_OF_RANGE              The operation failed because <c><i>dispatchDescription.renderSize</i></c> was larger than the maximum render resolution.\n @retval\n FFX_ERROR_NULL_DEVICE               The operation failed because the device inside the context was <c><i>NULL</i></c>.\n @retval\n FFX_ERROR_BACKEND_API_ERROR         The operation failed because of an error returned from the backend.\n\n @ingroup ffxFsr3Upscaler"]
-    #[link_name = "\u{1}ffxFsr3UpscalerContextDispatch"]
-    pub fn Fsr3UpscalerContextDispatch(
+    ) -> ErrorCode,
+    pub Fsr3UpscalerContextDispatch: unsafe extern "C" fn(
         pContext: *mut Fsr3UpscalerContext,
         pDispatchDescription: *const Fsr3UpscalerDispatchDescription,
-    ) -> ErrorCode;
-}
-unsafe extern "C" {
-    #[doc = " A helper function generate a Reactive mask from an opaque only texure and one containing translucent objects.\n\n @param [in] pContext                 A pointer to a <c><i>FfxFsr3UpscalerContext</i></c> structure.\n @param [in] pParams                  A pointer to a <c><i>FfxFsr3UpscalerGenerateReactiveDescription</i></c> structure\n\n @retval\n FFX_OK                              The operation completed successfully.\n\n @ingroup ffxFsr3Upscaler"]
-    #[link_name = "\u{1}ffxFsr3UpscalerContextGenerateReactiveMask"]
-    pub fn Fsr3UpscalerContextGenerateReactiveMask(
+    ) -> ErrorCode,
+    pub Fsr3UpscalerContextGenerateReactiveMask: unsafe extern "C" fn(
         pContext: *mut Fsr3UpscalerContext,
         pParams: *const Fsr3UpscalerGenerateReactiveDescription,
-    ) -> ErrorCode;
-}
-unsafe extern "C" {
-    #[doc = " Destroy the FidelityFX Super Resolution context.\n\n @param [out] pContext                A pointer to a <c><i>FfxFsr3UpscalerContext</i></c> structure to destroy.\n\n @retval\n FFX_OK                              The operation completed successfully.\n @retval\n FFX_ERROR_CODE_NULL_POINTER         The operation failed because either <c><i>context</i></c> was <c><i>NULL</i></c>.\n\n @ingroup ffxFsr3Upscaler"]
-    #[link_name = "\u{1}ffxFsr3UpscalerContextDestroy"]
-    pub fn Fsr3UpscalerContextDestroy(pContext: *mut Fsr3UpscalerContext) -> ErrorCode;
-}
-unsafe extern "C" {
-    #[doc = " Get the upscale ratio from the quality mode.\n\n The following table enumerates the mapping of the quality modes to\n per-dimension scaling ratios.\n\n Quality preset                                        | Scale factor\n ----------------------------------------------------- | -------------\n <c><i>FFX_FSR3UPSCALER_QUALITY_MODE_QUALITY</i></c>           | 1.5x\n <c><i>FFX_FSR3UPSCALER_QUALITY_MODE_BALANCED</i></c>          | 1.7x\n <c><i>FFX_FSR3UPSCALER_QUALITY_MODE_PERFORMANCE</i></c>       | 2.0x\n <c><i>FFX_FSR3UPSCALER_QUALITY_MODE_ULTRA_PERFORMANCE</i></c> | 3.0x\n\n Passing an invalid <c><i>qualityMode</i></c> will return 0.0f.\n\n @param [in] qualityMode             The quality mode preset.\n\n @returns\n The upscaling the per-dimension upscaling ratio for\n <c><i>qualityMode</i></c> according to the table above.\n\n @ingroup ffxFsr3Upscaler"]
-    #[link_name = "\u{1}ffxFsr3UpscalerGetUpscaleRatioFromQualityMode"]
-    pub fn Fsr3UpscalerGetUpscaleRatioFromQualityMode(qualityMode: Fsr3UpscalerQualityMode) -> f32;
-}
-unsafe extern "C" {
-    #[doc = " A helper function to calculate the rendering resolution from a target\n resolution and desired quality level.\n\n This function applies the scaling factor returned by\n <c><i>ffxFsr3UpscalerGetUpscaleRatioFromQualityMode</i></c> to each dimension.\n\n @param [out] pRenderWidth            A pointer to a <c>uint32_t</c> which will hold the calculated render resolution width.\n @param [out] pRenderHeight           A pointer to a <c>uint32_t</c> which will hold the calculated render resolution height.\n @param [in] displayWidth            The target display resolution width.\n @param [in] displayHeight           The target display resolution height.\n @param [in] qualityMode             The desired quality mode for FSR 2 upscaling.\n\n @retval\n FFX_OK                              The operation completed successfully.\n @retval\n FFX_ERROR_INVALID_POINTER           Either <c><i>renderWidth</i></c> or <c><i>renderHeight</i></c> was <c>NULL</c>.\n @retval\n FFX_ERROR_INVALID_ENUM              An invalid quality mode was specified.\n\n @ingroup ffxFsr3Upscaler"]
-    #[link_name = "\u{1}ffxFsr3UpscalerGetRenderResolutionFromQualityMode"]
-    pub fn Fsr3UpscalerGetRenderResolutionFromQualityMode(
+    ) -> ErrorCode,
+    pub Fsr3UpscalerContextDestroy:
+        unsafe extern "C" fn(pContext: *mut Fsr3UpscalerContext) -> ErrorCode,
+    pub Fsr3UpscalerGetUpscaleRatioFromQualityMode:
+        unsafe extern "C" fn(qualityMode: Fsr3UpscalerQualityMode) -> f32,
+    pub Fsr3UpscalerGetRenderResolutionFromQualityMode: unsafe extern "C" fn(
         pRenderWidth: *mut u32,
         pRenderHeight: *mut u32,
         displayWidth: u32,
         displayHeight: u32,
         qualityMode: Fsr3UpscalerQualityMode,
-    ) -> ErrorCode;
-}
-unsafe extern "C" {
-    #[doc = " A helper function to calculate the jitter phase count from display\n resolution.\n\n For more detailed information about the application of camera jitter to\n your application's rendering please refer to the\n <c><i>ffxFsr3UpscalerGetJitterOffset</i></c> function.\n\n The table below shows the jitter phase count which this function\n would return for each of the quality presets.\n\n Quality preset                                        | Scale factor  | Phase count\n ----------------------------------------------------- | ------------- | ---------------\n <c><i>FFX_FSR3UPSCALER_QUALITY_MODE_QUALITY</i></c>           | 1.5x          | 18\n <c><i>FFX_FSR3UPSCALER_QUALITY_MODE_BALANCED</i></c>          | 1.7x          | 23\n <c><i>FFX_FSR3UPSCALER_QUALITY_MODE_PERFORMANCE</i></c>       | 2.0x          | 32\n <c><i>FFX_FSR3UPSCALER_QUALITY_MODE_ULTRA_PERFORMANCE</i></c> | 3.0x          | 72\n Custom                                                | [1..n]x       | ceil(8*n^2)\n\n @param [in] renderWidth             The render resolution width.\n @param [in] displayWidth            The display resolution width.\n\n @returns\n The jitter phase count for the scaling factor between <c><i>renderWidth</i></c> and <c><i>displayWidth</i></c>.\n\n @ingroup ffxFsr3Upscaler"]
-    #[link_name = "\u{1}ffxFsr3UpscalerGetJitterPhaseCount"]
-    pub fn Fsr3UpscalerGetJitterPhaseCount(renderWidth: i32, displayWidth: i32) -> i32;
-}
-unsafe extern "C" {
-    #[doc = " A helper function to calculate the subpixel jitter offset.\n\n FSR3 relies on the application to apply sub-pixel jittering while rendering.\n This is typically included in the projection matrix of the camera. To make\n the application of camera jitter simple, the FSR3 API provides a small set\n of utility function which computes the sub-pixel jitter offset for a\n particular frame within a sequence of separate jitter offsets. To begin, the\n index within the jitter phase must be computed. To calculate the\n sequence's length, you can call the <c><i>ffxFsr3UpscalerGetJitterPhaseCount</i></c>\n function. The index should be a value which is incremented each frame modulo\n the length of the sequence computed by <c><i>ffxFsr3UpscalerGetJitterPhaseCount</i></c>.\n The index within the jitter phase  is passed to\n <c><i>ffxFsr3UpscalerGetJitterOffset</i></c> via the <c><i>index</i></c> parameter.\n\n This function uses a Halton(2,3) sequence to compute the jitter offset.\n The ultimate index used for the sequence is <c><i>index</i></c> %\n <c><i>phaseCount</i></c>.\n\n It is important to understand that the values returned from the\n <c><i>ffxFsr3UpscalerGetJitterOffset</i></c> function are in unit pixel space, and\n in order to composite this correctly into a projection matrix we must\n convert them into projection offsets. This is done as per the pseudo code\n listing which is shown below.\n\n     const int32_t jitterPhaseCount = ffxFsr3UpscalerGetJitterPhaseCount(renderWidth, displayWidth);\n\n     float jitterX = 0;\n     float jitterY = 0;\n     ffxFsr3UpscalerGetJitterOffset(&jitterX, &jitterY, index, jitterPhaseCount);\n\n     const float jitterX = 2.0f * jitterX / (float)renderWidth;\n     const float jitterY = -2.0f * jitterY / (float)renderHeight;\n     const Matrix4 jitterTranslationMatrix = translateMatrix(Matrix3::identity, Vector3(jitterX, jitterY, 0));\n     const Matrix4 jitteredProjectionMatrix = jitterTranslationMatrix * projectionMatrix;\n\n Jitter should be applied to all rendering. This includes opaque, alpha\n transparent, and raytraced objects. For rasterized objects, the sub-pixel\n jittering values calculated by the <c><i>iffxFsr3UpscalerGetJitterOffset</i></c>\n function can be applied to the camera projection matrix which is ultimately\n used to perform transformations during vertex shading. For raytraced\n rendering, the sub-pixel jitter should be applied to the ray's origin,\n often the camera's position.\n\n Whether you elect to use the <c><i>ffxFsr3UpscalerGetJitterOffset</i></c> function\n or your own sequence generator, you must program the\n <c><i>jitterOffset</i></c> field of the\n <c><i>FfxFsr3UpscalerDispatchParameters</i></c> structure in order to inform FSR3\n of the jitter offset that has been applied in order to render each frame.\n\n If not using the recommended <c><i>ffxFsr3UpscalerGetJitterOffset</i></c> function,\n care should be taken that your jitter sequence never generates a null vector;\n that is value of 0 in both the X and Y dimensions.\n\n @param [out] pOutX                   A pointer to a <c>float</c> which will contain the subpixel jitter offset for the x dimension.\n @param [out] pOutY                   A pointer to a <c>float</c> which will contain the subpixel jitter offset for the y dimension.\n @param [in] index                   The index within the jitter sequence.\n @param [in] phaseCount              The length of jitter phase. See <c><i>ffxFsr3UpscalerGetJitterPhaseCount</i></c>.\n\n @retval\n FFX_OK                              The operation completed successfully.\n @retval\n FFX_ERROR_INVALID_POINTER           Either <c><i>outX</i></c> or <c><i>outY</i></c> was <c>NULL</c>.\n @retval\n FFX_ERROR_INVALID_ARGUMENT          Argument <c><i>phaseCount</i></c> must be greater than 0.\n\n @ingroup ffxFsr3Upscaler"]
-    #[link_name = "\u{1}ffxFsr3UpscalerGetJitterOffset"]
-    pub fn Fsr3UpscalerGetJitterOffset(
+    ) -> ErrorCode,
+    pub Fsr3UpscalerGetJitterPhaseCount:
+        unsafe extern "C" fn(renderWidth: i32, displayWidth: i32) -> i32,
+    pub Fsr3UpscalerGetJitterOffset: unsafe extern "C" fn(
         pOutX: *mut f32,
         pOutY: *mut f32,
         index: i32,
         phaseCount: i32,
-    ) -> ErrorCode;
-}
-unsafe extern "C" {
-    #[doc = " A helper function to check if a resource is\n <c><i>FFX_FSR3UPSCALER_RESOURCE_IDENTIFIER_NULL</i></c>.\n\n @param [in] resource                A <c><i>FfxResource</i></c>.\n\n @returns\n true                                The <c><i>resource</i></c> was not <c><i>FFX_FSR3UPSCALER_RESOURCE_IDENTIFIER_NULL</i></c>.\n @returns\n false                               The <c><i>resource</i></c> was <c><i>FFX_FSR3UPSCALER_RESOURCE_IDENTIFIER_NULL</i></c>.\n\n @ingroup ffxFsr3Upscaler"]
-    #[link_name = "\u{1}ffxFsr3UpscalerResourceIsNull"]
-    pub fn Fsr3UpscalerResourceIsNull(resource: Resource) -> bool;
-}
-unsafe extern "C" {
-    #[doc = " Queries the effect version number.\n\n @returns\n The SDK version the effect was built with.\n\n @ingroup ffxFsr3Upscaler"]
-    #[link_name = "\u{1}ffxFsr3UpscalerGetEffectVersion"]
-    pub fn Fsr3UpscalerGetEffectVersion() -> VersionNumber;
-}
-unsafe extern "C" {
-    #[doc = " Override upscaler constant buffer value after upscaler context creation.\n\n @param [in] context                  A pointer to a <c><i>FfxFsr3UpscalerContext</i></c> structure.\n @param [in] key                      A key from <c><i>FfxFsr3UpscalerConfigureKey</i></c> enum\n @param [in] valuePtr                 A pointer to value to pass to shader in Constant Buffer. See Fsr3UpscalerConstants\n\n @retval\n FFX_OK                              The operation completed successfully.\n @retval\n FFX_ERROR_INVALID_ENUM              An invalid FfxFsr3UpscalerConfigureKey was specified.\n @retval\n FFX_ERROR_INVALID_POINTER           <c><i>pContext</c></i> was NULL.\n\n @ingroup ffxFsr3Upscaler"]
-    #[link_name = "\u{1}ffxFsr3UpscalerSetConstant"]
-    pub fn Fsr3UpscalerSetConstant(
+    ) -> ErrorCode,
+    pub Fsr3UpscalerResourceIsNull: unsafe extern "C" fn(resource: Resource) -> bool,
+    pub Fsr3UpscalerGetEffectVersion: unsafe extern "C" fn() -> VersionNumber,
+    pub Fsr3UpscalerSetConstant: unsafe extern "C" fn(
         context: *mut Fsr3UpscalerContext,
         key: Fsr3UpscalerConfigureKey,
         valuePtr: *mut ::std::os::raw::c_void,
-    ) -> ErrorCode;
+    ) -> ErrorCode,
+    pub Fsr3UpscalerSetGlobalDebugMessage:
+        unsafe extern "C" fn(fpMessage: MessageCallback, debugLevel: u32) -> ErrorCode,
 }
-unsafe extern "C" {
+impl Functions {
+    pub unsafe fn new<P>(path: P) -> Result<Self, ::libloading::Error>
+    where
+        P: AsRef<::std::ffi::OsStr>,
+    {
+        let library = ::libloading::Library::new(path)?;
+        Self::from_library(library)
+    }
+    pub unsafe fn from_library<L>(library: L) -> Result<Self, ::libloading::Error>
+    where
+        L: Into<::libloading::Library>,
+    {
+        let __library = library.into();
+        let Fsr3UpscalerContextCreate = __library
+            .get(b"ffxFsr3UpscalerContextCreate\0")
+            .map(|sym| *sym)?;
+        let Fsr3UpscalerGetSharedResourceDescriptions = __library
+            .get(b"ffxFsr3UpscalerGetSharedResourceDescriptions\0")
+            .map(|sym| *sym)?;
+        let Fsr3UpscalerContextGetGpuMemoryUsage = __library
+            .get(b"ffxFsr3UpscalerContextGetGpuMemoryUsage\0")
+            .map(|sym| *sym)?;
+        let Fsr3UpscalerContextDispatch = __library
+            .get(b"ffxFsr3UpscalerContextDispatch\0")
+            .map(|sym| *sym)?;
+        let Fsr3UpscalerContextGenerateReactiveMask = __library
+            .get(b"ffxFsr3UpscalerContextGenerateReactiveMask\0")
+            .map(|sym| *sym)?;
+        let Fsr3UpscalerContextDestroy = __library
+            .get(b"ffxFsr3UpscalerContextDestroy\0")
+            .map(|sym| *sym)?;
+        let Fsr3UpscalerGetUpscaleRatioFromQualityMode = __library
+            .get(b"ffxFsr3UpscalerGetUpscaleRatioFromQualityMode\0")
+            .map(|sym| *sym)?;
+        let Fsr3UpscalerGetRenderResolutionFromQualityMode = __library
+            .get(b"ffxFsr3UpscalerGetRenderResolutionFromQualityMode\0")
+            .map(|sym| *sym)?;
+        let Fsr3UpscalerGetJitterPhaseCount = __library
+            .get(b"ffxFsr3UpscalerGetJitterPhaseCount\0")
+            .map(|sym| *sym)?;
+        let Fsr3UpscalerGetJitterOffset = __library
+            .get(b"ffxFsr3UpscalerGetJitterOffset\0")
+            .map(|sym| *sym)?;
+        let Fsr3UpscalerResourceIsNull = __library
+            .get(b"ffxFsr3UpscalerResourceIsNull\0")
+            .map(|sym| *sym)?;
+        let Fsr3UpscalerGetEffectVersion = __library
+            .get(b"ffxFsr3UpscalerGetEffectVersion\0")
+            .map(|sym| *sym)?;
+        let Fsr3UpscalerSetConstant = __library
+            .get(b"ffxFsr3UpscalerSetConstant\0")
+            .map(|sym| *sym)?;
+        let Fsr3UpscalerSetGlobalDebugMessage = __library
+            .get(b"ffxFsr3UpscalerSetGlobalDebugMessage\0")
+            .map(|sym| *sym)?;
+        Ok(Functions {
+            __library,
+            Fsr3UpscalerContextCreate,
+            Fsr3UpscalerGetSharedResourceDescriptions,
+            Fsr3UpscalerContextGetGpuMemoryUsage,
+            Fsr3UpscalerContextDispatch,
+            Fsr3UpscalerContextGenerateReactiveMask,
+            Fsr3UpscalerContextDestroy,
+            Fsr3UpscalerGetUpscaleRatioFromQualityMode,
+            Fsr3UpscalerGetRenderResolutionFromQualityMode,
+            Fsr3UpscalerGetJitterPhaseCount,
+            Fsr3UpscalerGetJitterOffset,
+            Fsr3UpscalerResourceIsNull,
+            Fsr3UpscalerGetEffectVersion,
+            Fsr3UpscalerSetConstant,
+            Fsr3UpscalerSetGlobalDebugMessage,
+        })
+    }
+    #[doc = " Create a FidelityFX Super Resolution 3 context from the parameters\n programmed to the <c><i>FfxFsr3UpscalerCreateParams</i></c> structure.\n\n The context structure is the main object used to interact with the FSR3\n API, and is responsible for the management of the internal resources used\n by the FSR3 algorithm. When this API is called, multiple calls will be\n made via the pointers contained in the <c><i>callbacks</i></c> structure.\n These callbacks will attempt to retreive the device capabilities, and\n create the internal resources, and pipelines required by FSR3's\n frame-to-frame function. Depending on the precise configuration used when\n creating the <c><i>FfxFsr3UpscalerContext</i></c> a different set of resources and\n pipelines might be requested via the callback functions.\n\n The flags included in the <c><i>flags</i></c> field of\n <c><i>FfxFsr3UpscalerContext</i></c> how match the configuration of your\n application as well as the intended use of FSR3. It is important that these\n flags are set correctly (as well as a correct programmed\n <c><i>FfxFsr3UpscalerDispatchDescription</i></c>) to ensure correct operation. It is\n recommended to consult the overview documentation for further details on\n how FSR3 should be integerated into an application.\n\n When the <c><i>FfxFsr3UpscalerContext</i></c> is created, you should use the\n <c><i>ffxFsr3UpscalerContextDispatch</i></c> function each frame where FSR3\n upscaling should be applied. See the documentation of\n <c><i>ffxFsr3UpscalerContextDispatch</i></c> for more details.\n\n The <c><i>FfxFsr3UpscalerContext</i></c> should be destroyed when use of it is\n completed, typically when an application is unloaded or FSR3 upscaling is\n disabled by a user. To destroy the FSR3 context you should call\n <c><i>ffxFsr3UpscalerContextDestroy</i></c>.\n\n @param [out] pContext                A pointer to a <c><i>FfxFsr3UpscalerContext</i></c> structure to populate.\n @param [in]  pContextDescription     A pointer to a <c><i>FfxFsr3UpscalerContextDescription</i></c> structure.\n\n @retval\n FFX_OK                              The operation completed successfully.\n @retval\n FFX_ERROR_CODE_NULL_POINTER         The operation failed because either <c><i>context</i></c> or <c><i>contextDescription</i></c> was <c><i>NULL</i></c>.\n @retval\n FFX_ERROR_INCOMPLETE_INTERFACE      The operation failed because the <c><i>FfxFsr3UpscalerContextDescription.callbacks</i></c>  was not fully specified.\n @retval\n FFX_ERROR_BACKEND_API_ERROR         The operation failed because of an error returned from the backend.\n\n @ingroup ffxFsr3Upscaler"]
+    pub unsafe fn Fsr3UpscalerContextCreate(
+        &self,
+        pContext: *mut Fsr3UpscalerContext,
+        pContextDescription: *const Fsr3UpscalerContextDescription,
+    ) -> ErrorCode {
+        (self.Fsr3UpscalerContextCreate)(pContext, pContextDescription)
+    }
+    #[doc = " Provides the descriptions for shared resources that must be allocated for this effect.\n\n @param [in] context\t\t\t\t\tA pointer to a <c><i>FfxFsr3UpscalerContext</i></c> structure.\n @param [out] SharedResources\t\tA pointer to a <c><i>FfxFsr3UpscalerSharedResourceDescriptions</i></c> to populate.\n\n @returns\n FFX_OK\t\t\t\t\t\t\t\tThe operation completed successfully.\n @returns\n Anything else\t\t\t\t\t\tThe operation failed.\n\n @ingroup ffxFsr3Upscaler"]
+    pub unsafe fn Fsr3UpscalerGetSharedResourceDescriptions(
+        &self,
+        context: *mut Fsr3UpscalerContext,
+        SharedResources: *mut Fsr3UpscalerSharedResourceDescriptions,
+    ) -> ErrorCode {
+        (self.Fsr3UpscalerGetSharedResourceDescriptions)(context, SharedResources)
+    }
+    #[doc = " Get GPU memory usage of the FidelityFX Super Resolution context.\n\n @param [in]  pContext                A pointer to a <c><i>FfxFsr3UpscalerContext</i></c> structure.\n @param [out] pVramUsage              A pointer to a <c><i>FfxEffectMemoryUsage</i></c> structure.\n\n @retval\n FFX_OK                              The operation completed successfully.\n @retval\n FFX_ERROR_CODE_NULL_POINTER         The operation failed because either <c><i>context</i></c> or <c><i>vramUsage</i></c> were <c><i>NULL</i></c>.\n\n @ingroup ffxFsr3Upscaler"]
+    pub unsafe fn Fsr3UpscalerContextGetGpuMemoryUsage(
+        &self,
+        pContext: *mut Fsr3UpscalerContext,
+        pVramUsage: *mut EffectMemoryUsage,
+    ) -> ErrorCode {
+        (self.Fsr3UpscalerContextGetGpuMemoryUsage)(pContext, pVramUsage)
+    }
+    #[doc = " Dispatch the various passes that constitute FidelityFX Super Resolution 3.\n\n FSR3 is a composite effect, meaning that it is compromised of multiple\n constituent passes (implemented as one or more clears, copies and compute\n dispatches). The <c><i>ffxFsr3UpscalerContextDispatch</i></c> function is the\n function which (via the use of the functions contained in the\n <c><i>callbacks</i></c> field of the <c><i>FfxFsr3UpscalerContext</i></c>\n structure) utlimately generates the sequence of graphics API calls required\n each frame.\n\n As with the creation of the <c><i>FfxFsr3UpscalerContext</i></c> correctly\n programming the <c><i>FfxFsr3UpscalerDispatchDescription</i></c> is key to ensuring\n the correct operation of FSR3. It is particularly important to ensure that\n camera jitter is correctly applied to your application's projection matrix\n (or camera origin for raytraced applications). FSR3 provides the\n <c><i>ffxFsr3UpscalerGetJitterPhaseCount</i></c> and\n <c><i>ffxFsr3UpscalerGetJitterOffset</i></c> entry points to help applications\n correctly compute the camera jitter. Whatever jitter pattern is used by the\n application it should be correctly programmed to the\n <c><i>jitterOffset</i></c> field of the <c><i>dispatchDescription</i></c>\n structure. For more guidance on camera jitter please consult the\n documentation for <c><i>ffxFsr3UpscalerGetJitterOffset</i></c> as well as the\n accompanying overview documentation for FSR3.\n\n @param [in] pContext                 A pointer to a <c><i>FfxFsr3UpscalerContext</i></c> structure.\n @param [in] pDispatchDescription     A pointer to a <c><i>FfxFsr3UpscalerDispatchDescription</i></c> structure.\n\n @retval\n FFX_OK                              The operation completed successfully.\n @retval\n FFX_ERROR_CODE_NULL_POINTER         The operation failed because either <c><i>context</i></c> or <c><i>dispatchDescription</i></c> was <c><i>NULL</i></c>.\n @retval\n FFX_ERROR_OUT_OF_RANGE              The operation failed because <c><i>dispatchDescription.renderSize</i></c> was larger than the maximum render resolution.\n @retval\n FFX_ERROR_NULL_DEVICE               The operation failed because the device inside the context was <c><i>NULL</i></c>.\n @retval\n FFX_ERROR_BACKEND_API_ERROR         The operation failed because of an error returned from the backend.\n\n @ingroup ffxFsr3Upscaler"]
+    pub unsafe fn Fsr3UpscalerContextDispatch(
+        &self,
+        pContext: *mut Fsr3UpscalerContext,
+        pDispatchDescription: *const Fsr3UpscalerDispatchDescription,
+    ) -> ErrorCode {
+        (self.Fsr3UpscalerContextDispatch)(pContext, pDispatchDescription)
+    }
+    #[doc = " A helper function generate a Reactive mask from an opaque only texure and one containing translucent objects.\n\n @param [in] pContext                 A pointer to a <c><i>FfxFsr3UpscalerContext</i></c> structure.\n @param [in] pParams                  A pointer to a <c><i>FfxFsr3UpscalerGenerateReactiveDescription</i></c> structure\n\n @retval\n FFX_OK                              The operation completed successfully.\n\n @ingroup ffxFsr3Upscaler"]
+    pub unsafe fn Fsr3UpscalerContextGenerateReactiveMask(
+        &self,
+        pContext: *mut Fsr3UpscalerContext,
+        pParams: *const Fsr3UpscalerGenerateReactiveDescription,
+    ) -> ErrorCode {
+        (self.Fsr3UpscalerContextGenerateReactiveMask)(pContext, pParams)
+    }
+    #[doc = " Destroy the FidelityFX Super Resolution context.\n\n @param [out] pContext                A pointer to a <c><i>FfxFsr3UpscalerContext</i></c> structure to destroy.\n\n @retval\n FFX_OK                              The operation completed successfully.\n @retval\n FFX_ERROR_CODE_NULL_POINTER         The operation failed because either <c><i>context</i></c> was <c><i>NULL</i></c>.\n\n @ingroup ffxFsr3Upscaler"]
+    pub unsafe fn Fsr3UpscalerContextDestroy(
+        &self,
+        pContext: *mut Fsr3UpscalerContext,
+    ) -> ErrorCode {
+        (self.Fsr3UpscalerContextDestroy)(pContext)
+    }
+    #[doc = " Get the upscale ratio from the quality mode.\n\n The following table enumerates the mapping of the quality modes to\n per-dimension scaling ratios.\n\n Quality preset                                        | Scale factor\n ----------------------------------------------------- | -------------\n <c><i>FFX_FSR3UPSCALER_QUALITY_MODE_QUALITY</i></c>           | 1.5x\n <c><i>FFX_FSR3UPSCALER_QUALITY_MODE_BALANCED</i></c>          | 1.7x\n <c><i>FFX_FSR3UPSCALER_QUALITY_MODE_PERFORMANCE</i></c>       | 2.0x\n <c><i>FFX_FSR3UPSCALER_QUALITY_MODE_ULTRA_PERFORMANCE</i></c> | 3.0x\n\n Passing an invalid <c><i>qualityMode</i></c> will return 0.0f.\n\n @param [in] qualityMode             The quality mode preset.\n\n @returns\n The upscaling the per-dimension upscaling ratio for\n <c><i>qualityMode</i></c> according to the table above.\n\n @ingroup ffxFsr3Upscaler"]
+    pub unsafe fn Fsr3UpscalerGetUpscaleRatioFromQualityMode(
+        &self,
+        qualityMode: Fsr3UpscalerQualityMode,
+    ) -> f32 {
+        (self.Fsr3UpscalerGetUpscaleRatioFromQualityMode)(qualityMode)
+    }
+    #[doc = " A helper function to calculate the rendering resolution from a target\n resolution and desired quality level.\n\n This function applies the scaling factor returned by\n <c><i>ffxFsr3UpscalerGetUpscaleRatioFromQualityMode</i></c> to each dimension.\n\n @param [out] pRenderWidth            A pointer to a <c>uint32_t</c> which will hold the calculated render resolution width.\n @param [out] pRenderHeight           A pointer to a <c>uint32_t</c> which will hold the calculated render resolution height.\n @param [in] displayWidth            The target display resolution width.\n @param [in] displayHeight           The target display resolution height.\n @param [in] qualityMode             The desired quality mode for FSR 2 upscaling.\n\n @retval\n FFX_OK                              The operation completed successfully.\n @retval\n FFX_ERROR_INVALID_POINTER           Either <c><i>renderWidth</i></c> or <c><i>renderHeight</i></c> was <c>NULL</c>.\n @retval\n FFX_ERROR_INVALID_ENUM              An invalid quality mode was specified.\n\n @ingroup ffxFsr3Upscaler"]
+    pub unsafe fn Fsr3UpscalerGetRenderResolutionFromQualityMode(
+        &self,
+        pRenderWidth: *mut u32,
+        pRenderHeight: *mut u32,
+        displayWidth: u32,
+        displayHeight: u32,
+        qualityMode: Fsr3UpscalerQualityMode,
+    ) -> ErrorCode {
+        (self.Fsr3UpscalerGetRenderResolutionFromQualityMode)(
+            pRenderWidth,
+            pRenderHeight,
+            displayWidth,
+            displayHeight,
+            qualityMode,
+        )
+    }
+    #[doc = " A helper function to calculate the jitter phase count from display\n resolution.\n\n For more detailed information about the application of camera jitter to\n your application's rendering please refer to the\n <c><i>ffxFsr3UpscalerGetJitterOffset</i></c> function.\n\n The table below shows the jitter phase count which this function\n would return for each of the quality presets.\n\n Quality preset                                        | Scale factor  | Phase count\n ----------------------------------------------------- | ------------- | ---------------\n <c><i>FFX_FSR3UPSCALER_QUALITY_MODE_QUALITY</i></c>           | 1.5x          | 18\n <c><i>FFX_FSR3UPSCALER_QUALITY_MODE_BALANCED</i></c>          | 1.7x          | 23\n <c><i>FFX_FSR3UPSCALER_QUALITY_MODE_PERFORMANCE</i></c>       | 2.0x          | 32\n <c><i>FFX_FSR3UPSCALER_QUALITY_MODE_ULTRA_PERFORMANCE</i></c> | 3.0x          | 72\n Custom                                                | [1..n]x       | ceil(8*n^2)\n\n @param [in] renderWidth             The render resolution width.\n @param [in] displayWidth            The display resolution width.\n\n @returns\n The jitter phase count for the scaling factor between <c><i>renderWidth</i></c> and <c><i>displayWidth</i></c>.\n\n @ingroup ffxFsr3Upscaler"]
+    pub unsafe fn Fsr3UpscalerGetJitterPhaseCount(
+        &self,
+        renderWidth: i32,
+        displayWidth: i32,
+    ) -> i32 {
+        (self.Fsr3UpscalerGetJitterPhaseCount)(renderWidth, displayWidth)
+    }
+    #[doc = " A helper function to calculate the subpixel jitter offset.\n\n FSR3 relies on the application to apply sub-pixel jittering while rendering.\n This is typically included in the projection matrix of the camera. To make\n the application of camera jitter simple, the FSR3 API provides a small set\n of utility function which computes the sub-pixel jitter offset for a\n particular frame within a sequence of separate jitter offsets. To begin, the\n index within the jitter phase must be computed. To calculate the\n sequence's length, you can call the <c><i>ffxFsr3UpscalerGetJitterPhaseCount</i></c>\n function. The index should be a value which is incremented each frame modulo\n the length of the sequence computed by <c><i>ffxFsr3UpscalerGetJitterPhaseCount</i></c>.\n The index within the jitter phase  is passed to\n <c><i>ffxFsr3UpscalerGetJitterOffset</i></c> via the <c><i>index</i></c> parameter.\n\n This function uses a Halton(2,3) sequence to compute the jitter offset.\n The ultimate index used for the sequence is <c><i>index</i></c> %\n <c><i>phaseCount</i></c>.\n\n It is important to understand that the values returned from the\n <c><i>ffxFsr3UpscalerGetJitterOffset</i></c> function are in unit pixel space, and\n in order to composite this correctly into a projection matrix we must\n convert them into projection offsets. This is done as per the pseudo code\n listing which is shown below.\n\n     const int32_t jitterPhaseCount = ffxFsr3UpscalerGetJitterPhaseCount(renderWidth, displayWidth);\n\n     float jitterX = 0;\n     float jitterY = 0;\n     ffxFsr3UpscalerGetJitterOffset(&jitterX, &jitterY, index, jitterPhaseCount);\n\n     const float jitterX = 2.0f * jitterX / (float)renderWidth;\n     const float jitterY = -2.0f * jitterY / (float)renderHeight;\n     const Matrix4 jitterTranslationMatrix = translateMatrix(Matrix3::identity, Vector3(jitterX, jitterY, 0));\n     const Matrix4 jitteredProjectionMatrix = jitterTranslationMatrix * projectionMatrix;\n\n Jitter should be applied to all rendering. This includes opaque, alpha\n transparent, and raytraced objects. For rasterized objects, the sub-pixel\n jittering values calculated by the <c><i>iffxFsr3UpscalerGetJitterOffset</i></c>\n function can be applied to the camera projection matrix which is ultimately\n used to perform transformations during vertex shading. For raytraced\n rendering, the sub-pixel jitter should be applied to the ray's origin,\n often the camera's position.\n\n Whether you elect to use the <c><i>ffxFsr3UpscalerGetJitterOffset</i></c> function\n or your own sequence generator, you must program the\n <c><i>jitterOffset</i></c> field of the\n <c><i>FfxFsr3UpscalerDispatchParameters</i></c> structure in order to inform FSR3\n of the jitter offset that has been applied in order to render each frame.\n\n If not using the recommended <c><i>ffxFsr3UpscalerGetJitterOffset</i></c> function,\n care should be taken that your jitter sequence never generates a null vector;\n that is value of 0 in both the X and Y dimensions.\n\n @param [out] pOutX                   A pointer to a <c>float</c> which will contain the subpixel jitter offset for the x dimension.\n @param [out] pOutY                   A pointer to a <c>float</c> which will contain the subpixel jitter offset for the y dimension.\n @param [in] index                   The index within the jitter sequence.\n @param [in] phaseCount              The length of jitter phase. See <c><i>ffxFsr3UpscalerGetJitterPhaseCount</i></c>.\n\n @retval\n FFX_OK                              The operation completed successfully.\n @retval\n FFX_ERROR_INVALID_POINTER           Either <c><i>outX</i></c> or <c><i>outY</i></c> was <c>NULL</c>.\n @retval\n FFX_ERROR_INVALID_ARGUMENT          Argument <c><i>phaseCount</i></c> must be greater than 0.\n\n @ingroup ffxFsr3Upscaler"]
+    pub unsafe fn Fsr3UpscalerGetJitterOffset(
+        &self,
+        pOutX: *mut f32,
+        pOutY: *mut f32,
+        index: i32,
+        phaseCount: i32,
+    ) -> ErrorCode {
+        (self.Fsr3UpscalerGetJitterOffset)(pOutX, pOutY, index, phaseCount)
+    }
+    #[doc = " A helper function to check if a resource is\n <c><i>FFX_FSR3UPSCALER_RESOURCE_IDENTIFIER_NULL</i></c>.\n\n @param [in] resource                A <c><i>FfxResource</i></c>.\n\n @returns\n true                                The <c><i>resource</i></c> was not <c><i>FFX_FSR3UPSCALER_RESOURCE_IDENTIFIER_NULL</i></c>.\n @returns\n false                               The <c><i>resource</i></c> was <c><i>FFX_FSR3UPSCALER_RESOURCE_IDENTIFIER_NULL</i></c>.\n\n @ingroup ffxFsr3Upscaler"]
+    pub unsafe fn Fsr3UpscalerResourceIsNull(&self, resource: Resource) -> bool {
+        (self.Fsr3UpscalerResourceIsNull)(resource)
+    }
+    #[doc = " Queries the effect version number.\n\n @returns\n The SDK version the effect was built with.\n\n @ingroup ffxFsr3Upscaler"]
+    pub unsafe fn Fsr3UpscalerGetEffectVersion(&self) -> VersionNumber {
+        (self.Fsr3UpscalerGetEffectVersion)()
+    }
+    #[doc = " Override upscaler constant buffer value after upscaler context creation.\n\n @param [in] context                  A pointer to a <c><i>FfxFsr3UpscalerContext</i></c> structure.\n @param [in] key                      A key from <c><i>FfxFsr3UpscalerConfigureKey</i></c> enum\n @param [in] valuePtr                 A pointer to value to pass to shader in Constant Buffer. See Fsr3UpscalerConstants\n\n @retval\n FFX_OK                              The operation completed successfully.\n @retval\n FFX_ERROR_INVALID_ENUM              An invalid FfxFsr3UpscalerConfigureKey was specified.\n @retval\n FFX_ERROR_INVALID_POINTER           <c><i>pContext</c></i> was NULL.\n\n @ingroup ffxFsr3Upscaler"]
+    pub unsafe fn Fsr3UpscalerSetConstant(
+        &self,
+        context: *mut Fsr3UpscalerContext,
+        key: Fsr3UpscalerConfigureKey,
+        valuePtr: *mut ::std::os::raw::c_void,
+    ) -> ErrorCode {
+        (self.Fsr3UpscalerSetConstant)(context, key, valuePtr)
+    }
     #[doc = " Set global debug message settings\n\n @param [in] fpMessage                A <c><i>ffxMessageCallback</i></ci>\n @param [in] debugLevel               An unsigned integer. Unimplemented.\n @retval\n FFX_OK                               The operation completed successfully.\n\n @ingroup FRAMEINTERPOLATION"]
-    #[link_name = "\u{1}ffxFsr3UpscalerSetGlobalDebugMessage"]
-    pub fn Fsr3UpscalerSetGlobalDebugMessage(
+    pub unsafe fn Fsr3UpscalerSetGlobalDebugMessage(
+        &self,
         fpMessage: MessageCallback,
         debugLevel: u32,
-    ) -> ErrorCode;
+    ) -> ErrorCode {
+        (self.Fsr3UpscalerSetGlobalDebugMessage)(fpMessage, debugLevel)
+    }
 }

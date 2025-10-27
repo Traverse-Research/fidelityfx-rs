@@ -52,11 +52,6 @@ impl Default for VkFrameInterpolationInfoFFX {
         }
     }
 }
-unsafe extern "C" {
-    #[doc = " Query how much memory is required for the Vulkan backend's scratch buffer.\n\n @param [in] physicalDevice              A pointer to the VkPhysicalDevice device.\n @param [in] maxContexts                 The maximum number of simultaneous effect contexts that will share the backend.\n                                         (Note that some effects contain internal contexts which count towards this maximum)\n\n @returns\n The size (in bytes) of the required scratch memory buffer for the VK backend.\n\n @ingroup VKBackend"]
-    #[link_name = "\u{1}ffxGetScratchMemorySizeVK"]
-    pub fn GetScratchMemorySizeVK(physicalDevice: VkPhysicalDevice, maxContexts: usize) -> usize;
-}
 #[doc = " Convenience structure to hold all VK-related device information"]
 #[repr(C)]
 pub struct VkDeviceContext {
@@ -75,146 +70,12 @@ impl Default for VkDeviceContext {
         }
     }
 }
-unsafe extern "C" {
-    #[doc = " Create a <c><i>FfxDevice</i></c> from a <c><i>VkDevice</i></c>.\n\n @param [in] vkDeviceContext             A pointer to a VKDeviceContext that holds all needed information\n\n @returns\n An abstract FidelityFX device.\n\n @ingroup VKBackend"]
-    #[link_name = "\u{1}ffxGetDeviceVK"]
-    pub fn GetDeviceVK(vkDeviceContext: *mut VkDeviceContext) -> Device;
-}
-unsafe extern "C" {
-    #[doc = " Populate an interface with pointers for the VK backend.\n\n @param [out] backendInterface           A pointer to a <c><i>FfxInterface</i></c> structure to populate with pointers.\n @param [in] device                      A pointer to the VkDevice device.\n @param [in] scratchBuffer               A pointer to a buffer of memory which can be used by the DirectX(R)12 backend.\n @param [in] scratchBufferSize           The size (in bytes) of the buffer pointed to by <c><i>scratchBuffer</i></c>.\n @param [in] maxContexts                 The maximum number of simultaneous effect contexts that will share the backend.\n                                         (Note that some effects contain internal contexts which count towards this maximum)\n\n @retval\n FFX_OK                                  The operation completed successfully.\n @retval\n FFX_ERROR_CODE_INVALID_POINTER          The <c><i>interface</i></c> pointer was <c><i>NULL</i></c>.\n\n @ingroup VKBackend"]
-    #[link_name = "\u{1}ffxGetInterfaceVK"]
-    pub fn GetInterfaceVK(
-        backendInterface: *mut Interface,
-        device: Device,
-        scratchBuffer: *mut ::std::os::raw::c_void,
-        scratchBufferSize: usize,
-        maxContexts: usize,
-    ) -> ErrorCode;
-}
-unsafe extern "C" {
-    #[doc = " Create a <c><i>FfxCommandList</i></c> from a <c><i>VkCommandBuffer</i></c>.\n\n @param [in] cmdBuf                      A pointer to the Vulkan command buffer.\n\n @returns\n An abstract FidelityFX command list.\n\n @ingroup VKBackend"]
-    #[link_name = "\u{1}ffxGetCommandListVK"]
-    pub fn GetCommandListVK(cmdBuf: VkCommandBuffer) -> CommandList;
-}
-unsafe extern "C" {
-    #[doc = " Create a <c><i>FfxPipeline</i></c> from a <c><i>VkPipeline</i></c>.\n\n @param [in] pipeline                    A pointer to the Vulkan pipeline.\n\n @returns\n An abstract FidelityFX pipeline.\n\n @ingroup VKBackend"]
-    #[link_name = "\u{1}ffxGetPipelineVK"]
-    pub fn GetPipelineVK(pipeline: VkPipeline) -> Pipeline;
-}
-unsafe extern "C" {
-    #[doc = " Fetch a <c><i>FfxResource</i></c> from a <c><i>GPUResource</i></c>.\n\n @param [in] vkResource                  A pointer to the (agnostic) VK resource.\n @param [in] ffxResDescription           An <c><i>FfxResourceDescription</i></c> for the resource representation.\n @param [in] ffxResName                  (optional) A name string to identify the resource in debug mode.\n @param [in] state                       The state the resource is currently in.\n\n @returns\n An abstract FidelityFX resources.\n\n @ingroup VKBackend"]
-    #[link_name = "\u{1}ffxGetResourceVK"]
-    pub fn GetResourceVK(
-        vkResource: *mut ::std::os::raw::c_void,
-        ffxResDescription: ResourceDescription,
-        ffxResName: *const u16,
-        state: ResourceStates,
-    ) -> Resource;
-}
-unsafe extern "C" {
-    #[doc = " Fetch a <c><i>FfxSurfaceFormat</i></c> from a VkFormat.\n\n @param [in] format              The VkFormat to convert to <c><i>FfxSurfaceFormat</i></c>.\n\n @returns\n An <c><i>FfxSurfaceFormat</i></c>.\n\n @ingroup VKBackend"]
-    #[link_name = "\u{1}ffxGetSurfaceFormatVK"]
-    pub fn GetSurfaceFormatVK(format: VkFormat) -> SurfaceFormat;
-}
-unsafe extern "C" {
-    #[doc = " Fetch a <c><i>FfxResourceDescription</i></c> from an existing VkBuffer.\n\n @param [in] buffer              The VkBuffer resource to create a <c><i>FfxResourceDescription</i></c> for.\n @param [in] createInfo          The VkBufferCreateInfo of the buffer\n @param [in] additionalUsages    Optional <c><i>FfxResourceUsage</i></c> flags needed for select resource mapping.\n\n @returns\n An <c><i>FfxResourceDescription</i></c>.\n\n @ingroup VKBackend"]
-    #[link_name = "\u{1}ffxGetBufferResourceDescriptionVK"]
-    pub fn GetBufferResourceDescriptionVK(
-        buffer: VkBuffer,
-        createInfo: VkBufferCreateInfo,
-        additionalUsages: ResourceUsage,
-    ) -> ResourceDescription;
-}
-unsafe extern "C" {
-    #[doc = " Fetch a <c><i>FfxResourceDescription</i></c> from an existing VkImage.\n\n @param [in] image               The VkImage resource to create a <c><i>FfxResourceDescription</i></c> for.\n @param [in] createInfo          The VkImageCreateInfo of the buffer\n @param [in] additionalUsages    Optional <c><i>FfxResourceUsage</i></c> flags needed for select resource mapping.\n\n @returns\n An <c><i>FfxResourceDescription</i></c>.\n\n @ingroup VKBackend"]
-    #[link_name = "\u{1}ffxGetImageResourceDescriptionVK"]
-    pub fn GetImageResourceDescriptionVK(
-        image: VkImage,
-        createInfo: VkImageCreateInfo,
-        additionalUsages: ResourceUsage,
-    ) -> ResourceDescription;
-}
-unsafe extern "C" {
-    #[doc = " Fetch a <c><i>FfxCommandQueue</i></c> from an existing VkQueue.\n\n @param [in] commandQueue       The VkQueue to create a <c><i>FfxCommandQueue</i></c> from.\n\n @returns\n An <c><i>FfxCommandQueue</i></c>.\n\n @ingroup VKBackend"]
-    #[link_name = "\u{1}ffxGetCommandQueueVK"]
-    pub fn GetCommandQueueVK(commandQueue: VkQueue) -> CommandQueue;
-}
-unsafe extern "C" {
-    #[doc = " Fetch a <c><i>FfxSwapchain</i></c> from an existing VkSwapchainKHR.\n\n @param [in] pSwapchain          The VkSwapchainKHR to create a <c><i>FfxSwapchain</i></c> from.\n\n @returns\n An <c><i>FfxSwapchain</i></c>.\n\n @ingroup VKBackend"]
-    #[link_name = "\u{1}ffxGetSwapchainVK"]
-    pub fn GetSwapchainVK(swapchain: VkSwapchainKHR) -> Swapchain;
-}
-unsafe extern "C" {
-    #[doc = " Fetch a VkSwapchainKHR from an existing <c><i>FfxSwapchain</i></c>.\n\n @param [in] ffxSwapchain          The <c><i>FfxSwapchain</i></c> to fetch an VkSwapchainKHR from.\n\n @returns\n An VkSwapchainKHR object.\n\n @ingroup VKBackend"]
-    #[link_name = "\u{1}ffxGetVKSwapchain"]
-    pub fn GetVKSwapchain(ffxSwapchain: Swapchain) -> VkSwapchainKHR;
-}
-unsafe extern "C" {
-    #[doc = " Replaces the current swapchain with the provided <c><i>FfxSwapchain</i></c>.\n\n @param [in]     gameQueue               The <c><i>FfxCommandQueue</i></c> presentation will occur on.\n @param [in,out] gameSwapChain           The current <c><i>FfxSwapchain</i></c> to replace, optional. If not NULL, the swapchain will be destroyed. On return, it will hold the <c><i>FfxSwapchain</i></c> to use for frame interpolation presentation.\n @param [in]     swapchainCreateInfo     The <c><i>VkSwapchainCreateInfoKHR</i></c> of the current swapchain. Its oldSwapchain member should be VK_NULL_HANDLE or the same as gameSwapChain.\n @param [in]     frameInterpolationInfo  The <c><i>VkFrameInterpolationInfoFFX</i></c> containing additional information for swapchain replacement.\n\n @retval\n FFX_OK                              The operation completed successfully.\n @retval\n FFX_ERROR_INVALID_ARGUMENT          One of the parameters is invalid. If the returned <c><i>gameSwapChain</i></c> is NULL, the old swapchain has been destroyed.\n @retval\n FFX_ERROR_BACKEND_API_ERROR         Internal generic error. If the returned <c><i>gameSwapChain</i></c> is NULL, the old swapchain has been destroyed.\n\n @ingroup VKFrameInterpolation"]
-    #[link_name = "\u{1}ffxReplaceSwapchainForFrameinterpolationVK"]
-    pub fn ReplaceSwapchainForFrameinterpolationVK(
-        gameQueue: CommandQueue,
-        gameSwapChain: *mut Swapchain,
-        swapchainCreateInfo: *const VkSwapchainCreateInfoKHR,
-        frameInterpolationInfo: *const VkFrameInterpolationInfoFFX,
-    ) -> ErrorCode;
-}
-unsafe extern "C" {
-    #[doc = " Waits for the <c><i>FfxSwapchain</i></c> to complete presentation.\n\n @param [in] gameSwapChain           The <c><i>FfxSwapchain</i></c> to wait on.\n\n @retval\n FFX_OK                              The operation completed successfully.\n @retval\n FFX_ERROR_INVALID_ARGUMENT          Could not query the interface for the frame interpolation swap chain.\n\n @ingroup VKFrameInterpolation"]
-    #[link_name = "\u{1}ffxWaitForPresents"]
-    pub fn WaitForPresents(gameSwapChain: Swapchain) -> ErrorCode;
-}
-unsafe extern "C" {
-    #[doc = " Registers a <c><i>FfxResource</i></c> to use for UI with the provided <c><i>FfxSwapchain</i></c>.\n\n @param [in] gameSwapChain           The <c><i>FfxSwapchain</i></c> to to register the UI resource with.\n @param [in] uiResource              The <c><i>FfxResource</i></c> representing the UI resource.\n @param [in] flags                   A set of <c><i>FfxUiCompositionFlags</i></c>.\n\n @retval\n FFX_OK                              The operation completed successfully.\n @retval\n FFX_ERROR_INVALID_ARGUMENT          Could not query the interface for the frame interpolation swap chain.\n\n @ingroup VKFrameInterpolation"]
-    #[link_name = "\u{1}ffxRegisterFrameinterpolationUiResourceVK"]
-    pub fn RegisterFrameinterpolationUiResourceVK(
-        gameSwapChain: Swapchain,
-        uiResource: Resource,
-        flags: u32,
-    ) -> ErrorCode;
-}
-unsafe extern "C" {
-    #[doc = " Fetches a <c><i>FfxCommandList</i></c> from the <c><i>FfxSwapchain</i></c>.\n\n @param [in] gameSwapChain           The <c><i>FfxSwapchain</i></c> to get a <c><i>FfxCommandList</i></c> from.\n @param [out] gameCommandlist        The <c><i>FfxCommandList</i></c> from the provided <c><i>FfxSwapchain</i></c>.\n\n @retval\n FFX_OK                              The operation completed successfully.\n @retval\n FFX_ERROR_INVALID_ARGUMENT          Could not query the interface for the frame interpolation swap chain.\n\n @ingroup VKFrameInterpolation"]
-    #[link_name = "\u{1}ffxGetFrameinterpolationCommandlistVK"]
-    pub fn GetFrameinterpolationCommandlistVK(
-        gameSwapChain: Swapchain,
-        gameCommandlist: *mut CommandList,
-    ) -> ErrorCode;
-}
-unsafe extern "C" {
-    #[doc = " Fetches a <c><i>FfxResource</i></c>  representing the backbuffer from the <c><i>FfxSwapchain</i></c>.\n\n @param [in] gameSwapChain           The <c><i>FfxSwapchain</i></c> to get a <c><i>FfxResource</i></c> backbuffer from.\n\n @returns\n An abstract FidelityFX resources for the swapchain backbuffer.\n\n @ingroup VKFrameInterpolation"]
-    #[link_name = "\u{1}ffxGetFrameinterpolationTextureVK"]
-    pub fn GetFrameinterpolationTextureVK(gameSwapChain: Swapchain) -> Resource;
-}
-unsafe extern "C" {
-    #[doc = " Sets a <c><i>FfxFrameGenerationConfig</i></c> to the internal FrameInterpolationSwapChain (in the backend).\n\n @param [in] config                  The <c><i>FfxFrameGenerationConfig</i></c> to set.\n\n @retval\n FFX_OK                              The operation completed successfully.\n @retval\n FFX_ERROR_INVALID_ARGUMENT          Could not query the interface for the frame interpolation swap chain.\n\n @ingroup VKFrameInterpolation"]
-    #[link_name = "\u{1}ffxSetFrameGenerationConfigToSwapchainVK"]
-    pub fn SetFrameGenerationConfigToSwapchainVK(config: *const FrameGenerationConfig)
-    -> ErrorCode;
-}
 #[repr(i32)]
 #[non_exhaustive]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum FrameInterpolationSwapchainConfigureKey {
     WAITCALLBACK = 0,
     FRAMEPACINGTUNING = 2,
-}
-unsafe extern "C" {
-    #[doc = " Configures <c><i>FfxSwapchain</i></c> via KeyValue API post <c><i>FfxSwapchain</i></c> context creation\n\n @param [in] gameSwapChain           The <c><i>FfxSwapchain</i></c> to configure via KeyValue API\n @param [in] key                     The <c><i>FfxFrameInterpolationSwapchainConfigureKey</i></c> is key\n @param [in] valuePtr                The <c><i><void *></i></c> pointer to value. What this pointer deference to depends on key.\n\n @retval\n FFX_OK                              The operation completed successfully.\n @retval\n FFX_ERROR_INVALID_ARGUMENT          Could not query the interface for the frame interpolation swap chain.\n\n @ingroup VKFrameInterpolation"]
-    #[link_name = "\u{1}ffxConfigureFrameInterpolationSwapchainVK"]
-    pub fn ConfigureFrameInterpolationSwapchainVK(
-        gameSwapChain: Swapchain,
-        key: FrameInterpolationSwapchainConfigureKey,
-        valuePtr: *mut ::std::os::raw::c_void,
-    ) -> ErrorCode;
-}
-unsafe extern "C" {
-    #[doc = " Query how much GPU memory created by <c><i>FfxSwapchain</i></c>. This excludes GPU memory created by the VkSwapchain (ie. size of backbuffers).\n\n @param [in] gameSwapChain           The <c><i>FfxSwapchain</i></c> to configure via KeyValue API\n @param [in out] vramUsage           The <c><i>FfxEffectMemoryUsage</i></c> is the GPU memory created by FrameInterpolationSwapchain\n\n @retval\n FFX_OK                              The operation completed successfully.\n @retval\n FFX_ERROR_INVALID_ARGUMENT          Could not query the interface for the frame interpolation swap chain.\n\n @ingroup VKFrameInterpolation"]
-    #[link_name = "\u{1}ffxFrameInterpolationSwapchainGetGpuMemoryUsageVK"]
-    pub fn FrameInterpolationSwapchainGetGpuMemoryUsageVK(
-        gameSwapChain: Swapchain,
-        vramUsage: *mut EffectMemoryUsage,
-    ) -> ErrorCode;
 }
 pub type PFN_vkCreateSwapchainFFX = ::std::option::Option<
     unsafe extern "C" fn(
@@ -248,10 +109,304 @@ impl Default for SwapchainReplacementFunctions {
         }
     }
 }
-unsafe extern "C" {
-    #[link_name = "\u{1}ffxGetSwapchainReplacementFunctionsVK"]
-    pub fn GetSwapchainReplacementFunctionsVK(
+pub struct Functions {
+    __library: ::libloading::Library,
+    pub GetScratchMemorySizeVK:
+        unsafe extern "C" fn(physicalDevice: VkPhysicalDevice, maxContexts: usize) -> usize,
+    pub GetDeviceVK: unsafe extern "C" fn(vkDeviceContext: *mut VkDeviceContext) -> Device,
+    pub GetInterfaceVK: unsafe extern "C" fn(
+        backendInterface: *mut Interface,
+        device: Device,
+        scratchBuffer: *mut ::std::os::raw::c_void,
+        scratchBufferSize: usize,
+        maxContexts: usize,
+    ) -> ErrorCode,
+    pub GetCommandListVK: unsafe extern "C" fn(cmdBuf: VkCommandBuffer) -> CommandList,
+    pub GetPipelineVK: unsafe extern "C" fn(pipeline: VkPipeline) -> Pipeline,
+    pub GetResourceVK: unsafe extern "C" fn(
+        vkResource: *mut ::std::os::raw::c_void,
+        ffxResDescription: ResourceDescription,
+        ffxResName: *const u16,
+        state: ResourceStates,
+    ) -> Resource,
+    pub GetSurfaceFormatVK: unsafe extern "C" fn(format: VkFormat) -> SurfaceFormat,
+    pub GetBufferResourceDescriptionVK: unsafe extern "C" fn(
+        buffer: VkBuffer,
+        createInfo: VkBufferCreateInfo,
+        additionalUsages: ResourceUsage,
+    ) -> ResourceDescription,
+    pub GetImageResourceDescriptionVK: unsafe extern "C" fn(
+        image: VkImage,
+        createInfo: VkImageCreateInfo,
+        additionalUsages: ResourceUsage,
+    ) -> ResourceDescription,
+    pub GetCommandQueueVK: unsafe extern "C" fn(commandQueue: VkQueue) -> CommandQueue,
+    pub GetSwapchainVK: unsafe extern "C" fn(swapchain: VkSwapchainKHR) -> Swapchain,
+    pub GetVKSwapchain: unsafe extern "C" fn(ffxSwapchain: Swapchain) -> VkSwapchainKHR,
+    pub ReplaceSwapchainForFrameinterpolationVK: unsafe extern "C" fn(
+        gameQueue: CommandQueue,
+        gameSwapChain: *mut Swapchain,
+        swapchainCreateInfo: *const VkSwapchainCreateInfoKHR,
+        frameInterpolationInfo: *const VkFrameInterpolationInfoFFX,
+    ) -> ErrorCode,
+    pub WaitForPresents: unsafe extern "C" fn(gameSwapChain: Swapchain) -> ErrorCode,
+    pub RegisterFrameinterpolationUiResourceVK: unsafe extern "C" fn(
+        gameSwapChain: Swapchain,
+        uiResource: Resource,
+        flags: u32,
+    ) -> ErrorCode,
+    pub GetFrameinterpolationCommandlistVK: unsafe extern "C" fn(
+        gameSwapChain: Swapchain,
+        gameCommandlist: *mut CommandList,
+    ) -> ErrorCode,
+    pub GetFrameinterpolationTextureVK: unsafe extern "C" fn(gameSwapChain: Swapchain) -> Resource,
+    pub SetFrameGenerationConfigToSwapchainVK:
+        unsafe extern "C" fn(config: *const FrameGenerationConfig) -> ErrorCode,
+    pub ConfigureFrameInterpolationSwapchainVK: unsafe extern "C" fn(
+        gameSwapChain: Swapchain,
+        key: FrameInterpolationSwapchainConfigureKey,
+        valuePtr: *mut ::std::os::raw::c_void,
+    ) -> ErrorCode,
+    pub FrameInterpolationSwapchainGetGpuMemoryUsageVK: unsafe extern "C" fn(
+        gameSwapChain: Swapchain,
+        vramUsage: *mut EffectMemoryUsage,
+    ) -> ErrorCode,
+    pub GetSwapchainReplacementFunctionsVK: unsafe extern "C" fn(
         device: Device,
         functions: *mut SwapchainReplacementFunctions,
-    ) -> ErrorCode;
+    ) -> ErrorCode,
+}
+impl Functions {
+    pub unsafe fn new<P>(path: P) -> Result<Self, ::libloading::Error>
+    where
+        P: AsRef<::std::ffi::OsStr>,
+    {
+        let library = ::libloading::Library::new(path)?;
+        Self::from_library(library)
+    }
+    pub unsafe fn from_library<L>(library: L) -> Result<Self, ::libloading::Error>
+    where
+        L: Into<::libloading::Library>,
+    {
+        let __library = library.into();
+        let GetScratchMemorySizeVK = __library
+            .get(b"ffxGetScratchMemorySizeVK\0")
+            .map(|sym| *sym)?;
+        let GetDeviceVK = __library.get(b"ffxGetDeviceVK\0").map(|sym| *sym)?;
+        let GetInterfaceVK = __library.get(b"ffxGetInterfaceVK\0").map(|sym| *sym)?;
+        let GetCommandListVK = __library.get(b"ffxGetCommandListVK\0").map(|sym| *sym)?;
+        let GetPipelineVK = __library.get(b"ffxGetPipelineVK\0").map(|sym| *sym)?;
+        let GetResourceVK = __library.get(b"ffxGetResourceVK\0").map(|sym| *sym)?;
+        let GetSurfaceFormatVK = __library.get(b"ffxGetSurfaceFormatVK\0").map(|sym| *sym)?;
+        let GetBufferResourceDescriptionVK = __library
+            .get(b"ffxGetBufferResourceDescriptionVK\0")
+            .map(|sym| *sym)?;
+        let GetImageResourceDescriptionVK = __library
+            .get(b"ffxGetImageResourceDescriptionVK\0")
+            .map(|sym| *sym)?;
+        let GetCommandQueueVK = __library.get(b"ffxGetCommandQueueVK\0").map(|sym| *sym)?;
+        let GetSwapchainVK = __library.get(b"ffxGetSwapchainVK\0").map(|sym| *sym)?;
+        let GetVKSwapchain = __library.get(b"ffxGetVKSwapchain\0").map(|sym| *sym)?;
+        let ReplaceSwapchainForFrameinterpolationVK = __library
+            .get(b"ffxReplaceSwapchainForFrameinterpolationVK\0")
+            .map(|sym| *sym)?;
+        let WaitForPresents = __library.get(b"ffxWaitForPresents\0").map(|sym| *sym)?;
+        let RegisterFrameinterpolationUiResourceVK = __library
+            .get(b"ffxRegisterFrameinterpolationUiResourceVK\0")
+            .map(|sym| *sym)?;
+        let GetFrameinterpolationCommandlistVK = __library
+            .get(b"ffxGetFrameinterpolationCommandlistVK\0")
+            .map(|sym| *sym)?;
+        let GetFrameinterpolationTextureVK = __library
+            .get(b"ffxGetFrameinterpolationTextureVK\0")
+            .map(|sym| *sym)?;
+        let SetFrameGenerationConfigToSwapchainVK = __library
+            .get(b"ffxSetFrameGenerationConfigToSwapchainVK\0")
+            .map(|sym| *sym)?;
+        let ConfigureFrameInterpolationSwapchainVK = __library
+            .get(b"ffxConfigureFrameInterpolationSwapchainVK\0")
+            .map(|sym| *sym)?;
+        let FrameInterpolationSwapchainGetGpuMemoryUsageVK = __library
+            .get(b"ffxFrameInterpolationSwapchainGetGpuMemoryUsageVK\0")
+            .map(|sym| *sym)?;
+        let GetSwapchainReplacementFunctionsVK = __library
+            .get(b"ffxGetSwapchainReplacementFunctionsVK\0")
+            .map(|sym| *sym)?;
+        Ok(Functions {
+            __library,
+            GetScratchMemorySizeVK,
+            GetDeviceVK,
+            GetInterfaceVK,
+            GetCommandListVK,
+            GetPipelineVK,
+            GetResourceVK,
+            GetSurfaceFormatVK,
+            GetBufferResourceDescriptionVK,
+            GetImageResourceDescriptionVK,
+            GetCommandQueueVK,
+            GetSwapchainVK,
+            GetVKSwapchain,
+            ReplaceSwapchainForFrameinterpolationVK,
+            WaitForPresents,
+            RegisterFrameinterpolationUiResourceVK,
+            GetFrameinterpolationCommandlistVK,
+            GetFrameinterpolationTextureVK,
+            SetFrameGenerationConfigToSwapchainVK,
+            ConfigureFrameInterpolationSwapchainVK,
+            FrameInterpolationSwapchainGetGpuMemoryUsageVK,
+            GetSwapchainReplacementFunctionsVK,
+        })
+    }
+    #[doc = " Query how much memory is required for the Vulkan backend's scratch buffer.\n\n @param [in] physicalDevice              A pointer to the VkPhysicalDevice device.\n @param [in] maxContexts                 The maximum number of simultaneous effect contexts that will share the backend.\n                                         (Note that some effects contain internal contexts which count towards this maximum)\n\n @returns\n The size (in bytes) of the required scratch memory buffer for the VK backend.\n\n @ingroup VKBackend"]
+    pub unsafe fn GetScratchMemorySizeVK(
+        &self,
+        physicalDevice: VkPhysicalDevice,
+        maxContexts: usize,
+    ) -> usize {
+        (self.GetScratchMemorySizeVK)(physicalDevice, maxContexts)
+    }
+    #[doc = " Create a <c><i>FfxDevice</i></c> from a <c><i>VkDevice</i></c>.\n\n @param [in] vkDeviceContext             A pointer to a VKDeviceContext that holds all needed information\n\n @returns\n An abstract FidelityFX device.\n\n @ingroup VKBackend"]
+    pub unsafe fn GetDeviceVK(&self, vkDeviceContext: *mut VkDeviceContext) -> Device {
+        (self.GetDeviceVK)(vkDeviceContext)
+    }
+    #[doc = " Populate an interface with pointers for the VK backend.\n\n @param [out] backendInterface           A pointer to a <c><i>FfxInterface</i></c> structure to populate with pointers.\n @param [in] device                      A pointer to the VkDevice device.\n @param [in] scratchBuffer               A pointer to a buffer of memory which can be used by the DirectX(R)12 backend.\n @param [in] scratchBufferSize           The size (in bytes) of the buffer pointed to by <c><i>scratchBuffer</i></c>.\n @param [in] maxContexts                 The maximum number of simultaneous effect contexts that will share the backend.\n                                         (Note that some effects contain internal contexts which count towards this maximum)\n\n @retval\n FFX_OK                                  The operation completed successfully.\n @retval\n FFX_ERROR_CODE_INVALID_POINTER          The <c><i>interface</i></c> pointer was <c><i>NULL</i></c>.\n\n @ingroup VKBackend"]
+    pub unsafe fn GetInterfaceVK(
+        &self,
+        backendInterface: *mut Interface,
+        device: Device,
+        scratchBuffer: *mut ::std::os::raw::c_void,
+        scratchBufferSize: usize,
+        maxContexts: usize,
+    ) -> ErrorCode {
+        (self.GetInterfaceVK)(
+            backendInterface,
+            device,
+            scratchBuffer,
+            scratchBufferSize,
+            maxContexts,
+        )
+    }
+    #[doc = " Create a <c><i>FfxCommandList</i></c> from a <c><i>VkCommandBuffer</i></c>.\n\n @param [in] cmdBuf                      A pointer to the Vulkan command buffer.\n\n @returns\n An abstract FidelityFX command list.\n\n @ingroup VKBackend"]
+    pub unsafe fn GetCommandListVK(&self, cmdBuf: VkCommandBuffer) -> CommandList {
+        (self.GetCommandListVK)(cmdBuf)
+    }
+    #[doc = " Create a <c><i>FfxPipeline</i></c> from a <c><i>VkPipeline</i></c>.\n\n @param [in] pipeline                    A pointer to the Vulkan pipeline.\n\n @returns\n An abstract FidelityFX pipeline.\n\n @ingroup VKBackend"]
+    pub unsafe fn GetPipelineVK(&self, pipeline: VkPipeline) -> Pipeline {
+        (self.GetPipelineVK)(pipeline)
+    }
+    #[doc = " Fetch a <c><i>FfxResource</i></c> from a <c><i>GPUResource</i></c>.\n\n @param [in] vkResource                  A pointer to the (agnostic) VK resource.\n @param [in] ffxResDescription           An <c><i>FfxResourceDescription</i></c> for the resource representation.\n @param [in] ffxResName                  (optional) A name string to identify the resource in debug mode.\n @param [in] state                       The state the resource is currently in.\n\n @returns\n An abstract FidelityFX resources.\n\n @ingroup VKBackend"]
+    pub unsafe fn GetResourceVK(
+        &self,
+        vkResource: *mut ::std::os::raw::c_void,
+        ffxResDescription: ResourceDescription,
+        ffxResName: *const u16,
+        state: ResourceStates,
+    ) -> Resource {
+        (self.GetResourceVK)(vkResource, ffxResDescription, ffxResName, state)
+    }
+    #[doc = " Fetch a <c><i>FfxSurfaceFormat</i></c> from a VkFormat.\n\n @param [in] format              The VkFormat to convert to <c><i>FfxSurfaceFormat</i></c>.\n\n @returns\n An <c><i>FfxSurfaceFormat</i></c>.\n\n @ingroup VKBackend"]
+    pub unsafe fn GetSurfaceFormatVK(&self, format: VkFormat) -> SurfaceFormat {
+        (self.GetSurfaceFormatVK)(format)
+    }
+    #[doc = " Fetch a <c><i>FfxResourceDescription</i></c> from an existing VkBuffer.\n\n @param [in] buffer              The VkBuffer resource to create a <c><i>FfxResourceDescription</i></c> for.\n @param [in] createInfo          The VkBufferCreateInfo of the buffer\n @param [in] additionalUsages    Optional <c><i>FfxResourceUsage</i></c> flags needed for select resource mapping.\n\n @returns\n An <c><i>FfxResourceDescription</i></c>.\n\n @ingroup VKBackend"]
+    pub unsafe fn GetBufferResourceDescriptionVK(
+        &self,
+        buffer: VkBuffer,
+        createInfo: VkBufferCreateInfo,
+        additionalUsages: ResourceUsage,
+    ) -> ResourceDescription {
+        (self.GetBufferResourceDescriptionVK)(buffer, createInfo, additionalUsages)
+    }
+    #[doc = " Fetch a <c><i>FfxResourceDescription</i></c> from an existing VkImage.\n\n @param [in] image               The VkImage resource to create a <c><i>FfxResourceDescription</i></c> for.\n @param [in] createInfo          The VkImageCreateInfo of the buffer\n @param [in] additionalUsages    Optional <c><i>FfxResourceUsage</i></c> flags needed for select resource mapping.\n\n @returns\n An <c><i>FfxResourceDescription</i></c>.\n\n @ingroup VKBackend"]
+    pub unsafe fn GetImageResourceDescriptionVK(
+        &self,
+        image: VkImage,
+        createInfo: VkImageCreateInfo,
+        additionalUsages: ResourceUsage,
+    ) -> ResourceDescription {
+        (self.GetImageResourceDescriptionVK)(image, createInfo, additionalUsages)
+    }
+    #[doc = " Fetch a <c><i>FfxCommandQueue</i></c> from an existing VkQueue.\n\n @param [in] commandQueue       The VkQueue to create a <c><i>FfxCommandQueue</i></c> from.\n\n @returns\n An <c><i>FfxCommandQueue</i></c>.\n\n @ingroup VKBackend"]
+    pub unsafe fn GetCommandQueueVK(&self, commandQueue: VkQueue) -> CommandQueue {
+        (self.GetCommandQueueVK)(commandQueue)
+    }
+    #[doc = " Fetch a <c><i>FfxSwapchain</i></c> from an existing VkSwapchainKHR.\n\n @param [in] pSwapchain          The VkSwapchainKHR to create a <c><i>FfxSwapchain</i></c> from.\n\n @returns\n An <c><i>FfxSwapchain</i></c>.\n\n @ingroup VKBackend"]
+    pub unsafe fn GetSwapchainVK(&self, swapchain: VkSwapchainKHR) -> Swapchain {
+        (self.GetSwapchainVK)(swapchain)
+    }
+    #[doc = " Fetch a VkSwapchainKHR from an existing <c><i>FfxSwapchain</i></c>.\n\n @param [in] ffxSwapchain          The <c><i>FfxSwapchain</i></c> to fetch an VkSwapchainKHR from.\n\n @returns\n An VkSwapchainKHR object.\n\n @ingroup VKBackend"]
+    pub unsafe fn GetVKSwapchain(&self, ffxSwapchain: Swapchain) -> VkSwapchainKHR {
+        (self.GetVKSwapchain)(ffxSwapchain)
+    }
+    #[doc = " Replaces the current swapchain with the provided <c><i>FfxSwapchain</i></c>.\n\n @param [in]     gameQueue               The <c><i>FfxCommandQueue</i></c> presentation will occur on.\n @param [in,out] gameSwapChain           The current <c><i>FfxSwapchain</i></c> to replace, optional. If not NULL, the swapchain will be destroyed. On return, it will hold the <c><i>FfxSwapchain</i></c> to use for frame interpolation presentation.\n @param [in]     swapchainCreateInfo     The <c><i>VkSwapchainCreateInfoKHR</i></c> of the current swapchain. Its oldSwapchain member should be VK_NULL_HANDLE or the same as gameSwapChain.\n @param [in]     frameInterpolationInfo  The <c><i>VkFrameInterpolationInfoFFX</i></c> containing additional information for swapchain replacement.\n\n @retval\n FFX_OK                              The operation completed successfully.\n @retval\n FFX_ERROR_INVALID_ARGUMENT          One of the parameters is invalid. If the returned <c><i>gameSwapChain</i></c> is NULL, the old swapchain has been destroyed.\n @retval\n FFX_ERROR_BACKEND_API_ERROR         Internal generic error. If the returned <c><i>gameSwapChain</i></c> is NULL, the old swapchain has been destroyed.\n\n @ingroup VKFrameInterpolation"]
+    pub unsafe fn ReplaceSwapchainForFrameinterpolationVK(
+        &self,
+        gameQueue: CommandQueue,
+        gameSwapChain: *mut Swapchain,
+        swapchainCreateInfo: *const VkSwapchainCreateInfoKHR,
+        frameInterpolationInfo: *const VkFrameInterpolationInfoFFX,
+    ) -> ErrorCode {
+        (self.ReplaceSwapchainForFrameinterpolationVK)(
+            gameQueue,
+            gameSwapChain,
+            swapchainCreateInfo,
+            frameInterpolationInfo,
+        )
+    }
+    #[doc = " Waits for the <c><i>FfxSwapchain</i></c> to complete presentation.\n\n @param [in] gameSwapChain           The <c><i>FfxSwapchain</i></c> to wait on.\n\n @retval\n FFX_OK                              The operation completed successfully.\n @retval\n FFX_ERROR_INVALID_ARGUMENT          Could not query the interface for the frame interpolation swap chain.\n\n @ingroup VKFrameInterpolation"]
+    pub unsafe fn WaitForPresents(&self, gameSwapChain: Swapchain) -> ErrorCode {
+        (self.WaitForPresents)(gameSwapChain)
+    }
+    #[doc = " Registers a <c><i>FfxResource</i></c> to use for UI with the provided <c><i>FfxSwapchain</i></c>.\n\n @param [in] gameSwapChain           The <c><i>FfxSwapchain</i></c> to to register the UI resource with.\n @param [in] uiResource              The <c><i>FfxResource</i></c> representing the UI resource.\n @param [in] flags                   A set of <c><i>FfxUiCompositionFlags</i></c>.\n\n @retval\n FFX_OK                              The operation completed successfully.\n @retval\n FFX_ERROR_INVALID_ARGUMENT          Could not query the interface for the frame interpolation swap chain.\n\n @ingroup VKFrameInterpolation"]
+    pub unsafe fn RegisterFrameinterpolationUiResourceVK(
+        &self,
+        gameSwapChain: Swapchain,
+        uiResource: Resource,
+        flags: u32,
+    ) -> ErrorCode {
+        (self.RegisterFrameinterpolationUiResourceVK)(gameSwapChain, uiResource, flags)
+    }
+    #[doc = " Fetches a <c><i>FfxCommandList</i></c> from the <c><i>FfxSwapchain</i></c>.\n\n @param [in] gameSwapChain           The <c><i>FfxSwapchain</i></c> to get a <c><i>FfxCommandList</i></c> from.\n @param [out] gameCommandlist        The <c><i>FfxCommandList</i></c> from the provided <c><i>FfxSwapchain</i></c>.\n\n @retval\n FFX_OK                              The operation completed successfully.\n @retval\n FFX_ERROR_INVALID_ARGUMENT          Could not query the interface for the frame interpolation swap chain.\n\n @ingroup VKFrameInterpolation"]
+    pub unsafe fn GetFrameinterpolationCommandlistVK(
+        &self,
+        gameSwapChain: Swapchain,
+        gameCommandlist: *mut CommandList,
+    ) -> ErrorCode {
+        (self.GetFrameinterpolationCommandlistVK)(gameSwapChain, gameCommandlist)
+    }
+    #[doc = " Fetches a <c><i>FfxResource</i></c>  representing the backbuffer from the <c><i>FfxSwapchain</i></c>.\n\n @param [in] gameSwapChain           The <c><i>FfxSwapchain</i></c> to get a <c><i>FfxResource</i></c> backbuffer from.\n\n @returns\n An abstract FidelityFX resources for the swapchain backbuffer.\n\n @ingroup VKFrameInterpolation"]
+    pub unsafe fn GetFrameinterpolationTextureVK(&self, gameSwapChain: Swapchain) -> Resource {
+        (self.GetFrameinterpolationTextureVK)(gameSwapChain)
+    }
+    #[doc = " Sets a <c><i>FfxFrameGenerationConfig</i></c> to the internal FrameInterpolationSwapChain (in the backend).\n\n @param [in] config                  The <c><i>FfxFrameGenerationConfig</i></c> to set.\n\n @retval\n FFX_OK                              The operation completed successfully.\n @retval\n FFX_ERROR_INVALID_ARGUMENT          Could not query the interface for the frame interpolation swap chain.\n\n @ingroup VKFrameInterpolation"]
+    pub unsafe fn SetFrameGenerationConfigToSwapchainVK(
+        &self,
+        config: *const FrameGenerationConfig,
+    ) -> ErrorCode {
+        (self.SetFrameGenerationConfigToSwapchainVK)(config)
+    }
+    #[doc = " Configures <c><i>FfxSwapchain</i></c> via KeyValue API post <c><i>FfxSwapchain</i></c> context creation\n\n @param [in] gameSwapChain           The <c><i>FfxSwapchain</i></c> to configure via KeyValue API\n @param [in] key                     The <c><i>FfxFrameInterpolationSwapchainConfigureKey</i></c> is key\n @param [in] valuePtr                The <c><i><void *></i></c> pointer to value. What this pointer deference to depends on key.\n\n @retval\n FFX_OK                              The operation completed successfully.\n @retval\n FFX_ERROR_INVALID_ARGUMENT          Could not query the interface for the frame interpolation swap chain.\n\n @ingroup VKFrameInterpolation"]
+    pub unsafe fn ConfigureFrameInterpolationSwapchainVK(
+        &self,
+        gameSwapChain: Swapchain,
+        key: FrameInterpolationSwapchainConfigureKey,
+        valuePtr: *mut ::std::os::raw::c_void,
+    ) -> ErrorCode {
+        (self.ConfigureFrameInterpolationSwapchainVK)(gameSwapChain, key, valuePtr)
+    }
+    #[doc = " Query how much GPU memory created by <c><i>FfxSwapchain</i></c>. This excludes GPU memory created by the VkSwapchain (ie. size of backbuffers).\n\n @param [in] gameSwapChain           The <c><i>FfxSwapchain</i></c> to configure via KeyValue API\n @param [in out] vramUsage           The <c><i>FfxEffectMemoryUsage</i></c> is the GPU memory created by FrameInterpolationSwapchain\n\n @retval\n FFX_OK                              The operation completed successfully.\n @retval\n FFX_ERROR_INVALID_ARGUMENT          Could not query the interface for the frame interpolation swap chain.\n\n @ingroup VKFrameInterpolation"]
+    pub unsafe fn FrameInterpolationSwapchainGetGpuMemoryUsageVK(
+        &self,
+        gameSwapChain: Swapchain,
+        vramUsage: *mut EffectMemoryUsage,
+    ) -> ErrorCode {
+        (self.FrameInterpolationSwapchainGetGpuMemoryUsageVK)(gameSwapChain, vramUsage)
+    }
+    pub unsafe fn GetSwapchainReplacementFunctionsVK(
+        &self,
+        device: Device,
+        functions: *mut SwapchainReplacementFunctions,
+    ) -> ErrorCode {
+        (self.GetSwapchainReplacementFunctionsVK)(device, functions)
+    }
 }

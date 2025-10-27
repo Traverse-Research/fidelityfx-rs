@@ -1585,16 +1585,6 @@ impl ErrorCodes {
 #[doc = " Error codes and their meaning\n\n @ingroup Errors"]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub struct ErrorCodes(pub ::std::os::raw::c_int);
-unsafe extern "C" {
-    #[doc = " Provides the ability to set a callback for print messages.\n\n @param [in] callback                The callback function that will receive assert messages.\n\n @ingroup Messages"]
-    #[link_name = "\u{1}ffxSetPrintMessageCallback"]
-    pub fn SetPrintMessageCallback(callback: MessageCallback, debugLevel: u32);
-}
-unsafe extern "C" {
-    #[doc = " Function to print a message.\n\n @param [in] type                    See FfxMsgType\n @param [in] message                 The message to print.\n\n @ingroup Messages"]
-    #[link_name = "\u{1}ffxPrintMessage"]
-    pub fn PrintMessage(type_: u32, message: *const u16);
-}
 #[doc = " Stand in type for FfxPass\n\n These will be defined for each effect individually (i.e. FfxFsr2Pass).\n They are used to fetch the proper blob index to build effect shaders\n\n @ingroup FfxInterface"]
 pub type Pass = u32;
 #[doc = " Get the SDK version of the backend context.\n\n @param [in]  backendInterface                    A pointer to the backend interface.\n\n @returns\n The SDK version a backend was built with.\n\n @ingroup FfxInterface"]
@@ -1961,6 +1951,8 @@ pub struct Functions {
         msg: *const ::std::os::raw::c_char,
     ) -> bool,
     pub AssertSetPrintingCallback: unsafe extern "C" fn(callback: AssertCallback),
+    pub SetPrintMessageCallback: unsafe extern "C" fn(callback: MessageCallback, debugLevel: u32),
+    pub PrintMessage: unsafe extern "C" fn(type_: u32, message: *const u16),
 }
 impl Functions {
     pub unsafe fn new<P>(path: P) -> Result<Self, ::libloading::Error>
@@ -1982,11 +1974,17 @@ impl Functions {
         let AssertSetPrintingCallback = __library
             .get(b"ffxAssertSetPrintingCallback\0")
             .map(|sym| *sym)?;
+        let SetPrintMessageCallback = __library
+            .get(b"ffxSetPrintMessageCallback\0")
+            .map(|sym| *sym)?;
+        let PrintMessage = __library.get(b"ffxPrintMessage\0").map(|sym| *sym)?;
         Ok(Functions {
             __library,
             s_ViewDescInit,
             AssertReport,
             AssertSetPrintingCallback,
+            SetPrintMessageCallback,
+            PrintMessage,
         })
     }
     pub unsafe fn s_ViewDescInit(&self) -> *mut ViewDescription {
@@ -2005,5 +2003,13 @@ impl Functions {
     #[doc = " Provides the ability to set a callback for assert messages.\n\n @param [in] callback                The callback function that will receive assert messages.\n\n @ingroup Asserts"]
     pub unsafe fn AssertSetPrintingCallback(&self, callback: AssertCallback) {
         (self.AssertSetPrintingCallback)(callback)
+    }
+    #[doc = " Provides the ability to set a callback for print messages.\n\n @param [in] callback                The callback function that will receive assert messages.\n\n @ingroup Messages"]
+    pub unsafe fn SetPrintMessageCallback(&self, callback: MessageCallback, debugLevel: u32) {
+        (self.SetPrintMessageCallback)(callback, debugLevel)
+    }
+    #[doc = " Function to print a message.\n\n @param [in] type                    See FfxMsgType\n @param [in] message                 The message to print.\n\n @ingroup Messages"]
+    pub unsafe fn PrintMessage(&self, type_: u32, message: *const u16) {
+        (self.PrintMessage)(type_, message)
     }
 }
