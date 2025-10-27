@@ -63,10 +63,17 @@ impl bindgen::callbacks::ParseCallbacks for Renamer {
                 "FfxBindStage" => "FFX_BIND".to_owned(), // TODO: Also strip _SHADER_STAGE suffix?
                 "FfxMsgType" => "FFX_MESSAGE_TYPE".to_owned(),
                 "FfxErrorCodes" => "FFX".to_owned(),
+                "FfxIndexFormat" => "FFX".to_owned(),
+                "FfxFsr3UpscalerConfigureKey" => {
+                    "FFX_FSR3UPSCALER_CONFIGURE_UPSCALE_KEY".to_owned()
+                }
+                "FfxFsr3UpscalingFlags" => "FFX_FSR3_UPSCALER_FLAG".to_owned(),
                 e => {
                     // Fix broken CamelCase -> SNAKE_CASE conventions in FFX headers:
                     if let Some(e) = e.strip_prefix("FfxFsr3Upscaler") {
                         format!("FFX_FSR3UPSCALER_{}", AsShoutySnekCase(e))
+                    } else if let Some(e) = e.strip_prefix("FfxFrameInterpolationSwapchain") {
+                        format!("FFX_FI_SWAPCHAIN_{}", AsShoutySnekCase(e))
                     } else if let Some(e) = e.strip_prefix("FfxFrameInterpolation") {
                         format!("FFX_FRAMEINTERPOLATION_{}", AsShoutySnekCase(e))
                     } else {
@@ -148,6 +155,8 @@ fn generate_bindings(api_dir: &Path) {
         .bitfield_enum("FfxResourceUsage")
         .bitfield_enum("FfxResourceStates")
         .bitfield_enum("FfxResourceFlags")
+        .bitfield_enum("FfxUiCompositionFlags")
+        .bitfield_enum("FfxBindStage")
         .newtype_enum("FfxMsgType")
         // Hand-written to debug-print ErrorCode with defined ErrorCodes
         .blocklist_type("FfxErrorCode")
@@ -175,7 +184,9 @@ fn generate_component_bindings(component: &str, api_dir: &Path) {
         .bitfield_enum("FfxFsr2InitializationFlagBits")
         .bitfield_enum("FfxFsr3InitializationFlagBits")
         .bitfield_enum("FfxFsr3UpscalerInitializationFlagBits")
+        .bitfield_enum("FfxFsr3UpscalerDispatchFlags")
         .bitfield_enum("FfxFsr3FrameGenerationFlags")
+        .bitfield_enum("FfxFsr3UpscalingFlags")
         .generate()
         .expect("Unable to generate bindings");
 

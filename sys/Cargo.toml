@@ -1,6 +1,6 @@
 [package]
 name = "fidelityfx-sys"
-version = "0.1.0+fsr3-v3.0.3"
+version = "0.1.0+v1.1.4"
 authors = ["Traverse Research <support@traverseresearch.nl>"]
 edition = "2021"
 license = "MIT"
