@@ -4,8 +4,10 @@ use heck::{AsShoutySnekCase, ToShoutySnekCase};
 
 fn main() {
     let sdk_dir = Path::new("sys/FidelityFX-SDK/sdk/");
+    let api_dir = Path::new("sys/FidelityFX-SDK/ffx-api/");
 
-    generate_sdk_bindings(sdk_dir)
+    generate_sdk_bindings(sdk_dir);
+    generate_api_bindings(api_dir);
 }
 
 fn generate_sdk_bindings(sdk_dir: &Path) {
@@ -73,6 +75,8 @@ impl bindgen::callbacks::ParseCallbacks for Renamer {
                     "FFX_FSR3UPSCALER_CONFIGURE_UPSCALE_KEY".to_owned()
                 }
                 "FfxFsr3UpscalingFlags" => "FFX_FSR3_UPSCALER_FLAG".to_owned(),
+                "FfxApiReturnCodes" => "FFX_API_RETURN".to_owned(),
+                "FfxApiMsgType" => "FFX_API_MESSAGE_TYPE".to_owned(),
                 e => {
                     // Fix broken CamelCase -> SNAKE_CASE conventions in FFX headers:
                     if let Some(e) = e.strip_prefix("FfxFsr3Upscaler") {
@@ -147,12 +151,13 @@ fn bindgen(root_dir: &Path) -> bindgen::Builder {
     bindings
 }
 
+// ---------- SDK ----------
+
 fn generate_bindings(sdk_dir: &Path) {
     let wrapper = sdk_dir.join("include/FidelityFX/host/ffx_interface.h");
 
     let bindings = bindgen(sdk_dir)
         .header(wrapper.to_string_lossy())
-        // Unlike all other bindings
         .allowlist_function("ffx\\w+")
         .allowlist_type("[fF]fx\\w+")
         .allowlist_var("s_Ffx\\w+")
@@ -229,5 +234,31 @@ fn generate_dx12_bindings(sdk_dir: &Path) {
     let out_path = Path::new("sys/src/sdk");
     bindings
         .write_to_file(out_path.join("dx12_bindings.rs"))
+        .expect("Couldn't write bindings!");
+}
+
+// ---------- API ----------
+
+fn generate_api_bindings(api_dir: &Path) {
+    generate_loader_bindings(api_dir);
+}
+
+fn generate_loader_bindings(api_dir: &Path) {
+    let wrapper = api_dir.join("include/ffx_api/ffx_api.h");
+
+    let bindings = bindgen(api_dir)
+        .header(wrapper.to_string_lossy())
+        .allowlist_function("ffx\\w+")
+        .allowlist_type("[fF]fx\\w+")
+        // Intentionally skip unused PfnFfx* functions which are only used by the internal
+        // ffxFunctions loader; a Rust version of the libloading code that we already generate:
+        // .allowlist_type("PfnFfx\\w+")
+        .allowlist_var("FFX\\w+")
+        .generate()
+        .expect("Unable to generate bindings");
+
+    let out_path = Path::new("sys/src/api");
+    bindings
+        .write_to_file(out_path.join("bindings.rs"))
         .expect("Couldn't write bindings!");
 }
