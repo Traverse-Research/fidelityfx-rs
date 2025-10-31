@@ -47,7 +47,7 @@ jobs:
         uses: actions/upload-artifact@v5
         with:
           name: crate-source
-          path: sys/src/*bindings.rs
+          path: sys/src/**/*bindings.rs
       - name: Diff generated Rust code
         shell: bash
         run: |
