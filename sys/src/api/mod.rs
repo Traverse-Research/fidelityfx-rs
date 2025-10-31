@@ -6,3 +6,9 @@
 )]
 
 include!("bindings.rs");
+
+pub mod upscale {
+    use super::*;
+
+    include!("upscale_bindings.rs");
+}
