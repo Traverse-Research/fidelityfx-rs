@@ -161,6 +161,316 @@ impl Default for AllocationCallbacks {
         }
     }
 }
+#[repr(i32)]
+#[non_exhaustive]
+#[doc = " An enumeration of surface formats. Needs to match enum FfxSurfaceFormat"]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub enum ApiSurfaceFormat {
+    #[doc = "< Unknown format"]
+    UNKNOWN = 0,
+    #[doc = "< 32 bit per channel, 4 channel typeless format"]
+    R32G32B32A32_TYPELESS = 1,
+    #[doc = "< 32 bit per channel, 4 channel uint format"]
+    R32G32B32A32_UINT = 2,
+    #[doc = "< 32 bit per channel, 4 channel float format"]
+    R32G32B32A32_FLOAT = 3,
+    #[doc = "< 16 bit per channel, 4 channel float format"]
+    R16G16B16A16_FLOAT = 4,
+    #[doc = "< 32 bit per channel, 3 channel float format"]
+    R32G32B32_FLOAT = 5,
+    #[doc = "< 32 bit per channel, 2 channel float format"]
+    R32G32_FLOAT = 6,
+    #[doc = "< 8 bit per channel, 1 channel float format"]
+    R8_UINT = 7,
+    #[doc = "< 32 bit per channel, 1 channel float format"]
+    R32_UINT = 8,
+    #[doc = "<  8 bit per channel, 4 channel typeless format"]
+    R8G8B8A8_TYPELESS = 9,
+    #[doc = "<  8 bit per channel, 4 channel unsigned normalized format"]
+    R8G8B8A8_UNORM = 10,
+    #[doc = "<  8 bit per channel, 4 channel signed normalized format"]
+    R8G8B8A8_SNORM = 11,
+    #[doc = "<  8 bit per channel, 4 channel srgb normalized"]
+    R8G8B8A8_SRGB = 12,
+    #[doc = "<  8 bit per channel, 4 channel typeless format"]
+    B8G8R8A8_TYPELESS = 13,
+    #[doc = "<  8 bit per channel, 4 channel unsigned normalized format"]
+    B8G8R8A8_UNORM = 14,
+    #[doc = "<  8 bit per channel, 4 channel srgb normalized"]
+    B8G8R8A8_SRGB = 15,
+    #[doc = "< 32 bit 3 channel float format"]
+    R11G11B10_FLOAT = 16,
+    #[doc = "< 10 bit per 3 channel, 2 bit for 1 channel normalized format"]
+    R10G10B10A2_UNORM = 17,
+    #[doc = "< 16 bit per channel, 2 channel float format"]
+    R16G16_FLOAT = 18,
+    #[doc = "< 16 bit per channel, 2 channel unsigned int format"]
+    R16G16_UINT = 19,
+    #[doc = "< 16 bit per channel, 2 channel signed int format"]
+    R16G16_SINT = 20,
+    #[doc = "< 16 bit per channel, 1 channel float format"]
+    R16_FLOAT = 21,
+    #[doc = "< 16 bit per channel, 1 channel unsigned int format"]
+    R16_UINT = 22,
+    #[doc = "< 16 bit per channel, 1 channel unsigned normalized format"]
+    R16_UNORM = 23,
+    #[doc = "< 16 bit per channel, 1 channel signed normalized format"]
+    R16_SNORM = 24,
+    #[doc = "<  8 bit per channel, 1 channel unsigned normalized format"]
+    R8_UNORM = 25,
+    #[doc = "<  8 bit per channel, 2 channel unsigned normalized format"]
+    R8G8_UNORM = 26,
+    #[doc = "<  8 bit per channel, 2 channel unsigned integer format"]
+    R8G8_UINT = 27,
+    #[doc = "< 32 bit per channel, 1 channel float format"]
+    R32_FLOAT = 28,
+    #[doc = "<  9 bit per channel, 5 bit exponent format"]
+    R9G9B9E5_SHAREDEXP = 29,
+    #[doc = "< 16 bit per channel, 4 channel typeless format"]
+    R16G16B16A16_TYPELESS = 30,
+    #[doc = "< 32 bit per channel, 2 channel typeless format"]
+    R32G32_TYPELESS = 31,
+    #[doc = "< 10 bit per 3 channel, 2 bit for 1 channel typeless format"]
+    R10G10B10A2_TYPELESS = 32,
+    #[doc = "< 16 bit per channel, 2 channel typless format"]
+    R16G16_TYPELESS = 33,
+    #[doc = "< 16 bit per channel, 1 channel typeless format"]
+    R16_TYPELESS = 34,
+    #[doc = "<  8 bit per channel, 1 channel typeless format"]
+    R8_TYPELESS = 35,
+    #[doc = "<  8 bit per channel, 2 channel typeless format"]
+    R8G8_TYPELESS = 36,
+    #[doc = "< 32 bit per channel, 1 channel typeless format"]
+    R32_TYPELESS = 37,
+}
+#[repr(i32)]
+#[non_exhaustive]
+#[doc = " An enumeration of resource usage."]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub enum ApiResourceUsage {
+    #[doc = "< No usage flags indicate a resource is read only."]
+    READ_ONLY = 0,
+    #[doc = "< Indicates a resource will be used as render target."]
+    RENDERTARGET = 1,
+    #[doc = "< Indicates a resource will be used as UAV."]
+    UAV = 2,
+    #[doc = "< Indicates a resource will be used as depth target."]
+    DEPTHTARGET = 4,
+    #[doc = "< Indicates a resource will be used as indirect argument buffer"]
+    INDIRECT = 8,
+    #[doc = "< Indicates a resource that will generate array views. Works on 2D and cubemap textures"]
+    ARRAYVIEW = 16,
+    #[doc = "< Indicates a resource will be used as stencil target."]
+    STENCILTARGET = 32,
+}
+#[repr(i32)]
+#[non_exhaustive]
+#[doc = " An enumeration of resource states."]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub enum ApiResourceState {
+    COMMON = 1,
+    #[doc = "< Indicates a resource is in the state to be used as UAV."]
+    UNORDERED_ACCESS = 2,
+    #[doc = "< Indicates a resource is in the state to be read by compute shaders."]
+    COMPUTE_READ = 4,
+    #[doc = "< Indicates a resource is in the state to be read by pixel shaders."]
+    PIXEL_READ = 8,
+    #[doc = "< Indicates a resource is in the state to be read by pixel or compute shaders."]
+    PIXEL_COMPUTE_READ = 12,
+    #[doc = "< Indicates a resource is in the state to be used as source in a copy command."]
+    COPY_SRC = 16,
+    #[doc = "< Indicates a resource is in the state to be used as destination in a copy command."]
+    COPY_DEST = 32,
+    #[doc = "< Indicates a resource is in generic (slow) read state."]
+    GENERIC_READ = 20,
+    #[doc = "< Indicates a resource is in the state to be used as an indirect command argument"]
+    INDIRECT_ARGUMENT = 64,
+    #[doc = "< Indicates a resource is in the state to be used to present to the swap chain"]
+    PRESENT = 128,
+    #[doc = "< Indicates a resource is in the state to be used as render target"]
+    RENDER_TARGET = 256,
+}
+#[repr(i32)]
+#[non_exhaustive]
+#[doc = " An enumeration of surface dimensions."]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub enum ApiResourceDimension {
+    #[doc = "< A resource with a single dimension."]
+    TEXTURE_1D = 0,
+    #[doc = "< A resource with two dimensions."]
+    TEXTURE_2D = 1,
+}
+#[repr(i32)]
+#[non_exhaustive]
+#[doc = " An enumeration of resource flags."]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub enum ApiResourceFlags {
+    #[doc = "< No flags."]
+    NONE = 0,
+    #[doc = "< A bit indicating a resource does not need to persist across frames."]
+    ALIASABLE = 1,
+    #[doc = "< Special case flag used internally when importing resources that require additional setup"]
+    UNDEFINED = 2,
+}
+#[repr(i32)]
+#[non_exhaustive]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub enum ApiResourceType {
+    #[doc = "< The resource is a buffer."]
+    BUFFER = 0,
+    #[doc = "< The resource is a 1-dimensional texture."]
+    TEXTURE1D = 1,
+    #[doc = "< The resource is a 2-dimensional texture."]
+    TEXTURE2D = 2,
+    #[doc = "< The resource is a cube map."]
+    TEXTURE_CUBE = 3,
+    #[doc = "< The resource is a 3-dimensional texture."]
+    TEXTURE3D = 4,
+}
+#[repr(i32)]
+#[non_exhaustive]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub enum ApiBackbufferTransferFunction {
+    SRGB = 0,
+    PQ = 1,
+    SCRGB = 2,
+}
+#[doc = " A structure encapsulating a 2-dimensional point, using 32bit unsigned integers."]
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone)]
+pub struct ApiDimensions2D {
+    #[doc = "< The width of a 2-dimensional range."]
+    pub width: u32,
+    #[doc = "< The height of a 2-dimensional range."]
+    pub height: u32,
+}
+#[doc = " A structure encapsulating a 2-dimensional set of floating point coordinates."]
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone)]
+pub struct ApiFloatCoords2D {
+    #[doc = "< The x coordinate of a 2-dimensional point."]
+    pub x: f32,
+    #[doc = "< The y coordinate of a 2-dimensional point."]
+    pub y: f32,
+}
+#[doc = " A structure encapsulating a 2-dimensional rect."]
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone)]
+pub struct ApiRect2D {
+    pub left: i32,
+    pub top: i32,
+    pub width: i32,
+    pub height: i32,
+}
+#[doc = " A structure describing a resource.\n\n @ingroup SDKTypes"]
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub struct ApiResourceDescription {
+    #[doc = "< The type of the resource."]
+    pub type_: u32,
+    #[doc = "< The surface format."]
+    pub format: u32,
+    pub __bindgen_anon_1: ApiResourceDescription__bindgen_ty_1,
+    pub __bindgen_anon_2: ApiResourceDescription__bindgen_ty_2,
+    pub __bindgen_anon_3: ApiResourceDescription__bindgen_ty_3,
+    #[doc = "< Number of mips (or 0 for full mipchain)."]
+    pub mipCount: u32,
+    #[doc = "< A set of resource flags."]
+    pub flags: u32,
+    #[doc = "< Resource usage flags."]
+    pub usage: u32,
+}
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub union ApiResourceDescription__bindgen_ty_1 {
+    #[doc = "< The width of the texture resource."]
+    pub width: u32,
+    #[doc = "< The size of the buffer resource."]
+    pub size: u32,
+}
+impl Default for ApiResourceDescription__bindgen_ty_1 {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub union ApiResourceDescription__bindgen_ty_2 {
+    #[doc = "< The height of the texture resource."]
+    pub height: u32,
+    #[doc = "< The stride of the buffer resource."]
+    pub stride: u32,
+}
+impl Default for ApiResourceDescription__bindgen_ty_2 {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub union ApiResourceDescription__bindgen_ty_3 {
+    #[doc = "< The depth of the texture resource."]
+    pub depth: u32,
+    #[doc = "< The alignment of the buffer resource."]
+    pub alignment: u32,
+}
+impl Default for ApiResourceDescription__bindgen_ty_3 {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+impl Default for ApiResourceDescription {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub struct ApiResource {
+    pub resource: *mut ::std::os::raw::c_void,
+    pub description: ApiResourceDescription,
+    pub state: u32,
+}
+impl Default for ApiResource {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone)]
+pub struct ApiEffectMemoryUsage {
+    pub totalUsageInBytes: u64,
+    pub aliasableUsageInBytes: u64,
+}
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone)]
+pub struct ApiSwapchainFramePacingTuning {
+    pub safetyMarginInMs: f32,
+    pub varianceFactor: f32,
+    pub allowHybridSpin: bool,
+    pub hybridSpinTime: u32,
+    pub allowWaitForSingleObjectOnFence: bool,
+}
 pub struct Functions {
     __library: ::libloading::Library,
     pub CreateContext: unsafe extern "C" fn(
