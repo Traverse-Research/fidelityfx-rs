@@ -14,3 +14,9 @@ pub use return_code::ReturnCode;
 type ReturnCode_t = ReturnCode;
 
 include!("bindings.rs");
+
+pub mod upscale {
+    use super::*;
+
+    include!("upscale_bindings.rs");
+}
