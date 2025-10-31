@@ -3,7 +3,7 @@
 use core::fmt;
 use std::error; // Becomes core in 1.81
 
-use crate::ErrorCodes;
+use super::ErrorCodes;
 
 /// Wrapper around `FfxErrorCode` that delegates formatting to the defined names by [`FfxErrorCodes`][ErrorCodes].
 #[repr(transparent)]
