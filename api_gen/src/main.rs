@@ -83,6 +83,11 @@ impl bindgen::callbacks::ParseCallbacks for Renamer {
                 "FfxApiDispatchUpscaleAutoreactiveFlags" => {
                     "FFX_UPSCALE_AUTOREACTIVEFLAGS".to_owned()
                 }
+                "FfxApiCreateContextFramegenerationFlags" => {
+                    "FFX_FRAMEGENERATION_ENABLE".to_owned()
+                }
+                "FfxApiDispatchFramegenerationFlags" => "FFX_FRAMEGENERATION_FLAG".to_owned(),
+                "FfxApiUiCompositionFlags" => "FFX_FRAMEGENERATION_UI_COMPOSITION_FLAG".to_owned(),
                 e => {
                     // Fix broken CamelCase -> SNAKE_CASE conventions in FFX headers:
                     if let Some(e) = e.strip_prefix("FfxFsr3Upscaler") {
@@ -248,6 +253,7 @@ fn generate_dx12_bindings(sdk_dir: &Path) {
 fn generate_api_bindings(api_dir: &Path) {
     generate_api_root_bindings(api_dir);
     generate_upscale_bindings(api_dir);
+    generate_framegeneration_bindings(api_dir);
 }
 
 fn generate_api_root_bindings(api_dir: &Path) {
@@ -287,5 +293,25 @@ fn generate_upscale_bindings(api_dir: &Path) {
     let out_path = Path::new("sys/src/api");
     bindings
         .write_to_file(out_path.join("upscale_bindings.rs"))
+        .expect("Couldn't write bindings!");
+}
+
+fn generate_framegeneration_bindings(api_dir: &Path) {
+    let wrapper = api_dir.join("include/ffx_api/ffx_framegeneration.h");
+
+    let bindings = bindgen(api_dir)
+        .header(wrapper.to_string_lossy())
+        .allowlist_type("[Ff]fx\\w+FrameGeneration\\w*")
+        .allowlist_type("FfxApiPresentCallbackFunc")
+        .allowlist_var("FFX_\\w+FRAMEGENERATION\\w*")
+        .bitfield_enum("FfxApiCreateContextFramegenerationFlags")
+        .bitfield_enum("FfxApiDispatchFramegenerationFlags")
+        .bitfield_enum("FfxApiUiCompositionFlags")
+        .generate()
+        .expect("Unable to generate bindings");
+
+    let out_path = Path::new("sys/src/api");
+    bindings
+        .write_to_file(out_path.join("framegeneration_bindings.rs"))
         .expect("Couldn't write bindings!");
 }

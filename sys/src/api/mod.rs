@@ -12,3 +12,9 @@ pub mod upscale {
 
     include!("upscale_bindings.rs");
 }
+
+pub mod framegeneration {
+    use super::*;
+
+    include!("framegeneration_bindings.rs");
+}
