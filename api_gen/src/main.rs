@@ -240,14 +240,15 @@ fn generate_dx12_bindings(sdk_dir: &Path) {
 // ---------- API ----------
 
 fn generate_api_bindings(api_dir: &Path) {
-    generate_loader_bindings(api_dir);
+    generate_api_root_bindings(api_dir);
 }
 
-fn generate_loader_bindings(api_dir: &Path) {
+fn generate_api_root_bindings(api_dir: &Path) {
     let wrapper = api_dir.join("include/ffx_api/ffx_api.h");
+    let types = api_dir.join("include/ffx_api/ffx_api_types.h");
 
     let bindings = bindgen(api_dir)
-        .header(wrapper.to_string_lossy())
+        .headers([wrapper.to_string_lossy(), types.to_string_lossy()])
         .allowlist_function("ffx\\w+")
         .allowlist_type("[fF]fx\\w+")
         // Intentionally skip unused PfnFfx* functions which are only used by the internal
