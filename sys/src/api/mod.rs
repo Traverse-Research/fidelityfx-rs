@@ -9,4 +9,8 @@
     clippy::missing_safety_doc
 )]
 
+mod return_code;
+pub use return_code::ReturnCode;
+type ReturnCode_t = ReturnCode;
+
 include!("bindings.rs");

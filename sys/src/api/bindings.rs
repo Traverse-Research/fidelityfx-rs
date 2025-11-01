@@ -10,27 +10,26 @@ pub const API_CONFIGURE_DESC_TYPE_GLOBALDEBUG1: u32 = 1;
 pub const API_QUERY_DESC_TYPE_GET_VERSIONS: u32 = 4;
 pub const API_DESC_TYPE_OVERRIDE_VERSION: u32 = 5;
 pub const API_QUERY_DESC_TYPE_GET_PROVIDER_VERSION: u32 = 6;
-#[repr(i32)]
-#[non_exhaustive]
-#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
-pub enum ApiReturnCodes {
+impl ApiReturnCodes {
     #[doc = "< The oparation was successful."]
-    OK = 0,
+    pub const OK: ApiReturnCodes = ApiReturnCodes(0);
     #[doc = "< An error occurred that is not further specified."]
-    ERROR = 1,
+    pub const ERROR: ApiReturnCodes = ApiReturnCodes(1);
     #[doc = "< The structure type given was not recognized for the function or context with which it was used. This is likely a programming error."]
-    ERROR_UNKNOWN_DESCTYPE = 2,
+    pub const ERROR_UNKNOWN_DESCTYPE: ApiReturnCodes = ApiReturnCodes(2);
     #[doc = "< The underlying runtime (e.g. D3D12, Vulkan) or effect returned an error code."]
-    ERROR_RUNTIME_ERROR = 3,
+    pub const ERROR_RUNTIME_ERROR: ApiReturnCodes = ApiReturnCodes(3);
     #[doc = "< No provider was found for the given structure type. This is likely a programming error."]
-    NO_PROVIDER = 4,
+    pub const NO_PROVIDER: ApiReturnCodes = ApiReturnCodes(4);
     #[doc = "< A memory allocation failed."]
-    ERROR_MEMORY = 5,
+    pub const ERROR_MEMORY: ApiReturnCodes = ApiReturnCodes(5);
     #[doc = "< A parameter was invalid, e.g. a null pointer, empty resource or out-of-bounds enum value."]
-    ERROR_PARAMETER = 6,
+    pub const ERROR_PARAMETER: ApiReturnCodes = ApiReturnCodes(6);
 }
+#[repr(transparent)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub struct ApiReturnCodes(pub ::std::os::raw::c_int);
 pub type Context = *mut ::std::os::raw::c_void;
-pub type ReturnCode_t = u32;
 pub type StructType_t = u64;
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]

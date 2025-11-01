@@ -255,6 +255,9 @@ fn generate_api_root_bindings(api_dir: &Path) {
         // ffxFunctions loader; a Rust version of the libloading code that we already generate:
         // .allowlist_type("PfnFfx\\w+")
         .allowlist_var("FFX\\w+")
+        // Hand-written to debug-print ErrorCode with defined ErrorCodes
+        .blocklist_type("ffxReturnCode_t")
+        .newtype_enum("FfxApiReturnCodes")
         .generate()
         .expect("Unable to generate bindings");
 
