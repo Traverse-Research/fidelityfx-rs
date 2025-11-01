@@ -40,17 +40,17 @@ jobs:
         # Manually update submodules with --checkout because they are configured with update=none and will be skipped otherwise
         run: git submodule update --recursive --init --force --checkout
       - name: Clean
-        run: rm sys/src/*bindings.rs
+        run: rm sys/src/**/*bindings.rs
       - name: Generate
         run: cargo r -p api_gen
       - name: Upload crate source
         uses: actions/upload-artifact@v5
         with:
           name: crate-source
-          path: sys/src/*bindings.rs
+          path: sys/src/**/*bindings.rs
       - name: Diff generated Rust code
         shell: bash
         run: |
           # Somehow bindgen seems to output LF on Windows, and that confuses our status checks which expect CRLF
-          unix2dos sys/src/*bindings.rs
+          unix2dos sys/src/**/*bindings.rs
           test -z "$(git status --porcelain)" || (echo "::error::Generated files are different, please regenerate with 'cargo r -p api_gen'!"; git diff; false)

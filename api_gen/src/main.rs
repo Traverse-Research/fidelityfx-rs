@@ -4,6 +4,11 @@ use heck::{AsShoutySnekCase, ToShoutySnekCase};
 
 fn main() {
     let sdk_dir = Path::new("sys/FidelityFX-SDK/sdk/");
+
+    generate_sdk_bindings(sdk_dir)
+}
+
+fn generate_sdk_bindings(sdk_dir: &Path) {
     let vk_include_dir = Path::new("sys/Vulkan-Headers/include");
 
     const COMPONENTS: &[&str] = &[
@@ -116,13 +121,13 @@ impl bindgen::callbacks::ParseCallbacks for Renamer {
     }
 }
 
-fn bindgen(api_dir: &Path) -> bindgen::Builder {
+fn bindgen(root_dir: &Path) -> bindgen::Builder {
     let mut bindings = bindgen::Builder::default()
         .layout_tests(false)
         .derive_default(true)
         .prepend_enum_name(false) // Not the default, but changes nothing
         .clang_arg("-xc++")
-        .clang_arg(format!("-I{}/include", api_dir.display()))
+        .clang_arg(format!("-I{}/include", root_dir.display()))
         .trust_clang_mangling(false)
         .default_non_copy_union_style(bindgen::NonCopyUnionStyle::ManuallyDrop)
         .allowlist_recursively(false)
@@ -142,10 +147,10 @@ fn bindgen(api_dir: &Path) -> bindgen::Builder {
     bindings
 }
 
-fn generate_bindings(api_dir: &Path) {
-    let wrapper = api_dir.join("include/FidelityFX/host/ffx_interface.h");
+fn generate_bindings(sdk_dir: &Path) {
+    let wrapper = sdk_dir.join("include/FidelityFX/host/ffx_interface.h");
 
-    let bindings = bindgen(api_dir)
+    let bindings = bindgen(sdk_dir)
         .header(wrapper.to_string_lossy())
         // Unlike all other bindings
         .allowlist_function("ffx\\w+")
@@ -164,16 +169,16 @@ fn generate_bindings(api_dir: &Path) {
         .generate()
         .expect("Unable to generate bindings");
 
-    let out_path = Path::new("sys/src");
+    let out_path = Path::new("sys/src/sdk");
     bindings
         .write_to_file(out_path.join("bindings.rs"))
         .expect("Couldn't write bindings!");
 }
 
-fn generate_component_bindings(component: &str, api_dir: &Path) {
-    let wrapper = api_dir.join(format!("include/FidelityFX/host/ffx_{component}.h"));
+fn generate_component_bindings(component: &str, sdk_dir: &Path) {
+    let wrapper = sdk_dir.join(format!("include/FidelityFX/host/ffx_{component}.h"));
 
-    let bindings = bindgen(api_dir)
+    let bindings = bindgen(sdk_dir)
         .header(wrapper.to_string_lossy())
         .allowlist_file(wrapper.to_string_lossy())
         // These are specific per component, but it's harmless to pass them to other bindgen instances
@@ -190,38 +195,38 @@ fn generate_component_bindings(component: &str, api_dir: &Path) {
         .generate()
         .expect("Unable to generate bindings");
 
-    let out_path = Path::new("sys/src");
+    let out_path = Path::new("sys/src/sdk");
     bindings
         .write_to_file(out_path.join(format!("{component}_bindings.rs")))
         .expect("Couldn't write bindings!");
 }
 
-fn generate_vk_bindings(api_dir: &Path, vk_include_dir: &Path) {
-    let wrapper = api_dir.join("include/FidelityFX/host/backends/vk/ffx_vk.h");
+fn generate_vk_bindings(sdk_dir: &Path, vk_include_dir: &Path) {
+    let wrapper = sdk_dir.join("include/FidelityFX/host/backends/vk/ffx_vk.h");
 
-    let bindings = bindgen(api_dir)
+    let bindings = bindgen(sdk_dir)
         .clang_arg(format!("-I{}", vk_include_dir.display()))
         .header(wrapper.to_string_lossy())
         .allowlist_file(wrapper.to_string_lossy())
         .generate()
         .expect("Unable to generate bindings");
 
-    let out_path = Path::new("sys/src");
+    let out_path = Path::new("sys/src/sdk");
     bindings
         .write_to_file(out_path.join("vk_bindings.rs"))
         .expect("Couldn't write bindings!");
 }
 
-fn generate_dx12_bindings(api_dir: &Path) {
-    let wrapper = api_dir.join("include/FidelityFX/host/backends/dx12/ffx_dx12.h");
+fn generate_dx12_bindings(sdk_dir: &Path) {
+    let wrapper = sdk_dir.join("include/FidelityFX/host/backends/dx12/ffx_dx12.h");
 
-    let bindings = bindgen(api_dir)
+    let bindings = bindgen(sdk_dir)
         .header(wrapper.to_string_lossy())
         .allowlist_file(wrapper.to_string_lossy())
         .generate()
         .expect("Unable to generate bindings");
 
-    let out_path = Path::new("sys/src");
+    let out_path = Path::new("sys/src/sdk");
     bindings
         .write_to_file(out_path.join("dx12_bindings.rs"))
         .expect("Couldn't write bindings!");
