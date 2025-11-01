@@ -1,3 +1,7 @@
+//! Bindings to the legacy SDK interfaces, generated from <https://github.com/GPUOpen-LibrariesAndSDKs/FidelityFX-SDK/tree/v1.1.4/sdk>.
+//!
+//! See <https://github.com/GPUOpen-LibrariesAndSDKs/FidelityFX-SDK/blob/v1.1.4/docs/getting-started/migrating-to-fsr-3-1.md> to migrate away from these old bindings to the newer [`super::api`] abstraction.
+
 #![allow(
     non_upper_case_globals,
     non_camel_case_types,
