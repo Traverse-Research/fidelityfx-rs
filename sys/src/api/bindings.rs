@@ -6,10 +6,10 @@ pub const API_CONFIGURE_GLOBALDEBUG_LEVEL_SILENCE: u32 = 0;
 pub const API_CONFIGURE_GLOBALDEBUG_LEVEL_ERRORS: u32 = 1;
 pub const API_CONFIGURE_GLOBALDEBUG_LEVEL_WARNINGS: u32 = 2;
 pub const API_CONFIGURE_GLOBALDEBUG_LEVEL_VERBOSE: u32 = 268435455;
-pub const API_CONFIGURE_DESC_TYPE_GLOBALDEBUG1: u32 = 1;
-pub const API_QUERY_DESC_TYPE_GET_VERSIONS: u32 = 4;
-pub const API_DESC_TYPE_OVERRIDE_VERSION: u32 = 5;
-pub const API_QUERY_DESC_TYPE_GET_PROVIDER_VERSION: u32 = 6;
+pub const API_CONFIGURE_DESC_TYPE_GLOBALDEBUG1: StructType_t = 1;
+pub const API_QUERY_DESC_TYPE_GET_VERSIONS: StructType_t = 4;
+pub const API_DESC_TYPE_OVERRIDE_VERSION: StructType_t = 5;
+pub const API_QUERY_DESC_TYPE_GET_PROVIDER_VERSION: StructType_t = 6;
 impl ApiReturnCodes {
     #[doc = "< The oparation was successful."]
     pub const OK: ApiReturnCodes = ApiReturnCodes(0);

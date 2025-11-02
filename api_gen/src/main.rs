@@ -123,6 +123,17 @@ impl bindgen::callbacks::ParseCallbacks for Renamer {
             None
         }
     }
+
+    fn int_macro(&self, name: &str, _value: i64) -> Option<bindgen::callbacks::IntKind> {
+        if name.contains("DESC_TYPE") {
+            Some(bindgen::callbacks::IntKind::Custom {
+                name: "StructType_t",
+                is_signed: false,
+            })
+        } else {
+            None
+        }
+    }
 }
 
 fn bindgen(root_dir: &Path) -> bindgen::Builder {
