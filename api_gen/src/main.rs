@@ -85,6 +85,12 @@ impl bindgen::callbacks::ParseCallbacks for Renamer {
                 "FfxFsr3UpscalingFlags" => "FFX_FSR3_UPSCALER_FLAG".to_owned(),
                 "FfxApiReturnCodes" => "FFX_API_RETURN".to_owned(),
                 "FfxApiMsgType" => "FFX_API_MESSAGE_TYPE".to_owned(),
+                "FfxApiUpscaleQualityMode" => "FFX_UPSCALE_QUALITY_MODE".to_owned(),
+                "FfxApiCreateContextUpscaleFlags" => "FFX_UPSCALE_ENABLE".to_owned(),
+                "FfxApiDispatchFsrUpscaleFlags" => "FFX_UPSCALE_FLAG".to_owned(),
+                "FfxApiDispatchUpscaleAutoreactiveFlags" => {
+                    "FFX_UPSCALE_AUTOREACTIVEFLAGS".to_owned()
+                }
                 e => {
                     // Fix broken CamelCase -> SNAKE_CASE conventions in FFX headers:
                     if let Some(e) = e.strip_prefix("FfxFsr3Upscaler") {
@@ -144,7 +150,7 @@ impl bindgen::callbacks::ParseCallbacks for Renamer {
     }
 }
 
-fn bindgen(root_dir: &Path) -> bindgen::Builder {
+fn bindgen_no_dynamic_library(root_dir: &Path) -> bindgen::Builder {
     let mut bindings = bindgen::Builder::default()
         .layout_tests(false)
         .derive_default(true)
@@ -154,8 +160,6 @@ fn bindgen(root_dir: &Path) -> bindgen::Builder {
         .trust_clang_mangling(false)
         .default_non_copy_union_style(bindgen::NonCopyUnionStyle::ManuallyDrop)
         .allowlist_recursively(false)
-        .dynamic_library_name("Functions")
-        .dynamic_link_require_all(true)
         .parse_callbacks(Box::new(Renamer))
         .default_enum_style(bindgen::EnumVariation::Rust {
             non_exhaustive: true,
@@ -168,6 +172,12 @@ fn bindgen(root_dir: &Path) -> bindgen::Builder {
     }
 
     bindings
+}
+
+fn bindgen(root_dir: &Path) -> bindgen::Builder {
+    bindgen_no_dynamic_library(root_dir)
+        .dynamic_library_name("Functions")
+        .dynamic_link_require_all(true)
 }
 
 // ---------- SDK ----------
@@ -260,6 +270,7 @@ fn generate_dx12_bindings(sdk_dir: &Path) {
 
 fn generate_api_bindings(api_dir: &Path) {
     generate_api_root_bindings(api_dir);
+    generate_upscale_bindings(api_dir);
 }
 
 fn generate_api_root_bindings(api_dir: &Path) {
@@ -283,5 +294,24 @@ fn generate_api_root_bindings(api_dir: &Path) {
     let out_path = Path::new("sys/src/api");
     bindings
         .write_to_file(out_path.join("bindings.rs"))
+        .expect("Couldn't write bindings!");
+}
+
+fn generate_upscale_bindings(api_dir: &Path) {
+    let wrapper = api_dir.join("include/ffx_api/ffx_upscale.h");
+
+    let bindings = bindgen_no_dynamic_library(api_dir)
+        .header(wrapper.to_string_lossy())
+        .allowlist_type("[Ff]fx\\w+Upscale\\w*")
+        .allowlist_var("FFX_\\w+UPSCALE\\w*")
+        .bitfield_enum("FfxApiCreateContextUpscaleFlags")
+        .bitfield_enum("FfxApiDispatchFsrUpscaleFlags")
+        .bitfield_enum("FfxApiDispatchUpscaleAutoreactiveFlags")
+        .generate()
+        .expect("Unable to generate bindings");
+
+    let out_path = Path::new("sys/src/api");
+    bindings
+        .write_to_file(out_path.join("upscale_bindings.rs"))
         .expect("Couldn't write bindings!");
 }
