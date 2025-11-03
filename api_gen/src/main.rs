@@ -26,15 +26,10 @@ impl bindgen::callbacks::ParseCallbacks for Renamer {
                 .name
                 .strip_prefix("ffxApi")
                 .or_else(|| item_info.name.strip_prefix("ffx")),
-            bindgen::callbacks::ItemKind::Var => {
-                if let Some(i) = item_info.name.strip_prefix("s_Ffx") {
-                    return Some(format!("s_{i}"));
-                }
-                item_info
-                    .name
-                    .strip_prefix("FFX_API_")
-                    .or_else(|| item_info.name.strip_prefix("FFX_"))
-            }
+            bindgen::callbacks::ItemKind::Var => item_info
+                .name
+                .strip_prefix("FFX_API_")
+                .or_else(|| item_info.name.strip_prefix("FFX_")),
             _ => None,
         }
         .map(str::to_owned)
@@ -113,8 +108,6 @@ fn bindgen() -> bindgen::Builder {
         .dynamic_library_name("Functions")
         .dynamic_link_require_all(true)
 }
-
-// ---------- API ----------
 
 fn generate_api_bindings(api_dir: &Path, vk_include_dir: &Path) {
     generate_api_root_bindings(api_dir);
