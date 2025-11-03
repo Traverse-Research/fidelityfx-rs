@@ -96,6 +96,12 @@ impl bindgen::callbacks::ParseCallbacks for Renamer {
                 }
                 "FfxApiDispatchFramegenerationFlags" => "FFX_FRAMEGENERATION_FLAG".to_owned(),
                 "FfxApiUiCompositionFlags" => "FFX_FRAMEGENERATION_UI_COMPOSITION_FLAG".to_owned(),
+                "FfxApiConfigureFrameGenerationSwapChainKeyVK" => {
+                    "FFX_API_CONFIGURE_FG_SWAPCHAIN_KEY".to_owned()
+                }
+                "FfxApiConfigureFrameGenerationSwapChainKeyDX12" => {
+                    "FFX_API_CONFIGURE_FG_SWAPCHAIN_KEY".to_owned()
+                }
                 e => {
                     // Fix broken CamelCase -> SNAKE_CASE conventions in FFX headers:
                     if let Some(e) = e.strip_prefix("FfxFsr3Upscaler") {
@@ -277,6 +283,8 @@ fn generate_api_bindings(api_dir: &Path) {
     generate_api_root_bindings(api_dir);
     generate_upscale_bindings(api_dir);
     generate_framegeneration_bindings(api_dir);
+    generate_vk_backend_bindings(api_dir);
+    generate_dx12_backend_bindings(api_dir);
 }
 
 fn generate_api_root_bindings(api_dir: &Path) {
@@ -339,5 +347,37 @@ fn generate_framegeneration_bindings(api_dir: &Path) {
     let out_path = Path::new("sys/src/api");
     bindings
         .write_to_file(out_path.join("framegeneration_bindings.rs"))
+        .expect("Couldn't write bindings!");
+}
+
+fn generate_vk_backend_bindings(api_dir: &Path) {
+    let vk_include_dir = Path::new("sys/Vulkan-Headers/include");
+    let wrapper = api_dir.join("include/ffx_api/vk/ffx_api_vk.h");
+
+    let bindings = bindgen(api_dir)
+        .clang_arg(format!("-I{}", vk_include_dir.display()))
+        .header(wrapper.to_string_lossy())
+        .allowlist_file(wrapper.to_string_lossy())
+        .generate()
+        .expect("Unable to generate bindings");
+
+    let out_path = Path::new("sys/src/api");
+    bindings
+        .write_to_file(out_path.join("vk_backend_bindings.rs"))
+        .expect("Couldn't write bindings!");
+}
+
+fn generate_dx12_backend_bindings(api_dir: &Path) {
+    let wrapper = api_dir.join("include/ffx_api/dx12/ffx_api_dx12.h");
+
+    let bindings = bindgen(api_dir)
+        .header(wrapper.to_string_lossy())
+        .allowlist_file(wrapper.to_string_lossy())
+        .generate()
+        .expect("Unable to generate bindings");
+
+    let out_path = Path::new("sys/src/api");
+    bindings
+        .write_to_file(out_path.join("dx12_backend_bindings.rs"))
         .expect("Couldn't write bindings!");
 }
