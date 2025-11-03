@@ -41,14 +41,22 @@ impl bindgen::callbacks::ParseCallbacks for Renamer {
             bindgen::callbacks::ItemKind::Module => None,
             bindgen::callbacks::ItemKind::Type => item_info
                 .name
-                .strip_prefix("Ffx")
+                .strip_prefix("FfxApi")
+                .or_else(|| item_info.name.strip_prefix("ffxApi"))
+                .or_else(|| item_info.name.strip_prefix("Ffx"))
                 .or_else(|| item_info.name.strip_prefix("ffx")),
-            bindgen::callbacks::ItemKind::Function => item_info.name.strip_prefix("ffx"),
+            bindgen::callbacks::ItemKind::Function => item_info
+                .name
+                .strip_prefix("ffxApi")
+                .or_else(|| item_info.name.strip_prefix("ffx")),
             bindgen::callbacks::ItemKind::Var => {
                 if let Some(i) = item_info.name.strip_prefix("s_Ffx") {
                     return Some(format!("s_{i}"));
                 }
-                item_info.name.strip_prefix("FFX_")
+                item_info
+                    .name
+                    .strip_prefix("FFX_API_")
+                    .or_else(|| item_info.name.strip_prefix("FFX_"))
             }
             _ => None,
         }
