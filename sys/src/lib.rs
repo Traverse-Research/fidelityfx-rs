@@ -1,2 +1,2 @@
-pub mod api;
-pub mod sdk;
+mod api;
+pub use api::*;

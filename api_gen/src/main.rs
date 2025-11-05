@@ -3,32 +3,10 @@ use std::path::Path;
 use heck::{AsShoutySnekCase, ToShoutySnekCase};
 
 fn main() {
-    let sdk_dir = Path::new("sys/FidelityFX-SDK/sdk/");
     let api_dir = Path::new("sys/FidelityFX-SDK/ffx-api/");
     let vk_include_dir = Path::new("sys/Vulkan-Headers/include");
 
-    generate_sdk_bindings(sdk_dir, vk_include_dir);
     generate_api_bindings(api_dir, vk_include_dir);
-}
-
-fn generate_sdk_bindings(sdk_dir: &Path, vk_include_dir: &Path) {
-    const COMPONENTS: &[&str] = &[
-        // fsr1 and fsr2 need to be enabled (though don't need to have bindings) to get access
-        // to fsr3 shaders (see hardcoded "shared" implementation in ffxGetPermutationBlobByIndex())
-        "fsr1",
-        "fsr2",
-        "fsr3",
-        "fsr3upscaler",
-        "opticalflow",
-        "frameinterpolation",
-    ];
-
-    generate_bindings(sdk_dir);
-    for component in COMPONENTS {
-        generate_component_bindings(component, sdk_dir);
-    }
-    generate_vk_bindings(sdk_dir, vk_include_dir);
-    generate_dx12_bindings(sdk_dir);
 }
 
 #[derive(Debug)]
@@ -74,14 +52,14 @@ impl bindgen::callbacks::ParseCallbacks for Renamer {
         if enum_name.starts_with("Ffx") {
             // Exceptions
             let common_prefix = match enum_name {
-                "FfxBindStage" => "FFX_BIND".to_owned(), // TODO: Also strip _SHADER_STAGE suffix?
-                "FfxMsgType" => "FFX_MESSAGE_TYPE".to_owned(),
-                "FfxErrorCodes" => "FFX".to_owned(),
-                "FfxIndexFormat" => "FFX".to_owned(),
-                "FfxFsr3UpscalerConfigureKey" => {
-                    "FFX_FSR3UPSCALER_CONFIGURE_UPSCALE_KEY".to_owned()
-                }
-                "FfxFsr3UpscalingFlags" => "FFX_FSR3_UPSCALER_FLAG".to_owned(),
+                // "FfxBindStage" => "FFX_BIND".to_owned(), // TODO: Also strip _SHADER_STAGE suffix?
+                // "FfxMsgType" => "FFX_MESSAGE_TYPE".to_owned(),
+                // "FfxErrorCodes" => "FFX".to_owned(),
+                // "FfxIndexFormat" => "FFX".to_owned(),
+                // "FfxFsr3UpscalerConfigureKey" => {
+                //     "FFX_FSR3UPSCALER_CONFIGURE_UPSCALE_KEY".to_owned()
+                // }
+                // "FfxFsr3UpscalingFlags" => "FFX_FSR3_UPSCALER_FLAG".to_owned(),
                 "FfxApiReturnCodes" => "FFX_API_RETURN".to_owned(),
                 "FfxApiMsgType" => "FFX_API_MESSAGE_TYPE".to_owned(),
                 "FfxApiUpscaleQualityMode" => "FFX_UPSCALE_QUALITY_MODE".to_owned(),
@@ -103,15 +81,15 @@ impl bindgen::callbacks::ParseCallbacks for Renamer {
                 }
                 e => {
                     // Fix broken CamelCase -> SNAKE_CASE conventions in FFX headers:
-                    if let Some(e) = e.strip_prefix("FfxFsr3Upscaler") {
-                        format!("FFX_FSR3UPSCALER_{}", AsShoutySnekCase(e))
-                    } else if let Some(e) = e.strip_prefix("FfxFrameInterpolationSwapchain") {
-                        format!("FFX_FI_SWAPCHAIN_{}", AsShoutySnekCase(e))
-                    } else if let Some(e) = e.strip_prefix("FfxFrameInterpolation") {
-                        format!("FFX_FRAMEINTERPOLATION_{}", AsShoutySnekCase(e))
-                    } else {
-                        e.TO_SHOUTY_SNEK_CASE()
-                    }
+                    // if let Some(e) = e.strip_prefix("FfxFsr3Upscaler") {
+                    //     format!("FFX_FSR3UPSCALER_{}", AsShoutySnekCase(e))
+                    // } else if let Some(e) = e.strip_prefix("FfxFrameInterpolationSwapchain") {
+                    //     format!("FFX_FI_SWAPCHAIN_{}", AsShoutySnekCase(e))
+                    // } else if let Some(e) = e.strip_prefix("FfxFrameInterpolation") {
+                    //     format!("FFX_FRAMEINTERPOLATION_{}", AsShoutySnekCase(e))
+                    // } else {
+                    e.TO_SHOUTY_SNEK_CASE()
+                    // }
                 }
             };
             let variant_name = original_variant_name
@@ -188,92 +166,6 @@ fn bindgen(root_dir: &Path) -> bindgen::Builder {
     bindgen_no_dynamic_library(root_dir)
         .dynamic_library_name("Functions")
         .dynamic_link_require_all(true)
-}
-
-// ---------- SDK ----------
-
-fn generate_bindings(sdk_dir: &Path) {
-    let wrapper = sdk_dir.join("include/FidelityFX/host/ffx_interface.h");
-
-    let bindings = bindgen(sdk_dir)
-        .header(wrapper.to_string_lossy())
-        .allowlist_function("ffx\\w+")
-        .allowlist_type("[fF]fx\\w+")
-        .allowlist_var("s_Ffx\\w+")
-        .allowlist_var("FFX\\w+")
-        .bitfield_enum("FfxResourceUsage")
-        .bitfield_enum("FfxResourceStates")
-        .bitfield_enum("FfxResourceFlags")
-        .bitfield_enum("FfxUiCompositionFlags")
-        .bitfield_enum("FfxBindStage")
-        .newtype_enum("FfxMsgType")
-        // Hand-written to debug-print ErrorCode with defined ErrorCodes
-        .blocklist_type("FfxErrorCode")
-        .newtype_enum("FfxErrorCodes")
-        .generate()
-        .expect("Unable to generate bindings");
-
-    let out_path = Path::new("sys/src/sdk");
-    bindings
-        .write_to_file(out_path.join("bindings.rs"))
-        .expect("Couldn't write bindings!");
-}
-
-fn generate_component_bindings(component: &str, sdk_dir: &Path) {
-    let wrapper = sdk_dir.join(format!("include/FidelityFX/host/ffx_{component}.h"));
-
-    let bindings = bindgen(sdk_dir)
-        .header(wrapper.to_string_lossy())
-        .allowlist_file(wrapper.to_string_lossy())
-        // These are specific per component, but it's harmless to pass them to other bindgen instances
-        .bitfield_enum("FfxOpticalflowInitializationFlagBits")
-        .bitfield_enum("FfxFrameInterpolationInitializationFlagBits")
-        .bitfield_enum("FfxFrameInterpolationDispatchFlags")
-        .bitfield_enum("FfxFsr1InitializationFlagBits")
-        .bitfield_enum("FfxFsr2InitializationFlagBits")
-        .bitfield_enum("FfxFsr3InitializationFlagBits")
-        .bitfield_enum("FfxFsr3UpscalerInitializationFlagBits")
-        .bitfield_enum("FfxFsr3UpscalerDispatchFlags")
-        .bitfield_enum("FfxFsr3FrameGenerationFlags")
-        .bitfield_enum("FfxFsr3UpscalingFlags")
-        .generate()
-        .expect("Unable to generate bindings");
-
-    let out_path = Path::new("sys/src/sdk");
-    bindings
-        .write_to_file(out_path.join(format!("{component}_bindings.rs")))
-        .expect("Couldn't write bindings!");
-}
-
-fn generate_vk_bindings(sdk_dir: &Path, vk_include_dir: &Path) {
-    let wrapper = sdk_dir.join("include/FidelityFX/host/backends/vk/ffx_vk.h");
-
-    let bindings = bindgen(sdk_dir)
-        .clang_arg(format!("-I{}", vk_include_dir.display()))
-        .header(wrapper.to_string_lossy())
-        .allowlist_file(wrapper.to_string_lossy())
-        .generate()
-        .expect("Unable to generate bindings");
-
-    let out_path = Path::new("sys/src/sdk");
-    bindings
-        .write_to_file(out_path.join("vk_bindings.rs"))
-        .expect("Couldn't write bindings!");
-}
-
-fn generate_dx12_bindings(sdk_dir: &Path) {
-    let wrapper = sdk_dir.join("include/FidelityFX/host/backends/dx12/ffx_dx12.h");
-
-    let bindings = bindgen(sdk_dir)
-        .header(wrapper.to_string_lossy())
-        .allowlist_file(wrapper.to_string_lossy())
-        .generate()
-        .expect("Unable to generate bindings");
-
-    let out_path = Path::new("sys/src/sdk");
-    bindings
-        .write_to_file(out_path.join("dx12_bindings.rs"))
-        .expect("Couldn't write bindings!");
 }
 
 // ---------- API ----------
