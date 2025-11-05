@@ -101,6 +101,8 @@ fn bindgen_no_dynamic_library() -> bindgen::Builder {
         .default_enum_style(bindgen::EnumVariation::Rust {
             non_exhaustive: true,
         })
+        .no_default("ffx(Configure|Query|Dispatch|Callback|CreateContext)Desc\\w+")
+        .no_default("ffxCreateBackend\\w+Desc")
 }
 
 fn bindgen() -> bindgen::Builder {
@@ -133,6 +135,9 @@ fn generate_api_root_bindings(api_dir: &Path) {
         .blocklist_type("ffxReturnCode_t")
         .newtype_enum("FfxApiReturnCodes")
         .newtype_enum("FfxApiMsgType")
+        .no_default("ffxApiHeader")
+        .no_default("ffxOverrideVersion")
+        .no_default("ffxQueryGetProviderVersion")
         .generate()
         .expect("Unable to generate bindings");
 
@@ -188,6 +193,7 @@ fn generate_vk_backend_bindings(api_dir: &Path, vk_include_dir: &Path) {
         .clang_arg(format!("-I{}", vk_include_dir.display()))
         .header(wrapper.to_string_lossy())
         .allowlist_file(wrapper.to_string_lossy())
+        .no_default("ffxQueryFrameGenerationSwapChainGetGPUMemoryUsageVK")
         .generate()
         .expect("Unable to generate bindings");
 
@@ -203,6 +209,7 @@ fn generate_dx12_backend_bindings(api_dir: &Path) {
     let bindings = bindgen_no_dynamic_library()
         .header(wrapper.to_string_lossy())
         .allowlist_file(wrapper.to_string_lossy())
+        .no_default("ffxQueryFrameGenerationSwapChainGetGPUMemoryUsageDX12")
         .generate()
         .expect("Unable to generate bindings");
 
