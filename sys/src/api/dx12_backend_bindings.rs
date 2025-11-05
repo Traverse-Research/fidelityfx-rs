@@ -193,22 +193,3 @@ impl Default for QueryFrameGenerationSwapChainGetGPUMemoryUsageDX12 {
         }
     }
 }
-pub struct Functions {
-    __library: ::libloading::Library,
-}
-impl Functions {
-    pub unsafe fn new<P>(path: P) -> Result<Self, ::libloading::Error>
-    where
-        P: AsRef<::std::ffi::OsStr>,
-    {
-        let library = ::libloading::Library::new(path)?;
-        Self::from_library(library)
-    }
-    pub unsafe fn from_library<L>(library: L) -> Result<Self, ::libloading::Error>
-    where
-        L: Into<::libloading::Library>,
-    {
-        let __library = library.into();
-        Ok(Functions { __library })
-    }
-}
