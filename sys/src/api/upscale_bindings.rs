@@ -163,15 +163,6 @@ pub struct CreateContextDescUpscale {
     #[doc = "< A pointer to a function that can receive messages from the runtime. May be null."]
     pub fpMessage: Message,
 }
-impl Default for CreateContextDescUpscale {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
 #[repr(C)]
 pub struct DispatchDescUpscale {
     pub header: DispatchDescHeader,
@@ -220,15 +211,6 @@ pub struct DispatchDescUpscale {
     #[doc = "< Zero or a combination of values from FfxApiDispatchFsrUpscaleFlags."]
     pub flags: u32,
 }
-impl Default for DispatchDescUpscale {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
 #[repr(C)]
 pub struct QueryDescUpscaleGetUpscaleRatioFromQualityMode {
     pub header: QueryDescHeader,
@@ -236,15 +218,6 @@ pub struct QueryDescUpscaleGetUpscaleRatioFromQualityMode {
     pub qualityMode: u32,
     #[doc = "< A pointer to a <c>float</c> which will hold the upscaling the per-dimension upscaling ratio."]
     pub pOutUpscaleRatio: *mut f32,
-}
-impl Default for QueryDescUpscaleGetUpscaleRatioFromQualityMode {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
 }
 #[repr(C)]
 pub struct QueryDescUpscaleGetRenderResolutionFromQualityMode {
@@ -260,15 +233,6 @@ pub struct QueryDescUpscaleGetRenderResolutionFromQualityMode {
     #[doc = "< A pointer to a <c>uint32_t</c> which will hold the calculated render resolution height."]
     pub pOutRenderHeight: *mut u32,
 }
-impl Default for QueryDescUpscaleGetRenderResolutionFromQualityMode {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
 #[repr(C)]
 pub struct QueryDescUpscaleGetJitterPhaseCount {
     pub header: QueryDescHeader,
@@ -278,15 +242,6 @@ pub struct QueryDescUpscaleGetJitterPhaseCount {
     pub displayWidth: u32,
     #[doc = "< A pointer to a <c>int32_t</c> which will hold the jitter phase count for the scaling factor between <c><i>renderWidth</i></c> and <c><i>displayWidth</i></c>."]
     pub pOutPhaseCount: *mut i32,
-}
-impl Default for QueryDescUpscaleGetJitterPhaseCount {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
 }
 #[repr(C)]
 pub struct QueryDescUpscaleGetJitterOffset {
@@ -299,15 +254,6 @@ pub struct QueryDescUpscaleGetJitterOffset {
     pub pOutX: *mut f32,
     #[doc = "< A pointer to a <c>float</c> which will contain the subpixel jitter offset for the y dimension."]
     pub pOutY: *mut f32,
-}
-impl Default for QueryDescUpscaleGetJitterOffset {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
 }
 #[repr(C)]
 pub struct DispatchDescUpscaleGenerateReactiveMask {
@@ -331,15 +277,6 @@ pub struct DispatchDescUpscaleGenerateReactiveMask {
     #[doc = "< Flags to determine how to generate the reactive mask"]
     pub flags: u32,
 }
-impl Default for DispatchDescUpscaleGenerateReactiveMask {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
 #[repr(C)]
 pub struct ConfigureDescUpscaleKeyValue {
     pub header: ConfigureDescHeader,
@@ -349,15 +286,6 @@ pub struct ConfigureDescUpscaleKeyValue {
     pub u64_: u64,
     #[doc = "< Pointer to set or pointer to value to set."]
     pub ptr: *mut ::std::os::raw::c_void,
-}
-impl Default for ConfigureDescUpscaleKeyValue {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
 }
 #[repr(i32)]
 #[non_exhaustive]
@@ -373,13 +301,4 @@ pub enum ConfigureUpscaleKey {
 pub struct QueryDescUpscaleGetGPUMemoryUsage {
     pub header: QueryDescHeader,
     pub gpuMemoryUsageUpscaler: *mut EffectMemoryUsage,
-}
-impl Default for QueryDescUpscaleGetGPUMemoryUsage {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
 }
