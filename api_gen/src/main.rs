@@ -52,14 +52,6 @@ impl bindgen::callbacks::ParseCallbacks for Renamer {
         if enum_name.starts_with("Ffx") {
             // Exceptions
             let common_prefix = match enum_name {
-                // "FfxBindStage" => "FFX_BIND".to_owned(), // TODO: Also strip _SHADER_STAGE suffix?
-                // "FfxMsgType" => "FFX_MESSAGE_TYPE".to_owned(),
-                // "FfxErrorCodes" => "FFX".to_owned(),
-                // "FfxIndexFormat" => "FFX".to_owned(),
-                // "FfxFsr3UpscalerConfigureKey" => {
-                //     "FFX_FSR3UPSCALER_CONFIGURE_UPSCALE_KEY".to_owned()
-                // }
-                // "FfxFsr3UpscalingFlags" => "FFX_FSR3_UPSCALER_FLAG".to_owned(),
                 "FfxApiReturnCodes" => "FFX_API_RETURN".to_owned(),
                 "FfxApiMsgType" => "FFX_API_MESSAGE_TYPE".to_owned(),
                 "FfxApiUpscaleQualityMode" => "FFX_UPSCALE_QUALITY_MODE".to_owned(),
@@ -79,18 +71,7 @@ impl bindgen::callbacks::ParseCallbacks for Renamer {
                 "FfxApiConfigureFrameGenerationSwapChainKeyDX12" => {
                     "FFX_API_CONFIGURE_FG_SWAPCHAIN_KEY".to_owned()
                 }
-                e => {
-                    // Fix broken CamelCase -> SNAKE_CASE conventions in FFX headers:
-                    // if let Some(e) = e.strip_prefix("FfxFsr3Upscaler") {
-                    //     format!("FFX_FSR3UPSCALER_{}", AsShoutySnekCase(e))
-                    // } else if let Some(e) = e.strip_prefix("FfxFrameInterpolationSwapchain") {
-                    //     format!("FFX_FI_SWAPCHAIN_{}", AsShoutySnekCase(e))
-                    // } else if let Some(e) = e.strip_prefix("FfxFrameInterpolation") {
-                    //     format!("FFX_FRAMEINTERPOLATION_{}", AsShoutySnekCase(e))
-                    // } else {
-                    e.TO_SHOUTY_SNEK_CASE()
-                    // }
-                }
+                e => e.TO_SHOUTY_SNEK_CASE(),
             };
             let variant_name = original_variant_name
                 .strip_prefix(&common_prefix)
