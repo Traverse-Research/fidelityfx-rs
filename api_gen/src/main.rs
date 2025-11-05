@@ -5,14 +5,13 @@ use heck::{AsShoutySnekCase, ToShoutySnekCase};
 fn main() {
     let sdk_dir = Path::new("sys/FidelityFX-SDK/sdk/");
     let api_dir = Path::new("sys/FidelityFX-SDK/ffx-api/");
-
-    generate_sdk_bindings(sdk_dir);
-    generate_api_bindings(api_dir);
-}
-
-fn generate_sdk_bindings(sdk_dir: &Path) {
     let vk_include_dir = Path::new("sys/Vulkan-Headers/include");
 
+    generate_sdk_bindings(sdk_dir, vk_include_dir);
+    generate_api_bindings(api_dir, vk_include_dir);
+}
+
+fn generate_sdk_bindings(sdk_dir: &Path, vk_include_dir: &Path) {
     const COMPONENTS: &[&str] = &[
         // fsr1 and fsr2 need to be enabled (though don't need to have bindings) to get access
         // to fsr3 shaders (see hardcoded "shared" implementation in ffxGetPermutationBlobByIndex())
@@ -96,6 +95,12 @@ impl bindgen::callbacks::ParseCallbacks for Renamer {
                 }
                 "FfxApiDispatchFramegenerationFlags" => "FFX_FRAMEGENERATION_FLAG".to_owned(),
                 "FfxApiUiCompositionFlags" => "FFX_FRAMEGENERATION_UI_COMPOSITION_FLAG".to_owned(),
+                "FfxApiConfigureFrameGenerationSwapChainKeyVK" => {
+                    "FFX_API_CONFIGURE_FG_SWAPCHAIN_KEY".to_owned()
+                }
+                "FfxApiConfigureFrameGenerationSwapChainKeyDX12" => {
+                    "FFX_API_CONFIGURE_FG_SWAPCHAIN_KEY".to_owned()
+                }
                 e => {
                     // Fix broken CamelCase -> SNAKE_CASE conventions in FFX headers:
                     if let Some(e) = e.strip_prefix("FfxFsr3Upscaler") {
@@ -273,10 +278,12 @@ fn generate_dx12_bindings(sdk_dir: &Path) {
 
 // ---------- API ----------
 
-fn generate_api_bindings(api_dir: &Path) {
+fn generate_api_bindings(api_dir: &Path, vk_include_dir: &Path) {
     generate_api_root_bindings(api_dir);
     generate_upscale_bindings(api_dir);
     generate_framegeneration_bindings(api_dir);
+    generate_vk_backend_bindings(api_dir, vk_include_dir);
+    generate_dx12_backend_bindings(api_dir);
 }
 
 fn generate_api_root_bindings(api_dir: &Path) {
@@ -339,5 +346,36 @@ fn generate_framegeneration_bindings(api_dir: &Path) {
     let out_path = Path::new("sys/src/api");
     bindings
         .write_to_file(out_path.join("framegeneration_bindings.rs"))
+        .expect("Couldn't write bindings!");
+}
+
+fn generate_vk_backend_bindings(api_dir: &Path, vk_include_dir: &Path) {
+    let wrapper = api_dir.join("include/ffx_api/vk/ffx_api_vk.h");
+
+    let bindings = bindgen_no_dynamic_library(api_dir)
+        .clang_arg(format!("-I{}", vk_include_dir.display()))
+        .header(wrapper.to_string_lossy())
+        .allowlist_file(wrapper.to_string_lossy())
+        .generate()
+        .expect("Unable to generate bindings");
+
+    let out_path = Path::new("sys/src/api");
+    bindings
+        .write_to_file(out_path.join("vk_backend_bindings.rs"))
+        .expect("Couldn't write bindings!");
+}
+
+fn generate_dx12_backend_bindings(api_dir: &Path) {
+    let wrapper = api_dir.join("include/ffx_api/dx12/ffx_api_dx12.h");
+
+    let bindings = bindgen_no_dynamic_library(api_dir)
+        .header(wrapper.to_string_lossy())
+        .allowlist_file(wrapper.to_string_lossy())
+        .generate()
+        .expect("Unable to generate bindings");
+
+    let out_path = Path::new("sys/src/api");
+    bindings
+        .write_to_file(out_path.join("dx12_backend_bindings.rs"))
         .expect("Couldn't write bindings!");
 }
