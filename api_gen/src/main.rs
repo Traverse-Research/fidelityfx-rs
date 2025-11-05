@@ -73,35 +73,10 @@ impl bindgen::callbacks::ParseCallbacks for Renamer {
                 }
                 e => e.TO_SHOUTY_SNEK_CASE(),
             };
-            let variant_name = original_variant_name
-                .strip_prefix(&common_prefix)
-                .unwrap_or_else(|| {
-                    for common_suffix in [
-                        // TODO: Strip _ENABLE_ too?
-                        "_INITIALIZATION_FLAG_BITS",
-                        "_FLAGS",
-                        // Sometimes the `Type` suffix of the enum name is not repeated
-                        // in the variant prefix.
-                        "_TYPE",
-                        // Sometimes the plural `S` suffix of the enum name (`Resources`) is not
-                        // repeated in the variant prefix (`_RESOURCE_...`).
-                        "S",
-                    ] {
-                        if let Some(common_prefix) = common_prefix.strip_suffix(common_suffix) {
-                            return original_variant_name
-                                .strip_prefix(common_prefix)
-                                .expect(common_prefix);
-                        }
-                    }
-                    panic!("Could not strip {common_prefix} from {original_variant_name}");
-                });
+            let variant_name = original_variant_name.strip_prefix(&common_prefix).unwrap();
             let no_prefix = variant_name.strip_prefix("_").expect(variant_name);
             // Keep the leading _ if the variant otherwise starts with a number, which is invalid
-            if no_prefix.chars().next().is_some_and(|c| c.is_ascii_digit()) {
-                Some(variant_name.to_owned())
-            } else {
-                Some(no_prefix.to_owned())
-            }
+            Some(no_prefix.to_owned())
         } else {
             None
         }
@@ -125,20 +100,12 @@ fn bindgen_no_dynamic_library(root_dir: &Path) -> bindgen::Builder {
         .derive_default(true)
         .prepend_enum_name(false) // Not the default, but changes nothing
         .clang_arg("-xc++")
-        .clang_arg(format!("-I{}/include", root_dir.display()))
-        .trust_clang_mangling(false)
         .default_non_copy_union_style(bindgen::NonCopyUnionStyle::ManuallyDrop)
         .allowlist_recursively(false)
         .parse_callbacks(Box::new(Renamer))
         .default_enum_style(bindgen::EnumVariation::Rust {
             non_exhaustive: true,
         });
-
-    if cfg!(not(target_os = "windows")) {
-        // TODO: TARGET_OS env var
-        bindings = bindings.clang_args(["-DFFX_GCC"]);
-        // .clang_arg("-std=c++2a")
-    }
 
     bindings
 }
