@@ -35,10 +35,11 @@ pub mod vk {
         Device as VkDevice, Fence as VkFence, PFN_vkAcquireNextImageKHR, PFN_vkGetDeviceProcAddr,
         PFN_vkGetSwapchainImagesKHR, PFN_vkQueuePresentKHR, PFN_vkSetHdrMetadataEXT,
         PhysicalDevice as VkPhysicalDevice, Queue as VkQueue, Result as VkResult,
-        SubmitInfo as VkSubmitInfo, SwapchainKHR as VkSwapchainKHR,
+        SwapchainKHR as VkSwapchainKHR,
     };
     type VkAllocationCallbacks = ash::vk::AllocationCallbacks<'static>;
     type VkSwapchainCreateInfoKHR = ash::vk::SwapchainCreateInfoKHR<'static>;
+    type VkSubmitInfo = ash::vk::SubmitInfo<'static>;
 
     include!("vk_backend_bindings.rs");
 }
