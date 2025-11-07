@@ -1,6 +1,6 @@
 use std::path::Path;
 
-use heck::{AsShoutySnekCase, ToShoutySnekCase};
+use heck::ToShoutySnekCase;
 
 fn main() {
     let api_dir = Path::new("sys/FidelityFX-SDK/ffx-api/");
@@ -94,8 +94,8 @@ impl bindgen::callbacks::ParseCallbacks for Renamer {
     }
 }
 
-fn bindgen_no_dynamic_library(root_dir: &Path) -> bindgen::Builder {
-    let mut bindings = bindgen::Builder::default()
+fn bindgen_no_dynamic_library() -> bindgen::Builder {
+    bindgen::Builder::default()
         .layout_tests(false)
         .derive_default(true)
         .prepend_enum_name(false) // Not the default, but changes nothing
@@ -105,13 +105,11 @@ fn bindgen_no_dynamic_library(root_dir: &Path) -> bindgen::Builder {
         .parse_callbacks(Box::new(Renamer))
         .default_enum_style(bindgen::EnumVariation::Rust {
             non_exhaustive: true,
-        });
-
-    bindings
+        })
 }
 
-fn bindgen(root_dir: &Path) -> bindgen::Builder {
-    bindgen_no_dynamic_library(root_dir)
+fn bindgen() -> bindgen::Builder {
+    bindgen_no_dynamic_library()
         .dynamic_library_name("Functions")
         .dynamic_link_require_all(true)
 }
@@ -130,7 +128,7 @@ fn generate_api_root_bindings(api_dir: &Path) {
     let wrapper = api_dir.join("include/ffx_api/ffx_api.h");
     let types = api_dir.join("include/ffx_api/ffx_api_types.h");
 
-    let bindings = bindgen(api_dir)
+    let bindings = bindgen()
         .headers([wrapper.to_string_lossy(), types.to_string_lossy()])
         .allowlist_function("ffx\\w+")
         .allowlist_type("[fF]fx\\w+")
@@ -153,7 +151,7 @@ fn generate_api_root_bindings(api_dir: &Path) {
 fn generate_upscale_bindings(api_dir: &Path) {
     let wrapper = api_dir.join("include/ffx_api/ffx_upscale.h");
 
-    let bindings = bindgen_no_dynamic_library(api_dir)
+    let bindings = bindgen_no_dynamic_library()
         .header(wrapper.to_string_lossy())
         .allowlist_type("[Ff]fx\\w+Upscale\\w*")
         .allowlist_var("FFX_\\w+UPSCALE\\w*")
@@ -172,7 +170,7 @@ fn generate_upscale_bindings(api_dir: &Path) {
 fn generate_framegeneration_bindings(api_dir: &Path) {
     let wrapper = api_dir.join("include/ffx_api/ffx_framegeneration.h");
 
-    let bindings = bindgen_no_dynamic_library(api_dir)
+    let bindings = bindgen_no_dynamic_library()
         .header(wrapper.to_string_lossy())
         .allowlist_type("[Ff]fx\\w+FrameGeneration\\w*")
         .allowlist_type("FfxApiPresentCallbackFunc")
@@ -192,7 +190,7 @@ fn generate_framegeneration_bindings(api_dir: &Path) {
 fn generate_vk_backend_bindings(api_dir: &Path, vk_include_dir: &Path) {
     let wrapper = api_dir.join("include/ffx_api/vk/ffx_api_vk.h");
 
-    let bindings = bindgen_no_dynamic_library(api_dir)
+    let bindings = bindgen_no_dynamic_library()
         .clang_arg(format!("-I{}", vk_include_dir.display()))
         .header(wrapper.to_string_lossy())
         .allowlist_file(wrapper.to_string_lossy())
@@ -208,7 +206,7 @@ fn generate_vk_backend_bindings(api_dir: &Path, vk_include_dir: &Path) {
 fn generate_dx12_backend_bindings(api_dir: &Path) {
     let wrapper = api_dir.join("include/ffx_api/dx12/ffx_api_dx12.h");
 
-    let bindings = bindgen_no_dynamic_library(api_dir)
+    let bindings = bindgen_no_dynamic_library()
         .header(wrapper.to_string_lossy())
         .allowlist_file(wrapper.to_string_lossy())
         .generate()
