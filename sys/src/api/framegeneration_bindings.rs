@@ -180,3 +180,73 @@ pub struct DispatchDescFrameGenerationPrepareCameraInfo {
     #[doc = "< The camera forward normalized vector in world space."]
     pub cameraForward: [f32; 3usize],
 }
+
+unsafe impl TaggedStructure for CreateContextDescFrameGeneration {
+    const TAG: StructType_t = CREATE_CONTEXT_DESC_TYPE_FRAMEGENERATION;
+    fn header_mut(&mut self) -> &mut Header {
+        &mut self.header
+    }
+}
+
+unsafe impl TaggedStructure for CallbackDescFrameGenerationPresent {
+    const TAG: StructType_t = CALLBACK_DESC_TYPE_FRAMEGENERATION_PRESENT;
+    fn header_mut(&mut self) -> &mut Header {
+        &mut self.header
+    }
+}
+
+unsafe impl TaggedStructure for DispatchDescFrameGeneration {
+    const TAG: StructType_t = DISPATCH_DESC_TYPE_FRAMEGENERATION;
+    fn header_mut(&mut self) -> &mut Header {
+        &mut self.header
+    }
+}
+
+unsafe impl TaggedStructure for ConfigureDescFrameGeneration {
+    const TAG: StructType_t = CONFIGURE_DESC_TYPE_FRAMEGENERATION;
+    fn header_mut(&mut self) -> &mut Header {
+        &mut self.header
+    }
+}
+
+unsafe impl TaggedStructure for DispatchDescFrameGenerationPrepare {
+    const TAG: StructType_t = DISPATCH_DESC_TYPE_FRAMEGENERATION_PREPARE;
+    fn header_mut(&mut self) -> &mut Header {
+        &mut self.header
+    }
+}
+
+unsafe impl TaggedStructure for ConfigureDescFrameGenerationKeyValue {
+    const TAG: StructType_t = CONFIGURE_DESC_TYPE_FRAMEGENERATION_KEYVALUE;
+    fn header_mut(&mut self) -> &mut Header {
+        &mut self.header
+    }
+}
+
+unsafe impl TaggedStructure for QueryDescFrameGenerationGetGPUMemoryUsage {
+    const TAG: StructType_t = QUERY_DESC_TYPE_FRAMEGENERATION_GPU_MEMORY_USAGE;
+    fn header_mut(&mut self) -> &mut Header {
+        &mut self.header
+    }
+}
+
+unsafe impl TaggedStructure for ConfigureDescFrameGenerationRegisterDistortionFieldResource {
+    const TAG: StructType_t = CONFIGURE_DESC_TYPE_FRAMEGENERATION_REGISTERDISTORTIONRESOURCE;
+    fn header_mut(&mut self) -> &mut Header {
+        &mut self.header
+    }
+}
+
+unsafe impl TaggedStructure for CreateContextDescFrameGenerationHudless {
+    const TAG: StructType_t = CREATE_CONTEXT_DESC_TYPE_FRAMEGENERATION_HUDLESS;
+    fn header_mut(&mut self) -> &mut Header {
+        &mut self.header
+    }
+}
+
+unsafe impl TaggedStructure for DispatchDescFrameGenerationPrepareCameraInfo {
+    const TAG: StructType_t = DISPATCH_DESC_TYPE_FRAMEGENERATION_PREPARE_CAMERAINFO;
+    fn header_mut(&mut self) -> &mut Header {
+        &mut self.header
+    }
+}

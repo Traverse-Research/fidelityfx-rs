@@ -103,3 +103,66 @@ pub struct QueryFrameGenerationSwapChainGetGPUMemoryUsageDX12 {
     pub header: QueryDescHeader,
     pub gpuMemoryUsageFrameGenerationSwapchain: *mut EffectMemoryUsage,
 }
+
+unsafe impl TaggedStructure for CreateBackendDX12Desc {
+    const TAG: StructType_t = CREATE_CONTEXT_DESC_TYPE_BACKEND_DX12;
+    fn header_mut(&mut self) -> &mut Header {
+        &mut self.header
+    }
+}
+
+unsafe impl TaggedStructure for CreateContextDescFrameGenerationSwapChainWrapDX12 {
+    const TAG: StructType_t = CREATE_CONTEXT_DESC_TYPE_FRAMEGENERATIONSWAPCHAIN_WRAP_DX12;
+    fn header_mut(&mut self) -> &mut Header {
+        &mut self.header
+    }
+}
+
+unsafe impl TaggedStructure for CreateContextDescFrameGenerationSwapChainNewDX12 {
+    const TAG: StructType_t = CREATE_CONTEXT_DESC_TYPE_FRAMEGENERATIONSWAPCHAIN_NEW_DX12;
+    fn header_mut(&mut self) -> &mut Header {
+        &mut self.header
+    }
+}
+
+unsafe impl TaggedStructure for CreateContextDescFrameGenerationSwapChainForHwndDX12 {
+    const TAG: StructType_t = CREATE_CONTEXT_DESC_TYPE_FRAMEGENERATIONSWAPCHAIN_FOR_HWND_DX12;
+    fn header_mut(&mut self) -> &mut Header {
+        &mut self.header
+    }
+}
+
+unsafe impl TaggedStructure for ConfigureDescFrameGenerationSwapChainRegisterUiResourceDX12 {
+    const TAG: StructType_t = CONFIGURE_DESC_TYPE_FRAMEGENERATIONSWAPCHAIN_REGISTERUIRESOURCE_DX12;
+    fn header_mut(&mut self) -> &mut Header {
+        &mut self.header
+    }
+}
+
+unsafe impl TaggedStructure for QueryDescFrameGenerationSwapChainInterpolationCommandListDX12 {
+    const TAG: StructType_t = QUERY_DESC_TYPE_FRAMEGENERATIONSWAPCHAIN_INTERPOLATIONCOMMANDLIST_DX12;
+    fn header_mut(&mut self) -> &mut Header {
+        &mut self.header
+    }
+}
+
+unsafe impl TaggedStructure for QueryDescFrameGenerationSwapChainInterpolationTextureDX12 {
+    const TAG: StructType_t = QUERY_DESC_TYPE_FRAMEGENERATIONSWAPCHAIN_INTERPOLATIONTEXTURE_DX12;
+    fn header_mut(&mut self) -> &mut Header {
+        &mut self.header
+    }
+}
+
+unsafe impl TaggedStructure for DispatchDescFrameGenerationSwapChainWaitForPresentsDX12 {
+    const TAG: StructType_t = DISPATCH_DESC_TYPE_FRAMEGENERATIONSWAPCHAIN_WAIT_FOR_PRESENTS_DX12;
+    fn header_mut(&mut self) -> &mut Header {
+        &mut self.header
+    }
+}
+
+unsafe impl TaggedStructure for ConfigureDescFrameGenerationSwapChainKeyValueDX12 {
+    const TAG: StructType_t = CONFIGURE_DESC_TYPE_FRAMEGENERATIONSWAPCHAIN_KEYVALUE_DX12;
+    fn header_mut(&mut self) -> &mut Header {
+        &mut self.header
+    }
+}
