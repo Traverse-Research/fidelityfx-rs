@@ -76,3 +76,14 @@ impl fmt::Display for ErrorCode {
 }
 
 impl error::Error for ErrorCode {}
+
+impl ErrorCode {
+    /// Returns [`Err`] for all variants but [`ErrorCodes::OK`], despite implementing
+    /// [`error::Error`] for all of [`ErrorCode`] (which merely wraps a newtype integer).
+    pub fn result(self) -> Result<(), Self> {
+        match self {
+            Self(ErrorCodes::OK) => Ok(()),
+            x => Err(x),
+        }
+    }
+}
