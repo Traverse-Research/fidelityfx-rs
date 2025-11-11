@@ -52,14 +52,14 @@ pub type CreateContextDescHeader = Header;
 pub type ConfigureDescHeader = Header;
 pub type QueryDescHeader = Header;
 pub type DispatchDescHeader = Header;
-#[repr(i32)]
-#[non_exhaustive]
-#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
-pub enum MsgType {
-    ERROR = 0,
-    WARNING = 1,
-    COUNT = 2,
+impl MsgType {
+    pub const ERROR: MsgType = MsgType(0);
+    pub const WARNING: MsgType = MsgType(1);
+    pub const COUNT: MsgType = MsgType(2);
 }
+#[repr(transparent)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub struct MsgType(pub ::std::os::raw::c_int);
 pub type Message = ::std::option::Option<unsafe extern "C" fn(type_: u32, message: *const u16)>;
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
