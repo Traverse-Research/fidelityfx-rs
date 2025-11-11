@@ -507,3 +507,17 @@ impl Functions {
         (self.Dispatch)(context, desc)
     }
 }
+
+unsafe impl TaggedStructure for ConfigureDescGlobalDebug1 {
+    const TAG: StructType_t = CONFIGURE_DESC_TYPE_GLOBALDEBUG1;
+    fn header_mut(&mut self) -> &mut Header {
+        &mut self.header
+    }
+}
+
+unsafe impl TaggedStructure for QueryDescGetVersions {
+    const TAG: StructType_t = QUERY_DESC_TYPE_GET_VERSIONS;
+    fn header_mut(&mut self) -> &mut Header {
+        &mut self.header
+    }
+}
