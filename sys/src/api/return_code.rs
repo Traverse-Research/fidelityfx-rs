@@ -9,6 +9,12 @@ use super::ReturnCodes;
 #[repr(transparent)]
 pub struct ReturnCode(pub ReturnCodes);
 
+impl ReturnCode {
+    pub fn is_ok(self) -> bool {
+        self.0 == ReturnCodes::OK
+    }
+}
+
 impl fmt::Debug for ReturnCode {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str(match self.0 {
