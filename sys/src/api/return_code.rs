@@ -40,3 +40,14 @@ impl fmt::Display for ReturnCode {
 }
 
 impl error::Error for ReturnCode {}
+
+impl ReturnCode {
+    /// Returns [`Err`] for all variants but [`ReturnCodes::OK`], despite implementing
+    /// [`error::Error`] for all of [`ReturnCode`] (which merely wraps a newtype integer).
+    pub fn result(self) -> Result<(), Self> {
+        match self {
+            Self(ReturnCodes::OK) => Ok(()),
+            x => Err(x),
+        }
+    }
+}
