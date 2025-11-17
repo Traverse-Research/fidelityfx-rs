@@ -48,15 +48,6 @@ pub struct CreateBackendVKDesc {
     #[doc = "< function pointer to get device procedure addresses"]
     pub vkDeviceProcAddr: PFN_vkGetDeviceProcAddr,
 }
-impl Default for CreateBackendVKDesc {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
 #[repr(C)]
 pub struct CreateContextDescFrameGenerationSwapChainVK {
     pub header: CreateContextDescHeader,
@@ -79,15 +70,6 @@ pub struct CreateContextDescFrameGenerationSwapChainVK {
     #[doc = "< A queue with no capability required."]
     pub imageAcquireQueue: VkQueueInfoFFXAPI,
 }
-impl Default for CreateContextDescFrameGenerationSwapChainVK {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
 #[repr(C)]
 pub struct ConfigureDescFrameGenerationSwapChainRegisterUiResourceVK {
     pub header: ConfigureDescHeader,
@@ -96,29 +78,11 @@ pub struct ConfigureDescFrameGenerationSwapChainRegisterUiResourceVK {
     #[doc = "< Zero or combination of values from FfxApiUiCompositionFlags."]
     pub flags: u32,
 }
-impl Default for ConfigureDescFrameGenerationSwapChainRegisterUiResourceVK {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
 #[repr(C)]
 pub struct QueryDescFrameGenerationSwapChainInterpolationCommandListVK {
     pub header: QueryDescHeader,
     #[doc = "< Output command nuffer (VkCommandBuffer) to be used for frame generation dispatch."]
     pub pOutCommandList: *mut *mut ::std::os::raw::c_void,
-}
-impl Default for QueryDescFrameGenerationSwapChainInterpolationCommandListVK {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
 }
 #[repr(C)]
 pub struct QueryDescFrameGenerationSwapChainInterpolationTextureVK {
@@ -126,27 +90,9 @@ pub struct QueryDescFrameGenerationSwapChainInterpolationTextureVK {
     #[doc = "< Output resource in which the frame interpolation result should be placed."]
     pub pOutTexture: *mut Resource,
 }
-impl Default for QueryDescFrameGenerationSwapChainInterpolationTextureVK {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
 #[repr(C)]
 pub struct DispatchDescFrameGenerationSwapChainWaitForPresentsVK {
     pub header: DispatchDescHeader,
-}
-impl Default for DispatchDescFrameGenerationSwapChainWaitForPresentsVK {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
 }
 #[repr(C)]
 pub struct ConfigureDescFrameGenerationSwapChainKeyValueVK {
@@ -157,15 +103,6 @@ pub struct ConfigureDescFrameGenerationSwapChainKeyValueVK {
     pub u64_: u64,
     #[doc = "< Pointer to set or pointer to value to set."]
     pub ptr: *mut ::std::os::raw::c_void,
-}
-impl Default for ConfigureDescFrameGenerationSwapChainKeyValueVK {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
 }
 #[repr(i32)]
 #[non_exhaustive]
@@ -180,15 +117,6 @@ pub enum ConfigureFrameGenerationSwapChainKeyVK {
 pub struct QueryFrameGenerationSwapChainGetGPUMemoryUsageVK {
     pub header: QueryDescHeader,
     pub gpuMemoryUsageFrameGenerationSwapchain: *mut EffectMemoryUsage,
-}
-impl Default for QueryFrameGenerationSwapChainGetGPUMemoryUsageVK {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
 }
 #[doc = " Function to get the number of presents. This is useful when using frame interpolation"]
 pub type PFN_getLastPresentCountFFXAPI =
@@ -229,27 +157,72 @@ pub struct QueryDescSwapchainReplacementFunctionsVK {
     #[doc = "< Additional function to get the number of times present has been called since the swapchain creation."]
     pub pOutGetLastPresentCountFFXAPI: PFN_getLastPresentCountFFXAPI,
 }
-impl Default for QueryDescSwapchainReplacementFunctionsVK {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
 #[repr(C)]
 pub struct CreateContextDescFrameGenerationSwapChainModeVK {
     pub header: CreateContextDescHeader,
     #[doc = "< flags indicating that composition will happen on the present queue"]
     pub composeOnPresentQueue: bool,
 }
-impl Default for CreateContextDescFrameGenerationSwapChainModeVK {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
+
+unsafe impl TaggedStructure for CreateBackendVKDesc {
+    const TAG: StructType_t = CREATE_CONTEXT_DESC_TYPE_BACKEND_VK;
+    fn header_mut(&mut self) -> &mut Header {
+        &mut self.header
+    }
+}
+
+unsafe impl TaggedStructure for CreateContextDescFrameGenerationSwapChainVK {
+    const TAG: StructType_t = CREATE_CONTEXT_DESC_TYPE_FGSWAPCHAIN_VK;
+    fn header_mut(&mut self) -> &mut Header {
+        &mut self.header
+    }
+}
+
+unsafe impl TaggedStructure for ConfigureDescFrameGenerationSwapChainRegisterUiResourceVK {
+    const TAG: StructType_t = CONFIGURE_DESC_TYPE_FGSWAPCHAIN_REGISTERUIRESOURCE_VK;
+    fn header_mut(&mut self) -> &mut Header {
+        &mut self.header
+    }
+}
+
+unsafe impl TaggedStructure for QueryDescFrameGenerationSwapChainInterpolationCommandListVK {
+    const TAG: StructType_t = QUERY_DESC_TYPE_FGSWAPCHAIN_INTERPOLATIONCOMMANDLIST_VK;
+    fn header_mut(&mut self) -> &mut Header {
+        &mut self.header
+    }
+}
+
+unsafe impl TaggedStructure for QueryDescFrameGenerationSwapChainInterpolationTextureVK {
+    const TAG: StructType_t = QUERY_DESC_TYPE_FGSWAPCHAIN_INTERPOLATIONTEXTURE_VK;
+    fn header_mut(&mut self) -> &mut Header {
+        &mut self.header
+    }
+}
+
+unsafe impl TaggedStructure for DispatchDescFrameGenerationSwapChainWaitForPresentsVK {
+    const TAG: StructType_t = DISPATCH_DESC_TYPE_FGSWAPCHAIN_WAIT_FOR_PRESENTS_VK;
+    fn header_mut(&mut self) -> &mut Header {
+        &mut self.header
+    }
+}
+
+unsafe impl TaggedStructure for ConfigureDescFrameGenerationSwapChainKeyValueVK {
+    const TAG: StructType_t = CONFIGURE_DESC_TYPE_FRAMEGENERATIONSWAPCHAIN_KEYVALUE_VK;
+    fn header_mut(&mut self) -> &mut Header {
+        &mut self.header
+    }
+}
+
+unsafe impl TaggedStructure for QueryDescSwapchainReplacementFunctionsVK {
+    const TAG: StructType_t = QUERY_DESC_TYPE_FGSWAPCHAIN_FUNCTIONS_VK;
+    fn header_mut(&mut self) -> &mut Header {
+        &mut self.header
+    }
+}
+
+unsafe impl TaggedStructure for CreateContextDescFrameGenerationSwapChainModeVK {
+    const TAG: StructType_t = CREATE_CONTEXT_DESC_TYPE_FGSWAPCHAIN_MODE_VK;
+    fn header_mut(&mut self) -> &mut Header {
+        &mut self.header
     }
 }

@@ -19,15 +19,6 @@ pub struct CreateBackendDX12Desc {
     #[doc = "< Device on which the backend will run."]
     pub device: *mut ID3D12Device,
 }
-impl Default for CreateBackendDX12Desc {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
 #[repr(C)]
 pub struct CreateContextDescFrameGenerationSwapChainWrapDX12 {
     pub header: CreateContextDescHeader,
@@ -35,15 +26,6 @@ pub struct CreateContextDescFrameGenerationSwapChainWrapDX12 {
     pub swapchain: *mut *mut IDXGISwapChain4,
     #[doc = "< Input command queue to be used for presentation."]
     pub gameQueue: *mut ID3D12CommandQueue,
-}
-impl Default for CreateContextDescFrameGenerationSwapChainWrapDX12 {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
 }
 #[repr(C)]
 pub struct CreateContextDescFrameGenerationSwapChainNewDX12 {
@@ -56,15 +38,6 @@ pub struct CreateContextDescFrameGenerationSwapChainNewDX12 {
     pub dxgiFactory: *mut IDXGIFactory,
     #[doc = "< Input command queue to be used for presentation."]
     pub gameQueue: *mut ID3D12CommandQueue,
-}
-impl Default for CreateContextDescFrameGenerationSwapChainNewDX12 {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
 }
 #[repr(C)]
 pub struct CreateContextDescFrameGenerationSwapChainForHwndDX12 {
@@ -82,15 +55,6 @@ pub struct CreateContextDescFrameGenerationSwapChainForHwndDX12 {
     #[doc = "< Input command queue to be used for presentation."]
     pub gameQueue: *mut ID3D12CommandQueue,
 }
-impl Default for CreateContextDescFrameGenerationSwapChainForHwndDX12 {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
 #[repr(C)]
 pub struct ConfigureDescFrameGenerationSwapChainRegisterUiResourceDX12 {
     pub header: ConfigureDescHeader,
@@ -99,29 +63,11 @@ pub struct ConfigureDescFrameGenerationSwapChainRegisterUiResourceDX12 {
     #[doc = "< Zero or combination of values from FfxApiUiCompositionFlags."]
     pub flags: u32,
 }
-impl Default for ConfigureDescFrameGenerationSwapChainRegisterUiResourceDX12 {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
 #[repr(C)]
 pub struct QueryDescFrameGenerationSwapChainInterpolationCommandListDX12 {
     pub header: QueryDescHeader,
     #[doc = "< Output command list (ID3D12GraphicsCommandList) to be used for frame generation dispatch."]
     pub pOutCommandList: *mut *mut ::std::os::raw::c_void,
-}
-impl Default for QueryDescFrameGenerationSwapChainInterpolationCommandListDX12 {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
 }
 #[repr(C)]
 pub struct QueryDescFrameGenerationSwapChainInterpolationTextureDX12 {
@@ -129,27 +75,9 @@ pub struct QueryDescFrameGenerationSwapChainInterpolationTextureDX12 {
     #[doc = "< Output resource in which the frame interpolation result should be placed."]
     pub pOutTexture: *mut Resource,
 }
-impl Default for QueryDescFrameGenerationSwapChainInterpolationTextureDX12 {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
 #[repr(C)]
 pub struct DispatchDescFrameGenerationSwapChainWaitForPresentsDX12 {
     pub header: DispatchDescHeader,
-}
-impl Default for DispatchDescFrameGenerationSwapChainWaitForPresentsDX12 {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
 }
 #[repr(C)]
 pub struct ConfigureDescFrameGenerationSwapChainKeyValueDX12 {
@@ -160,15 +88,6 @@ pub struct ConfigureDescFrameGenerationSwapChainKeyValueDX12 {
     pub u64_: u64,
     #[doc = "< Pointer to set or pointer to value to set."]
     pub ptr: *mut ::std::os::raw::c_void,
-}
-impl Default for ConfigureDescFrameGenerationSwapChainKeyValueDX12 {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
 }
 #[repr(i32)]
 #[non_exhaustive]
@@ -184,12 +103,66 @@ pub struct QueryFrameGenerationSwapChainGetGPUMemoryUsageDX12 {
     pub header: QueryDescHeader,
     pub gpuMemoryUsageFrameGenerationSwapchain: *mut EffectMemoryUsage,
 }
-impl Default for QueryFrameGenerationSwapChainGetGPUMemoryUsageDX12 {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
+
+unsafe impl TaggedStructure for CreateBackendDX12Desc {
+    const TAG: StructType_t = CREATE_CONTEXT_DESC_TYPE_BACKEND_DX12;
+    fn header_mut(&mut self) -> &mut Header {
+        &mut self.header
+    }
+}
+
+unsafe impl TaggedStructure for CreateContextDescFrameGenerationSwapChainWrapDX12 {
+    const TAG: StructType_t = CREATE_CONTEXT_DESC_TYPE_FRAMEGENERATIONSWAPCHAIN_WRAP_DX12;
+    fn header_mut(&mut self) -> &mut Header {
+        &mut self.header
+    }
+}
+
+unsafe impl TaggedStructure for CreateContextDescFrameGenerationSwapChainNewDX12 {
+    const TAG: StructType_t = CREATE_CONTEXT_DESC_TYPE_FRAMEGENERATIONSWAPCHAIN_NEW_DX12;
+    fn header_mut(&mut self) -> &mut Header {
+        &mut self.header
+    }
+}
+
+unsafe impl TaggedStructure for CreateContextDescFrameGenerationSwapChainForHwndDX12 {
+    const TAG: StructType_t = CREATE_CONTEXT_DESC_TYPE_FRAMEGENERATIONSWAPCHAIN_FOR_HWND_DX12;
+    fn header_mut(&mut self) -> &mut Header {
+        &mut self.header
+    }
+}
+
+unsafe impl TaggedStructure for ConfigureDescFrameGenerationSwapChainRegisterUiResourceDX12 {
+    const TAG: StructType_t = CONFIGURE_DESC_TYPE_FRAMEGENERATIONSWAPCHAIN_REGISTERUIRESOURCE_DX12;
+    fn header_mut(&mut self) -> &mut Header {
+        &mut self.header
+    }
+}
+
+unsafe impl TaggedStructure for QueryDescFrameGenerationSwapChainInterpolationCommandListDX12 {
+    const TAG: StructType_t = QUERY_DESC_TYPE_FRAMEGENERATIONSWAPCHAIN_INTERPOLATIONCOMMANDLIST_DX12;
+    fn header_mut(&mut self) -> &mut Header {
+        &mut self.header
+    }
+}
+
+unsafe impl TaggedStructure for QueryDescFrameGenerationSwapChainInterpolationTextureDX12 {
+    const TAG: StructType_t = QUERY_DESC_TYPE_FRAMEGENERATIONSWAPCHAIN_INTERPOLATIONTEXTURE_DX12;
+    fn header_mut(&mut self) -> &mut Header {
+        &mut self.header
+    }
+}
+
+unsafe impl TaggedStructure for DispatchDescFrameGenerationSwapChainWaitForPresentsDX12 {
+    const TAG: StructType_t = DISPATCH_DESC_TYPE_FRAMEGENERATIONSWAPCHAIN_WAIT_FOR_PRESENTS_DX12;
+    fn header_mut(&mut self) -> &mut Header {
+        &mut self.header
+    }
+}
+
+unsafe impl TaggedStructure for ConfigureDescFrameGenerationSwapChainKeyValueDX12 {
+    const TAG: StructType_t = CONFIGURE_DESC_TYPE_FRAMEGENERATIONSWAPCHAIN_KEYVALUE_DX12;
+    fn header_mut(&mut self) -> &mut Header {
+        &mut self.header
     }
 }

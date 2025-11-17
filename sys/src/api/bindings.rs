@@ -39,15 +39,6 @@ pub struct Header {
     #[doc = "< Pointer to next structure, used for optional parameters and extensions. Can be null."]
     pub pNext: *mut Header,
 }
-impl Default for Header {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
 pub type CreateContextDescHeader = Header;
 pub type ConfigureDescHeader = Header;
 pub type QueryDescHeader = Header;
@@ -68,15 +59,6 @@ pub struct ConfigureDescGlobalDebug1 {
     pub fpMessage: Message,
     pub debugLevel: u32,
 }
-impl Default for ConfigureDescGlobalDebug1 {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct QueryDescGetVersions {
@@ -92,30 +74,12 @@ pub struct QueryDescGetVersions {
     #[doc = "< Output array of version names for display. If null, only ids and count are returned. If both this and versionIds are null, only count is returned."]
     pub versionNames: *mut *const ::std::os::raw::c_char,
 }
-impl Default for QueryDescGetVersions {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct OverrideVersion {
     pub header: Header,
     #[doc = "< Id of version to use. Must be a value returned from a query in ffxQueryDescGetVersions.versionIds array."]
     pub versionId: u64,
-}
-impl Default for OverrideVersion {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -125,15 +89,6 @@ pub struct QueryGetProviderVersion {
     pub versionId: u64,
     #[doc = "< Version name for display. If nullptr, the query was invalid."]
     pub versionName: *const ::std::os::raw::c_char,
-}
-impl Default for QueryGetProviderVersion {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
 }
 pub type Alloc = ::std::option::Option<
     unsafe extern "C" fn(
@@ -550,5 +505,19 @@ impl Functions {
         desc: *const DispatchDescHeader,
     ) -> ReturnCode_t {
         (self.Dispatch)(context, desc)
+    }
+}
+
+unsafe impl TaggedStructure for ConfigureDescGlobalDebug1 {
+    const TAG: StructType_t = CONFIGURE_DESC_TYPE_GLOBALDEBUG1;
+    fn header_mut(&mut self) -> &mut Header {
+        &mut self.header
+    }
+}
+
+unsafe impl TaggedStructure for QueryDescGetVersions {
+    const TAG: StructType_t = QUERY_DESC_TYPE_GET_VERSIONS;
+    fn header_mut(&mut self) -> &mut Header {
+        &mut self.header
     }
 }

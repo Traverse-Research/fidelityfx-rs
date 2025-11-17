@@ -23,15 +23,6 @@ pub struct CreateContextDescFrameGeneration {
     #[doc = "< The surface format for the backbuffer. One of the values from FfxApiSurfaceFormat."]
     pub backBufferFormat: u32,
 }
-impl Default for CreateContextDescFrameGeneration {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
 #[repr(C)]
 pub struct CallbackDescFrameGenerationPresent {
     pub header: DispatchDescHeader,
@@ -49,15 +40,6 @@ pub struct CallbackDescFrameGenerationPresent {
     pub isGeneratedFrame: bool,
     #[doc = "< Identifier used to select internal resources when async support is enabled. Must increment by exactly one (1) for each frame. Any non-exactly-one difference will reset the frame generation logic."]
     pub frameID: u64,
-}
-impl Default for CallbackDescFrameGenerationPresent {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
 }
 #[repr(C)]
 pub struct DispatchDescFrameGeneration {
@@ -80,15 +62,6 @@ pub struct DispatchDescFrameGeneration {
     pub generationRect: Rect2D,
     #[doc = "< Identifier used to select internal resources when async support is enabled. Must increment by exactly one (1) for each frame. Any non-exactly-one difference will reset the frame generation logic."]
     pub frameID: u64,
-}
-impl Default for DispatchDescFrameGeneration {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
 }
 pub type PresentCallbackFunc = ::std::option::Option<
     unsafe extern "C" fn(
@@ -130,15 +103,6 @@ pub struct ConfigureDescFrameGeneration {
     #[doc = "< Identifier used to select internal resources when async support is enabled. Must increment by exactly one (1) for each frame. Any non-exactly-one difference will reset the frame generation logic."]
     pub frameID: u64,
 }
-impl Default for ConfigureDescFrameGeneration {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
 #[repr(C)]
 pub struct DispatchDescFrameGenerationPrepare {
     pub header: DispatchDescHeader,
@@ -171,15 +135,6 @@ pub struct DispatchDescFrameGenerationPrepare {
     #[doc = "< The motion vector data"]
     pub motionVectors: Resource,
 }
-impl Default for DispatchDescFrameGenerationPrepare {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
 #[repr(C)]
 pub struct ConfigureDescFrameGenerationKeyValue {
     pub header: ConfigureDescHeader,
@@ -189,15 +144,6 @@ pub struct ConfigureDescFrameGenerationKeyValue {
     pub u64_: u64,
     #[doc = "< Pointer to set or pointer to value to set."]
     pub ptr: *mut ::std::os::raw::c_void,
-}
-impl Default for ConfigureDescFrameGenerationKeyValue {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
 }
 #[repr(i32)]
 #[non_exhaustive]
@@ -210,44 +156,17 @@ pub struct QueryDescFrameGenerationGetGPUMemoryUsage {
     pub header: QueryDescHeader,
     pub gpuMemoryUsageFrameGeneration: *mut EffectMemoryUsage,
 }
-impl Default for QueryDescFrameGenerationGetGPUMemoryUsage {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
 #[repr(C)]
 pub struct ConfigureDescFrameGenerationRegisterDistortionFieldResource {
     pub header: ConfigureDescHeader,
     #[doc = "< A resource containing distortion offset data. Needs to be 2-component (ie. RG). Read by FG shaders via Sample. Resource's xy components encodes [UV coordinate of pixel after lens distortion effect- UV coordinate of pixel before lens distortion]."]
     pub distortionField: Resource,
 }
-impl Default for ConfigureDescFrameGenerationRegisterDistortionFieldResource {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
 #[repr(C)]
 pub struct CreateContextDescFrameGenerationHudless {
     pub header: CreateContextDescHeader,
     #[doc = "< The surface format for the hudless back buffer. One of the values from FfxApiSurfaceFormat."]
     pub hudlessBackBufferFormat: u32,
-}
-impl Default for CreateContextDescFrameGenerationHudless {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
 }
 #[repr(C)]
 pub struct DispatchDescFrameGenerationPrepareCameraInfo {
@@ -261,12 +180,73 @@ pub struct DispatchDescFrameGenerationPrepareCameraInfo {
     #[doc = "< The camera forward normalized vector in world space."]
     pub cameraForward: [f32; 3usize],
 }
-impl Default for DispatchDescFrameGenerationPrepareCameraInfo {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
+
+unsafe impl TaggedStructure for CreateContextDescFrameGeneration {
+    const TAG: StructType_t = CREATE_CONTEXT_DESC_TYPE_FRAMEGENERATION;
+    fn header_mut(&mut self) -> &mut Header {
+        &mut self.header
+    }
+}
+
+unsafe impl TaggedStructure for CallbackDescFrameGenerationPresent {
+    const TAG: StructType_t = CALLBACK_DESC_TYPE_FRAMEGENERATION_PRESENT;
+    fn header_mut(&mut self) -> &mut Header {
+        &mut self.header
+    }
+}
+
+unsafe impl TaggedStructure for DispatchDescFrameGeneration {
+    const TAG: StructType_t = DISPATCH_DESC_TYPE_FRAMEGENERATION;
+    fn header_mut(&mut self) -> &mut Header {
+        &mut self.header
+    }
+}
+
+unsafe impl TaggedStructure for ConfigureDescFrameGeneration {
+    const TAG: StructType_t = CONFIGURE_DESC_TYPE_FRAMEGENERATION;
+    fn header_mut(&mut self) -> &mut Header {
+        &mut self.header
+    }
+}
+
+unsafe impl TaggedStructure for DispatchDescFrameGenerationPrepare {
+    const TAG: StructType_t = DISPATCH_DESC_TYPE_FRAMEGENERATION_PREPARE;
+    fn header_mut(&mut self) -> &mut Header {
+        &mut self.header
+    }
+}
+
+unsafe impl TaggedStructure for ConfigureDescFrameGenerationKeyValue {
+    const TAG: StructType_t = CONFIGURE_DESC_TYPE_FRAMEGENERATION_KEYVALUE;
+    fn header_mut(&mut self) -> &mut Header {
+        &mut self.header
+    }
+}
+
+unsafe impl TaggedStructure for QueryDescFrameGenerationGetGPUMemoryUsage {
+    const TAG: StructType_t = QUERY_DESC_TYPE_FRAMEGENERATION_GPU_MEMORY_USAGE;
+    fn header_mut(&mut self) -> &mut Header {
+        &mut self.header
+    }
+}
+
+unsafe impl TaggedStructure for ConfigureDescFrameGenerationRegisterDistortionFieldResource {
+    const TAG: StructType_t = CONFIGURE_DESC_TYPE_FRAMEGENERATION_REGISTERDISTORTIONRESOURCE;
+    fn header_mut(&mut self) -> &mut Header {
+        &mut self.header
+    }
+}
+
+unsafe impl TaggedStructure for CreateContextDescFrameGenerationHudless {
+    const TAG: StructType_t = CREATE_CONTEXT_DESC_TYPE_FRAMEGENERATION_HUDLESS;
+    fn header_mut(&mut self) -> &mut Header {
+        &mut self.header
+    }
+}
+
+unsafe impl TaggedStructure for DispatchDescFrameGenerationPrepareCameraInfo {
+    const TAG: StructType_t = DISPATCH_DESC_TYPE_FRAMEGENERATION_PREPARE_CAMERAINFO;
+    fn header_mut(&mut self) -> &mut Header {
+        &mut self.header
     }
 }
