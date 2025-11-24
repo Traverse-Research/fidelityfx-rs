@@ -7,7 +7,7 @@ jobs:
     name: Lint Rust code
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Cargo fmt
         run: cargo fmt --all -- --check
       - name: Cargo clippy
@@ -20,7 +20,7 @@ jobs:
     name: Build-test MSRV (1.74) with minimal crate dependencies
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: dtolnay/rust-toolchain@nightly
       - name: Generate minimal-version dependencies
         run: cargo -Zminimal-versions generate-lockfile
@@ -35,7 +35,7 @@ jobs:
     name: Generate Rust crate
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Checkout submodule
         # Manually update submodules with --checkout because they are configured with update=none and will be skipped otherwise
         run: git submodule update --recursive --init --force --checkout
