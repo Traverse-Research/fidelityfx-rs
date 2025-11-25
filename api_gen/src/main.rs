@@ -98,7 +98,10 @@ impl bindgen::callbacks::ParseCallbacks for Renamer {
             final_name,
         } = item
         {
-            if final_name.contains("Desc") && !final_name.contains("ResourceDescription") {
+            if final_name.contains("Desc") && !final_name.contains("ResourceDescription")
+                || final_name == "OverrideVersion"
+                || final_name == "QueryGetProviderVersion"
+            {
                 let mut add = self.0.borrow_mut();
                 let enum_name = final_name.TO_SHOUTY_SNEK_CASE();
                 let enum_name = enum_name.replace("_DESC_", "_DESC_TYPE_");
@@ -143,6 +146,13 @@ impl bindgen::callbacks::ParseCallbacks for Renamer {
                 if let Some(backend) = enum_name.strip_prefix("CREATE_BACKEND_") {
                     let backend = backend.strip_suffix("_DESC").unwrap();
                     enum_name = format!("CREATE_CONTEXT_DESC_TYPE_BACKEND_{backend}");
+                }
+
+                if enum_name == "OVERRIDE_VERSION" {
+                    enum_name = "DESC_TYPE_OVERRIDE_VERSION".to_string();
+                }
+                if enum_name == "QUERY_GET_PROVIDER_VERSION" {
+                    enum_name = "QUERY_DESC_TYPE_GET_PROVIDER_VERSION".to_string();
                 }
 
                 add.push_str(&format!(
