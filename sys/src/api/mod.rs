@@ -65,10 +65,10 @@ pub mod upscale {
     include!("upscale_bindings.rs");
 }
 
-pub mod framegeneration {
+pub mod nss {
     use super::*;
 
-    include!("framegeneration_bindings.rs");
+    include!("nss_bindings.rs");
 }
 
 #[cfg(feature = "vulkan")]
@@ -76,40 +76,14 @@ pub mod vk {
     use super::*;
 
     use ash::vk::{
-        Device as VkDevice, Fence as VkFence, PFN_vkAcquireNextImageKHR, PFN_vkGetDeviceProcAddr,
-        PFN_vkGetSwapchainImagesKHR, PFN_vkQueuePresentKHR, PFN_vkSetHdrMetadataEXT,
-        PhysicalDevice as VkPhysicalDevice, Queue as VkQueue, Result as VkResult,
-        SwapchainKHR as VkSwapchainKHR,
+        Device as VkDevice, Fence as VkFence, Instance as VkInstance, PFN_vkAcquireNextImageKHR,
+        PFN_vkGetDeviceProcAddr, PFN_vkGetInstanceProcAddr, PFN_vkGetSwapchainImagesKHR,
+        PFN_vkQueuePresentKHR, PFN_vkSetHdrMetadataEXT, PhysicalDevice as VkPhysicalDevice,
+        Queue as VkQueue, Result as VkResult, SwapchainKHR as VkSwapchainKHR,
     };
     type VkAllocationCallbacks = ash::vk::AllocationCallbacks<'static>;
     type VkSwapchainCreateInfoKHR = ash::vk::SwapchainCreateInfoKHR<'static>;
     type VkSubmitInfo = ash::vk::SubmitInfo<'static>;
 
     include!("vk_backend_bindings.rs");
-}
-
-#[cfg(feature = "dx12")]
-pub mod dx12 {
-    use super::*;
-
-    // Interfaces must be defined as c_void type (or other private structure) because the `windows`
-    // crate types internally define the pointer whereas C bindings refer to these opaque types with
-    // a pointer.
-
-    type ID3D12Device = std::ffi::c_void;
-
-    type IDXGISwapChain4 = std::ffi::c_void;
-    type ID3D12CommandQueue = std::ffi::c_void;
-    type IDXGIFactory = std::ffi::c_void;
-
-    type DXGI_SWAP_CHAIN_DESC = std::ffi::c_void;
-    type DXGI_SWAP_CHAIN_DESC1 = std::ffi::c_void;
-    type DXGI_SWAP_CHAIN_FULLSCREEN_DESC = std::ffi::c_void;
-
-    #[allow(clippy::upper_case_acronyms)]
-    type UINT = u32;
-    #[allow(clippy::upper_case_acronyms)]
-    type HWND = UINT;
-
-    include!("dx12_backend_bindings.rs");
 }

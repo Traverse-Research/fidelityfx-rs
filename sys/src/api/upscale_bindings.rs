@@ -292,10 +292,6 @@ pub struct ConfigureDescUpscaleKeyValue {
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum ConfigureUpscaleKey {
     FVELOCITYFACTOR = 0,
-    FREACTIVENESSSCALE = 1,
-    FSHADINGCHANGESCALE = 2,
-    FACCUMULATIONADDEDPERFRAME = 3,
-    FMINDISOCCLUSIONACCUMULATION = 4,
 }
 #[repr(C)]
 pub struct QueryDescUpscaleGetGPUMemoryUsage {

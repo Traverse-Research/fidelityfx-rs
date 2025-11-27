@@ -3,7 +3,7 @@ use std::{cell::RefCell, fs::File, io::Write, path::Path, rc::Rc};
 use heck::ToShoutySnekCase;
 
 fn main() {
-    let api_dir = Path::new("sys/FidelityFX-SDK/ffx-api/");
+    let api_dir = Path::new("sys/Neural-graphics-sdk-for-game-engines/ffx-api/");
     let vk_include_dir = Path::new("sys/Vulkan-Headers/include");
 
     generate_api_bindings(api_dir, vk_include_dir);
@@ -55,19 +55,14 @@ impl bindgen::callbacks::ParseCallbacks for Renamer {
                 "FfxApiDispatchUpscaleAutoreactiveFlags" => {
                     "FFX_UPSCALE_AUTOREACTIVEFLAGS".to_owned()
                 }
-                "FfxApiCreateContextFramegenerationFlags" => {
-                    "FFX_FRAMEGENERATION_ENABLE".to_owned()
-                }
-                "FfxApiDispatchFramegenerationFlags" => "FFX_FRAMEGENERATION_FLAG".to_owned(),
-                "FfxApiUiCompositionFlags" => "FFX_FRAMEGENERATION_UI_COMPOSITION_FLAG".to_owned(),
                 "FfxApiConfigureFrameGenerationSwapChainKeyVK" => {
                     "FFX_API_CONFIGURE_FG_SWAPCHAIN_KEY".to_owned()
                 }
-                "FfxApiConfigureFrameGenerationSwapChainKeyDX12" => {
-                    "FFX_API_CONFIGURE_FG_SWAPCHAIN_KEY".to_owned()
-                }
+                "FfxApiCreateContextNssFlags" => "FFX_API_NSS_CONTEXT_FLAG".to_owned(),
+                "FfxApiDispatchNssFlags" => "FFX_API_NSS_DISPATCH_FLAG_DRAW".to_owned(),
                 e => e.TO_SHOUTY_SNEK_CASE(),
             };
+
             let variant_name = original_variant_name.strip_prefix(&common_prefix).unwrap();
             let no_prefix = variant_name.strip_prefix("_").expect(variant_name);
             // Keep the leading _ if the variant otherwise starts with a number, which is invalid
@@ -191,9 +186,8 @@ fn bindgen() -> (bindgen::Builder, Rc<RefCell<String>>) {
 fn generate_api_bindings(api_dir: &Path, vk_include_dir: &Path) {
     generate_api_root_bindings(api_dir);
     generate_upscale_bindings(api_dir);
-    generate_framegeneration_bindings(api_dir);
+    generate_nss_bindings(api_dir);
     generate_vk_backend_bindings(api_dir, vk_include_dir);
-    generate_dx12_backend_bindings(api_dir);
 }
 
 fn generate_api_root_bindings(api_dir: &Path) {
@@ -249,22 +243,20 @@ fn generate_upscale_bindings(api_dir: &Path) {
         .unwrap();
 }
 
-fn generate_framegeneration_bindings(api_dir: &Path) {
-    let wrapper = api_dir.join("include/ffx_api/ffx_framegeneration.h");
+fn generate_nss_bindings(api_dir: &Path) {
+    let wrapper = api_dir.join("include/ffx_api/ffx_nss.h");
 
     let (builder, custom_code) = bindgen_no_dynamic_library();
     let bindings = builder
         .header(wrapper.to_string_lossy())
-        .allowlist_type("[Ff]fx\\w+FrameGeneration\\w*")
-        .allowlist_type("FfxApiPresentCallbackFunc")
-        .allowlist_var("FFX_\\w+FRAMEGENERATION\\w*")
-        .bitfield_enum("FfxApiCreateContextFramegenerationFlags")
-        .bitfield_enum("FfxApiDispatchFramegenerationFlags")
-        .bitfield_enum("FfxApiUiCompositionFlags")
+        .allowlist_type("[Ff]fx\\w+Nss\\w*")
+        .allowlist_var("FFX_\\w+NSS\\w*")
+        .bitfield_enum("FfxApiCreateContextNssFlags")
+        .bitfield_enum("FfxApiDispatchNssFlags")
         .generate()
         .expect("Unable to generate bindings");
 
-    let mut out = File::create("sys/src/api/framegeneration_bindings.rs").unwrap();
+    let mut out = File::create("sys/src/api/nss_bindings.rs").unwrap();
     bindings
         .write(Box::new(&mut out))
         .expect("Couldn't write bindings!");
@@ -285,25 +277,6 @@ fn generate_vk_backend_bindings(api_dir: &Path, vk_include_dir: &Path) {
         .expect("Unable to generate bindings");
 
     let mut out = File::create("sys/src/api/vk_backend_bindings.rs").unwrap();
-    bindings
-        .write(Box::new(&mut out))
-        .expect("Couldn't write bindings!");
-    out.write_fmt(format_args!("{}", custom_code.borrow()))
-        .unwrap();
-}
-
-fn generate_dx12_backend_bindings(api_dir: &Path) {
-    let wrapper = api_dir.join("include/ffx_api/dx12/ffx_api_dx12.h");
-
-    let (builder, custom_code) = bindgen_no_dynamic_library();
-    let bindings = builder
-        .header(wrapper.to_string_lossy())
-        .allowlist_file(wrapper.to_string_lossy())
-        .no_default("ffxQueryFrameGenerationSwapChainGetGPUMemoryUsageDX12")
-        .generate()
-        .expect("Unable to generate bindings");
-
-    let mut out = File::create("sys/src/api/dx12_backend_bindings.rs").unwrap();
     bindings
         .write(Box::new(&mut out))
         .expect("Couldn't write bindings!");
