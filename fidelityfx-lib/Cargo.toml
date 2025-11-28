@@ -10,5 +10,3 @@ description = "Precompiled signed libraries for AMD FidelityFX SDK 1.1.4"
 categories = ["rendering", "graphics", "external-ffi-bindings"] # https://crates.io/category_slugs
 keywords = ["fidelityfx", "fsr", "upscaling", "vulkan", "d3d12"]
 rust-version = "1.74"
-
-[dependencies]
