@@ -1,0 +1,11 @@
+[package]
+name = "fidelityfx-lib"
+version = "0.1.0"
+edition = "2024"
+authors = ["Traverse Research <support@traverseresearch.nl>"]
+license = "MIT"
+homepage = "https://traverseresearch.nl"
+repository = "https://github.com/Traverse-Research/fidelityfx-rs"
+description = "Precompiled signed libraries for AMD fidelityFX SDK 1.1.4"
+
+[dependencies]
