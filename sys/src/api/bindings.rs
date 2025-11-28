@@ -521,3 +521,17 @@ unsafe impl TaggedStructure for QueryDescGetVersions {
         &mut self.header
     }
 }
+
+unsafe impl TaggedStructure for OverrideVersion {
+    const TAG: StructType_t = DESC_TYPE_OVERRIDE_VERSION;
+    fn header_mut(&mut self) -> &mut Header {
+        &mut self.header
+    }
+}
+
+unsafe impl TaggedStructure for QueryGetProviderVersion {
+    const TAG: StructType_t = QUERY_DESC_TYPE_GET_PROVIDER_VERSION;
+    fn header_mut(&mut self) -> &mut Header {
+        &mut self.header
+    }
+}
