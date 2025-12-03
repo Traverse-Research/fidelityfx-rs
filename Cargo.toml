@@ -3,3 +3,7 @@ members = [
   "api_gen",
   "sys",
 ]
+
+[patch.crates-io]
+# https://github.com/ash-rs/ash/pull/951
+ash = { git = "https://github.com/Traverse-Research/ash", rev = "e589cf77" }

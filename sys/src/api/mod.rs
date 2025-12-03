@@ -37,7 +37,7 @@ pub mod vk {
         PhysicalDevice as VkPhysicalDevice, Queue as VkQueue, Result as VkResult,
         SwapchainKHR as VkSwapchainKHR,
     };
-    type VkAllocationCallbacks = ash::vk::AllocationCallbacks<'static>;
+    type VkAllocationCallbacks = ash::vk::AllocationCallbacks;
     type VkSwapchainCreateInfoKHR = ash::vk::SwapchainCreateInfoKHR<'static>;
     type VkSubmitInfo = ash::vk::SubmitInfo<'static>;
 
