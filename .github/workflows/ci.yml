@@ -44,7 +44,7 @@ jobs:
       - name: Generate
         run: cargo r -p api_gen
       - name: Upload crate source
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: crate-source
           path: sys/src/**/*bindings.rs
