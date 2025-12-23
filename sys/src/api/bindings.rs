@@ -197,53 +197,105 @@ pub enum SurfaceFormat {
     #[doc = "< 32 bit per channel, 1 channel typeless format"]
     R32_TYPELESS = 37,
 }
-#[repr(i32)]
-#[non_exhaustive]
+impl ResourceUsage {
+    #[doc = "< No usage flags indicate a resource is read only."]
+    pub const READ_ONLY: ResourceUsage = ResourceUsage(0);
+    #[doc = "< Indicates a resource will be used as render target."]
+    pub const RENDERTARGET: ResourceUsage = ResourceUsage(1);
+    #[doc = "< Indicates a resource will be used as UAV."]
+    pub const UAV: ResourceUsage = ResourceUsage(2);
+    #[doc = "< Indicates a resource will be used as depth target."]
+    pub const DEPTHTARGET: ResourceUsage = ResourceUsage(4);
+    #[doc = "< Indicates a resource will be used as indirect argument buffer"]
+    pub const INDIRECT: ResourceUsage = ResourceUsage(8);
+    #[doc = "< Indicates a resource that will generate array views. Works on 2D and cubemap textures"]
+    pub const ARRAYVIEW: ResourceUsage = ResourceUsage(16);
+    #[doc = "< Indicates a resource will be used as stencil target."]
+    pub const STENCILTARGET: ResourceUsage = ResourceUsage(32);
+}
+impl ::std::ops::BitOr<ResourceUsage> for ResourceUsage {
+    type Output = Self;
+    #[inline]
+    fn bitor(self, other: Self) -> Self {
+        ResourceUsage(self.0 | other.0)
+    }
+}
+impl ::std::ops::BitOrAssign for ResourceUsage {
+    #[inline]
+    fn bitor_assign(&mut self, rhs: ResourceUsage) {
+        self.0 |= rhs.0;
+    }
+}
+impl ::std::ops::BitAnd<ResourceUsage> for ResourceUsage {
+    type Output = Self;
+    #[inline]
+    fn bitand(self, other: Self) -> Self {
+        ResourceUsage(self.0 & other.0)
+    }
+}
+impl ::std::ops::BitAndAssign for ResourceUsage {
+    #[inline]
+    fn bitand_assign(&mut self, rhs: ResourceUsage) {
+        self.0 &= rhs.0;
+    }
+}
+#[repr(transparent)]
 #[doc = " An enumeration of resource usage."]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
-pub enum ResourceUsage {
-    #[doc = "< No usage flags indicate a resource is read only."]
-    READ_ONLY = 0,
-    #[doc = "< Indicates a resource will be used as render target."]
-    RENDERTARGET = 1,
-    #[doc = "< Indicates a resource will be used as UAV."]
-    UAV = 2,
-    #[doc = "< Indicates a resource will be used as depth target."]
-    DEPTHTARGET = 4,
-    #[doc = "< Indicates a resource will be used as indirect argument buffer"]
-    INDIRECT = 8,
-    #[doc = "< Indicates a resource that will generate array views. Works on 2D and cubemap textures"]
-    ARRAYVIEW = 16,
-    #[doc = "< Indicates a resource will be used as stencil target."]
-    STENCILTARGET = 32,
+pub struct ResourceUsage(pub ::std::os::raw::c_int);
+impl ResourceState {
+    pub const COMMON: ResourceState = ResourceState(1);
+    #[doc = "< Indicates a resource is in the state to be used as UAV."]
+    pub const UNORDERED_ACCESS: ResourceState = ResourceState(2);
+    #[doc = "< Indicates a resource is in the state to be read by compute shaders."]
+    pub const COMPUTE_READ: ResourceState = ResourceState(4);
+    #[doc = "< Indicates a resource is in the state to be read by pixel shaders."]
+    pub const PIXEL_READ: ResourceState = ResourceState(8);
+    #[doc = "< Indicates a resource is in the state to be read by pixel or compute shaders."]
+    pub const PIXEL_COMPUTE_READ: ResourceState = ResourceState(12);
+    #[doc = "< Indicates a resource is in the state to be used as source in a copy command."]
+    pub const COPY_SRC: ResourceState = ResourceState(16);
+    #[doc = "< Indicates a resource is in the state to be used as destination in a copy command."]
+    pub const COPY_DEST: ResourceState = ResourceState(32);
+    #[doc = "< Indicates a resource is in generic (slow) read state."]
+    pub const GENERIC_READ: ResourceState = ResourceState(20);
+    #[doc = "< Indicates a resource is in the state to be used as an indirect command argument"]
+    pub const INDIRECT_ARGUMENT: ResourceState = ResourceState(64);
+    #[doc = "< Indicates a resource is in the state to be used to present to the swap chain"]
+    pub const PRESENT: ResourceState = ResourceState(128);
+    #[doc = "< Indicates a resource is in the state to be used as render target"]
+    pub const RENDER_TARGET: ResourceState = ResourceState(256);
 }
-#[repr(i32)]
-#[non_exhaustive]
+impl ::std::ops::BitOr<ResourceState> for ResourceState {
+    type Output = Self;
+    #[inline]
+    fn bitor(self, other: Self) -> Self {
+        ResourceState(self.0 | other.0)
+    }
+}
+impl ::std::ops::BitOrAssign for ResourceState {
+    #[inline]
+    fn bitor_assign(&mut self, rhs: ResourceState) {
+        self.0 |= rhs.0;
+    }
+}
+impl ::std::ops::BitAnd<ResourceState> for ResourceState {
+    type Output = Self;
+    #[inline]
+    fn bitand(self, other: Self) -> Self {
+        ResourceState(self.0 & other.0)
+    }
+}
+impl ::std::ops::BitAndAssign for ResourceState {
+    #[inline]
+    fn bitand_assign(&mut self, rhs: ResourceState) {
+        self.0 &= rhs.0;
+    }
+}
+#[repr(transparent)]
 #[doc = " An enumeration of resource states."]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
-pub enum ResourceState {
-    COMMON = 1,
-    #[doc = "< Indicates a resource is in the state to be used as UAV."]
-    UNORDERED_ACCESS = 2,
-    #[doc = "< Indicates a resource is in the state to be read by compute shaders."]
-    COMPUTE_READ = 4,
-    #[doc = "< Indicates a resource is in the state to be read by pixel shaders."]
-    PIXEL_READ = 8,
-    #[doc = "< Indicates a resource is in the state to be read by pixel or compute shaders."]
-    PIXEL_COMPUTE_READ = 12,
-    #[doc = "< Indicates a resource is in the state to be used as source in a copy command."]
-    COPY_SRC = 16,
-    #[doc = "< Indicates a resource is in the state to be used as destination in a copy command."]
-    COPY_DEST = 32,
-    #[doc = "< Indicates a resource is in generic (slow) read state."]
-    GENERIC_READ = 20,
-    #[doc = "< Indicates a resource is in the state to be used as an indirect command argument"]
-    INDIRECT_ARGUMENT = 64,
-    #[doc = "< Indicates a resource is in the state to be used to present to the swap chain"]
-    PRESENT = 128,
-    #[doc = "< Indicates a resource is in the state to be used as render target"]
-    RENDER_TARGET = 256,
-}
+pub struct ResourceState(pub ::std::os::raw::c_int);
 #[repr(i32)]
 #[non_exhaustive]
 #[doc = " An enumeration of surface dimensions."]
@@ -254,18 +306,44 @@ pub enum ResourceDimension {
     #[doc = "< A resource with two dimensions."]
     TEXTURE_2D = 1,
 }
-#[repr(i32)]
-#[non_exhaustive]
+impl ResourceFlags {
+    #[doc = "< No flags."]
+    pub const NONE: ResourceFlags = ResourceFlags(0);
+    #[doc = "< A bit indicating a resource does not need to persist across frames."]
+    pub const ALIASABLE: ResourceFlags = ResourceFlags(1);
+    #[doc = "< Special case flag used internally when importing resources that require additional setup"]
+    pub const UNDEFINED: ResourceFlags = ResourceFlags(2);
+}
+impl ::std::ops::BitOr<ResourceFlags> for ResourceFlags {
+    type Output = Self;
+    #[inline]
+    fn bitor(self, other: Self) -> Self {
+        ResourceFlags(self.0 | other.0)
+    }
+}
+impl ::std::ops::BitOrAssign for ResourceFlags {
+    #[inline]
+    fn bitor_assign(&mut self, rhs: ResourceFlags) {
+        self.0 |= rhs.0;
+    }
+}
+impl ::std::ops::BitAnd<ResourceFlags> for ResourceFlags {
+    type Output = Self;
+    #[inline]
+    fn bitand(self, other: Self) -> Self {
+        ResourceFlags(self.0 & other.0)
+    }
+}
+impl ::std::ops::BitAndAssign for ResourceFlags {
+    #[inline]
+    fn bitand_assign(&mut self, rhs: ResourceFlags) {
+        self.0 &= rhs.0;
+    }
+}
+#[repr(transparent)]
 #[doc = " An enumeration of resource flags."]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
-pub enum ResourceFlags {
-    #[doc = "< No flags."]
-    NONE = 0,
-    #[doc = "< A bit indicating a resource does not need to persist across frames."]
-    ALIASABLE = 1,
-    #[doc = "< Special case flag used internally when importing resources that require additional setup"]
-    UNDEFINED = 2,
-}
+pub struct ResourceFlags(pub ::std::os::raw::c_int);
 #[repr(i32)]
 #[non_exhaustive]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]

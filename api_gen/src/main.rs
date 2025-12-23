@@ -221,6 +221,9 @@ fn generate_api_root_bindings(api_dir: &Path) {
         .allowlist_var("FFX\\w+")
         // Hand-written to debug-print ErrorCode with defined ErrorCodes
         .blocklist_type("ffxReturnCode_t")
+        .bitfield_enum("FfxApiResourceUsage")
+        .bitfield_enum("FfxApiResourceState")
+        .bitfield_enum("FfxApiResourceFlags")
         .newtype_enum("FfxApiReturnCodes")
         .newtype_enum("FfxApiMsgType")
         .no_default("ffxApiHeader")
