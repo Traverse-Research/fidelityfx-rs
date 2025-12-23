@@ -47,13 +47,13 @@ pub unsafe trait TaggedStructure: Sized {
 
         next.header_mut().pNext = self.header_mut().pNext;
 
-        // Before pointing `self` to `next` without casts through its `header` field,
-        // ensure that the `header` is actually the
+        // Before pointing `self` to `next` without casts through its `header` field, ensure that
+        // the `header` is actually the first member of the struct at offset `0`.
         debug_assert_eq!(
-            <*mut _>::cast::<c_void>(self.header_mut()),
-            <*mut _>::cast::<c_void>(self)
+            <*mut _>::cast::<c_void>(next.header_mut()),
+            <*mut _>::cast::<c_void>(next)
         );
-        self.header_mut().pNext = self.header_mut();
+        self.header_mut().pNext = next.header_mut();
     }
 }
 
