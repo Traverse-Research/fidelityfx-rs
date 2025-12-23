@@ -6,6 +6,7 @@ use std::error; // Becomes core in 1.81
 use super::ReturnCodes;
 
 /// Wrapper around `ffxReturnCode_t` that delegates formatting to the defined names by [`FfxApiReturnCodes`][ReturnCodes].
+#[must_use]
 #[repr(transparent)]
 pub struct ReturnCode(pub ReturnCodes);
 
