@@ -19,11 +19,14 @@ type ReturnCode_t = ReturnCode;
 /// # Safety
 /// This trait must only be implemented for types that contain a [`Header`], have a valid
 /// [`StructType_t`], and are safe to be zero-initialized.
-pub unsafe trait TaggedStructure: Sized {
+pub unsafe trait TaggedStructure {
     const TAG: StructType_t;
     fn header_mut(&mut self) -> &mut Header;
 
-    fn new() -> Self {
+    fn new() -> Self
+    where
+        Self: Sized,
+    {
         // Original bindgen implementation
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
         let mut s = unsafe {
