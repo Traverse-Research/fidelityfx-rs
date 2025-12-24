@@ -588,6 +588,9 @@ impl Functions {
 
 unsafe impl TaggedStructure for ConfigureDescGlobalDebug1 {
     const TAG: StructType_t = CONFIGURE_DESC_TYPE_GLOBALDEBUG1;
+    fn header(&self) -> &Header {
+        &self.header
+    }
     fn header_mut(&mut self) -> &mut Header {
         &mut self.header
     }
@@ -595,6 +598,9 @@ unsafe impl TaggedStructure for ConfigureDescGlobalDebug1 {
 
 unsafe impl TaggedStructure for QueryDescGetVersions {
     const TAG: StructType_t = QUERY_DESC_TYPE_GET_VERSIONS;
+    fn header(&self) -> &Header {
+        &self.header
+    }
     fn header_mut(&mut self) -> &mut Header {
         &mut self.header
     }
@@ -602,6 +608,9 @@ unsafe impl TaggedStructure for QueryDescGetVersions {
 
 unsafe impl TaggedStructure for OverrideVersion {
     const TAG: StructType_t = DESC_TYPE_OVERRIDE_VERSION;
+    fn header(&self) -> &Header {
+        &self.header
+    }
     fn header_mut(&mut self) -> &mut Header {
         &mut self.header
     }
@@ -609,6 +618,9 @@ unsafe impl TaggedStructure for OverrideVersion {
 
 unsafe impl TaggedStructure for QueryGetProviderVersion {
     const TAG: StructType_t = QUERY_DESC_TYPE_GET_PROVIDER_VERSION;
+    fn header(&self) -> &Header {
+        &self.header
+    }
     fn header_mut(&mut self) -> &mut Header {
         &mut self.header
     }

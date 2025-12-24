@@ -159,6 +159,9 @@ impl bindgen::callbacks::ParseCallbacks for Renamer {
                     r#"
 unsafe impl TaggedStructure for {final_name} {{
     const TAG: StructType_t = {enum_name};
+    fn header(&self) -> &Header {{
+        &self.header
+    }}
     fn header_mut(&mut self) -> &mut Header {{
         &mut self.header
     }}

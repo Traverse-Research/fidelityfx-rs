@@ -305,6 +305,9 @@ pub struct QueryDescUpscaleGetGPUMemoryUsage {
 
 unsafe impl TaggedStructure for CreateContextDescUpscale {
     const TAG: StructType_t = CREATE_CONTEXT_DESC_TYPE_UPSCALE;
+    fn header(&self) -> &Header {
+        &self.header
+    }
     fn header_mut(&mut self) -> &mut Header {
         &mut self.header
     }
@@ -312,6 +315,9 @@ unsafe impl TaggedStructure for CreateContextDescUpscale {
 
 unsafe impl TaggedStructure for DispatchDescUpscale {
     const TAG: StructType_t = DISPATCH_DESC_TYPE_UPSCALE;
+    fn header(&self) -> &Header {
+        &self.header
+    }
     fn header_mut(&mut self) -> &mut Header {
         &mut self.header
     }
@@ -319,6 +325,9 @@ unsafe impl TaggedStructure for DispatchDescUpscale {
 
 unsafe impl TaggedStructure for QueryDescUpscaleGetUpscaleRatioFromQualityMode {
     const TAG: StructType_t = QUERY_DESC_TYPE_UPSCALE_GETUPSCALERATIOFROMQUALITYMODE;
+    fn header(&self) -> &Header {
+        &self.header
+    }
     fn header_mut(&mut self) -> &mut Header {
         &mut self.header
     }
@@ -326,6 +335,9 @@ unsafe impl TaggedStructure for QueryDescUpscaleGetUpscaleRatioFromQualityMode {
 
 unsafe impl TaggedStructure for QueryDescUpscaleGetRenderResolutionFromQualityMode {
     const TAG: StructType_t = QUERY_DESC_TYPE_UPSCALE_GETRENDERRESOLUTIONFROMQUALITYMODE;
+    fn header(&self) -> &Header {
+        &self.header
+    }
     fn header_mut(&mut self) -> &mut Header {
         &mut self.header
     }
@@ -333,6 +345,9 @@ unsafe impl TaggedStructure for QueryDescUpscaleGetRenderResolutionFromQualityMo
 
 unsafe impl TaggedStructure for QueryDescUpscaleGetJitterPhaseCount {
     const TAG: StructType_t = QUERY_DESC_TYPE_UPSCALE_GETJITTERPHASECOUNT;
+    fn header(&self) -> &Header {
+        &self.header
+    }
     fn header_mut(&mut self) -> &mut Header {
         &mut self.header
     }
@@ -340,6 +355,9 @@ unsafe impl TaggedStructure for QueryDescUpscaleGetJitterPhaseCount {
 
 unsafe impl TaggedStructure for QueryDescUpscaleGetJitterOffset {
     const TAG: StructType_t = QUERY_DESC_TYPE_UPSCALE_GETJITTEROFFSET;
+    fn header(&self) -> &Header {
+        &self.header
+    }
     fn header_mut(&mut self) -> &mut Header {
         &mut self.header
     }
@@ -347,6 +365,9 @@ unsafe impl TaggedStructure for QueryDescUpscaleGetJitterOffset {
 
 unsafe impl TaggedStructure for DispatchDescUpscaleGenerateReactiveMask {
     const TAG: StructType_t = DISPATCH_DESC_TYPE_UPSCALE_GENERATEREACTIVEMASK;
+    fn header(&self) -> &Header {
+        &self.header
+    }
     fn header_mut(&mut self) -> &mut Header {
         &mut self.header
     }
@@ -354,6 +375,9 @@ unsafe impl TaggedStructure for DispatchDescUpscaleGenerateReactiveMask {
 
 unsafe impl TaggedStructure for ConfigureDescUpscaleKeyValue {
     const TAG: StructType_t = CONFIGURE_DESC_TYPE_UPSCALE_KEYVALUE;
+    fn header(&self) -> &Header {
+        &self.header
+    }
     fn header_mut(&mut self) -> &mut Header {
         &mut self.header
     }
@@ -361,6 +385,9 @@ unsafe impl TaggedStructure for ConfigureDescUpscaleKeyValue {
 
 unsafe impl TaggedStructure for QueryDescUpscaleGetGPUMemoryUsage {
     const TAG: StructType_t = QUERY_DESC_TYPE_UPSCALE_GPU_MEMORY_USAGE;
+    fn header(&self) -> &Header {
+        &self.header
+    }
     fn header_mut(&mut self) -> &mut Header {
         &mut self.header
     }

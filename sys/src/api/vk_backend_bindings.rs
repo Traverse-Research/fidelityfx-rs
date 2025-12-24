@@ -166,6 +166,9 @@ pub struct CreateContextDescFrameGenerationSwapChainModeVK {
 
 unsafe impl TaggedStructure for CreateBackendVKDesc {
     const TAG: StructType_t = CREATE_CONTEXT_DESC_TYPE_BACKEND_VK;
+    fn header(&self) -> &Header {
+        &self.header
+    }
     fn header_mut(&mut self) -> &mut Header {
         &mut self.header
     }
@@ -173,6 +176,9 @@ unsafe impl TaggedStructure for CreateBackendVKDesc {
 
 unsafe impl TaggedStructure for CreateContextDescFrameGenerationSwapChainVK {
     const TAG: StructType_t = CREATE_CONTEXT_DESC_TYPE_FGSWAPCHAIN_VK;
+    fn header(&self) -> &Header {
+        &self.header
+    }
     fn header_mut(&mut self) -> &mut Header {
         &mut self.header
     }
@@ -180,6 +186,9 @@ unsafe impl TaggedStructure for CreateContextDescFrameGenerationSwapChainVK {
 
 unsafe impl TaggedStructure for ConfigureDescFrameGenerationSwapChainRegisterUiResourceVK {
     const TAG: StructType_t = CONFIGURE_DESC_TYPE_FGSWAPCHAIN_REGISTERUIRESOURCE_VK;
+    fn header(&self) -> &Header {
+        &self.header
+    }
     fn header_mut(&mut self) -> &mut Header {
         &mut self.header
     }
@@ -187,6 +196,9 @@ unsafe impl TaggedStructure for ConfigureDescFrameGenerationSwapChainRegisterUiR
 
 unsafe impl TaggedStructure for QueryDescFrameGenerationSwapChainInterpolationCommandListVK {
     const TAG: StructType_t = QUERY_DESC_TYPE_FGSWAPCHAIN_INTERPOLATIONCOMMANDLIST_VK;
+    fn header(&self) -> &Header {
+        &self.header
+    }
     fn header_mut(&mut self) -> &mut Header {
         &mut self.header
     }
@@ -194,6 +206,9 @@ unsafe impl TaggedStructure for QueryDescFrameGenerationSwapChainInterpolationCo
 
 unsafe impl TaggedStructure for QueryDescFrameGenerationSwapChainInterpolationTextureVK {
     const TAG: StructType_t = QUERY_DESC_TYPE_FGSWAPCHAIN_INTERPOLATIONTEXTURE_VK;
+    fn header(&self) -> &Header {
+        &self.header
+    }
     fn header_mut(&mut self) -> &mut Header {
         &mut self.header
     }
@@ -201,6 +216,9 @@ unsafe impl TaggedStructure for QueryDescFrameGenerationSwapChainInterpolationTe
 
 unsafe impl TaggedStructure for DispatchDescFrameGenerationSwapChainWaitForPresentsVK {
     const TAG: StructType_t = DISPATCH_DESC_TYPE_FGSWAPCHAIN_WAIT_FOR_PRESENTS_VK;
+    fn header(&self) -> &Header {
+        &self.header
+    }
     fn header_mut(&mut self) -> &mut Header {
         &mut self.header
     }
@@ -208,6 +226,9 @@ unsafe impl TaggedStructure for DispatchDescFrameGenerationSwapChainWaitForPrese
 
 unsafe impl TaggedStructure for ConfigureDescFrameGenerationSwapChainKeyValueVK {
     const TAG: StructType_t = CONFIGURE_DESC_TYPE_FRAMEGENERATIONSWAPCHAIN_KEYVALUE_VK;
+    fn header(&self) -> &Header {
+        &self.header
+    }
     fn header_mut(&mut self) -> &mut Header {
         &mut self.header
     }
@@ -215,6 +236,9 @@ unsafe impl TaggedStructure for ConfigureDescFrameGenerationSwapChainKeyValueVK 
 
 unsafe impl TaggedStructure for QueryDescSwapchainReplacementFunctionsVK {
     const TAG: StructType_t = QUERY_DESC_TYPE_FGSWAPCHAIN_FUNCTIONS_VK;
+    fn header(&self) -> &Header {
+        &self.header
+    }
     fn header_mut(&mut self) -> &mut Header {
         &mut self.header
     }
@@ -222,6 +246,9 @@ unsafe impl TaggedStructure for QueryDescSwapchainReplacementFunctionsVK {
 
 unsafe impl TaggedStructure for CreateContextDescFrameGenerationSwapChainModeVK {
     const TAG: StructType_t = CREATE_CONTEXT_DESC_TYPE_FGSWAPCHAIN_MODE_VK;
+    fn header(&self) -> &Header {
+        &self.header
+    }
     fn header_mut(&mut self) -> &mut Header {
         &mut self.header
     }

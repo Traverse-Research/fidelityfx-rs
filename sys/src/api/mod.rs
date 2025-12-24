@@ -21,6 +21,7 @@ type ReturnCode_t = ReturnCode;
 /// [`StructType_t`], and are safe to be zero-initialized.
 pub unsafe trait TaggedStructure: Sized {
     const TAG: StructType_t;
+    fn header(&self) -> &Header;
     fn header_mut(&mut self) -> &mut Header;
 
     fn new() -> Self {
