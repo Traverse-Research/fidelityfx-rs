@@ -26,6 +26,7 @@ impl fmt::Debug for ReturnCode {
             ReturnCodes::NO_PROVIDER => "NO_PROVIDER",
             ReturnCodes::ERROR_MEMORY => "ERROR_MEMORY",
             ReturnCodes::ERROR_PARAMETER => "ERROR_PARAMETER",
+            ReturnCodes::PROVIDER_NO_SUPPORT_NEW_DESCTYPE => "PROVIDER_NO_SUPPORT_NEW_DESCTYPE",
             x => return write!(f, "Unknown error code {x:?}"),
         })
     }
@@ -41,6 +42,7 @@ impl fmt::Display for ReturnCode {
             ReturnCodes::NO_PROVIDER => "No provider was found for the given structure type. This is likely a programming error.",
             ReturnCodes::ERROR_MEMORY => "A memory allocation failed.",
             ReturnCodes::ERROR_PARAMETER => "A parameter was invalid, e.g. a null pointer, empty resource or out-of-bounds enum value.",
+            ReturnCodes::PROVIDER_NO_SUPPORT_NEW_DESCTYPE => "The structure type given is new and not supported in the old provider. This is likely fixed with driver upgrade or effect DLL upgrade.",
             x => return write!(f, "Unknown error code {x:?}"),
         })
     }

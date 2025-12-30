@@ -11,7 +11,7 @@
 Rust bindings for [AMD's FidelityFX SDK], including bindings to the newer [`ffx-api` abstraction].
 
 [AMD's FidelityFX SDK]: https://github.com/GPUOpen-LibrariesAndSDKs/FidelityFX-SDK
-[`ffx-api` abstraction]: https://github.com/GPUOpen-LibrariesAndSDKs/FidelityFX-SDK/blob/v1.1.4/docs/getting-started/ffx-api.md
+[`ffx-api` abstraction]: https://github.com/GPUOpen-LibrariesAndSDKs/FidelityFX-SDK/blob/v2.1.0/Kits/FidelityFX/docs/getting-started/ffx-api.md
 
 | Crates | | |
 | - | - | - |

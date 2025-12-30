@@ -1,6 +1,6 @@
-//! Bindings to the new `ffx-api` abstraction, generated from <https://github.com/GPUOpen-LibrariesAndSDKs/FidelityFX-SDK/tree/v1.1.4/ffx-api>.
+//! Bindings to the new `ffx-api` abstraction, generated from <https://github.com/GPUOpen-LibrariesAndSDKs/FidelityFX-SDK/tree/v2.1.0/Kits/FidelityFX/api>.
 //!
-//! See <https://github.com/GPUOpen-LibrariesAndSDKs/FidelityFX-SDK/blob/v1.1.4/docs/getting-started/ffx-api.md> for details on how to use this new API.
+//! See <https://github.com/GPUOpen-LibrariesAndSDKs/FidelityFX-SDK/blob/v2.1.0/Kits/FidelityFX/docs/getting-started/ffx-api.md> for details on how to use this new API.
 
 #![allow(
     non_upper_case_globals,
@@ -70,23 +70,25 @@ pub mod framegeneration {
     use super::*;
 
     include!("framegeneration_bindings.rs");
-}
 
-#[cfg(feature = "vulkan")]
-pub mod vk {
-    use super::*;
+    pub mod dx12 {
+        use super::*;
 
-    use ash::vk::{
-        Device as VkDevice, Fence as VkFence, PFN_vkAcquireNextImageKHR, PFN_vkGetDeviceProcAddr,
-        PFN_vkGetSwapchainImagesKHR, PFN_vkQueuePresentKHR, PFN_vkSetHdrMetadataEXT,
-        PhysicalDevice as VkPhysicalDevice, Queue as VkQueue, Result as VkResult,
-        SwapchainKHR as VkSwapchainKHR,
-    };
-    type VkAllocationCallbacks = ash::vk::AllocationCallbacks<'static>;
-    type VkSwapchainCreateInfoKHR = ash::vk::SwapchainCreateInfoKHR<'static>;
-    type VkSubmitInfo = ash::vk::SubmitInfo<'static>;
+        type IDXGISwapChain4 = c_void;
+        type ID3D12CommandQueue = c_void;
+        type IDXGIFactory = c_void;
 
-    include!("vk_backend_bindings.rs");
+        type DXGI_SWAP_CHAIN_DESC = c_void;
+        type DXGI_SWAP_CHAIN_DESC1 = c_void;
+        type DXGI_SWAP_CHAIN_FULLSCREEN_DESC = c_void;
+
+        #[allow(clippy::upper_case_acronyms)]
+        type UINT = u32;
+        #[allow(clippy::upper_case_acronyms)]
+        type HWND = UINT;
+
+        include!("framegeneration_dx12_bindings.rs");
+    }
 }
 
 #[cfg(feature = "dx12")]
@@ -97,20 +99,15 @@ pub mod dx12 {
     // crate types internally define the pointer whereas C bindings refer to these opaque types with
     // a pointer.
 
-    type ID3D12Device = std::ffi::c_void;
+    type ID3D12Device = c_void;
+    type ID3D12Heap = c_void;
+    type ID3D12Resource = c_void;
 
-    type IDXGISwapChain4 = std::ffi::c_void;
-    type ID3D12CommandQueue = std::ffi::c_void;
-    type IDXGIFactory = std::ffi::c_void;
-
-    type DXGI_SWAP_CHAIN_DESC = std::ffi::c_void;
-    type DXGI_SWAP_CHAIN_DESC1 = std::ffi::c_void;
-    type DXGI_SWAP_CHAIN_FULLSCREEN_DESC = std::ffi::c_void;
-
-    #[allow(clippy::upper_case_acronyms)]
-    type UINT = u32;
-    #[allow(clippy::upper_case_acronyms)]
-    type HWND = UINT;
+    type D3D12_CLEAR_VALUE = c_void;
+    type D3D12_HEAP_DESC = c_void;
+    type D3D12_HEAP_PROPERTIES = c_void;
+    type D3D12_RESOURCE_DESC = c_void;
+    type D3D12_RESOURCE_STATES = c_void;
 
     include!("dx12_backend_bindings.rs");
 }
