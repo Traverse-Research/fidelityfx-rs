@@ -1,7 +1,3 @@
-[submodule "Vulkan-Headers"]
-	path = sys/Vulkan-Headers
-	url = https://github.com/KhronosGroup/Vulkan-Headers.git
-	update = none
 [submodule "sys/FidelityFX-SDK"]
 	path = sys/FidelityFX-SDK
 	url = https://github.com/GPUOpen-LibrariesAndSDKs/FidelityFX-SDK

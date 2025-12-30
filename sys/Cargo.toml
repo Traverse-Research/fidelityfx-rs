@@ -1,6 +1,6 @@
 [package]
 name = "fidelityfx-sys"
-version = "0.1.0+v1.1.4"
+version = "0.1.0+v2.1.0"
 authors = ["Traverse Research <support@traverseresearch.nl>"]
 edition = "2021"
 license = "MIT"
@@ -9,14 +9,12 @@ repository = "https://github.com/Traverse-Research/fidelityfx-rs"
 description = "Low-level sys bindings for AMD's FidelityFX SDK"
 include = ["src", "LICENSE"]
 categories = ["rendering", "graphics", "external-ffi-bindings"] # https://crates.io/category_slugs
-keywords = ["fidelityfx", "fsr", "upscaling", "vulkan", "d3d12"]
+keywords = ["fidelityfx", "fsr", "upscaling", "d3d12"]
 rust-version = "1.74"
 
 [dependencies]
 libloading = "0.8"
-ash = { version = "0.38", optional = true, default-features = false }
 
 [features]
-default = ["vulkan", "dx12"]
-vulkan = ["dep:ash"]
+default = ["dx12"]
 dx12 = []

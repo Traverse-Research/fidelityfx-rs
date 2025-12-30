@@ -3,10 +3,9 @@ use std::{cell::RefCell, fs::File, io::Write, path::Path, rc::Rc};
 use heck::ToShoutySnekCase;
 
 fn main() {
-    let api_dir = Path::new("sys/FidelityFX-SDK/ffx-api/");
-    let vk_include_dir = Path::new("sys/Vulkan-Headers/include");
+    let ffx_kit_dir = Path::new("sys/FidelityFX-SDK/Kits/FidelityFX");
 
-    generate_api_bindings(api_dir, vk_include_dir);
+    generate_api_bindings(ffx_kit_dir);
 }
 
 #[derive(Debug)]
@@ -60,15 +59,18 @@ impl bindgen::callbacks::ParseCallbacks for Renamer {
                 }
                 "FfxApiDispatchFramegenerationFlags" => "FFX_FRAMEGENERATION_FLAG".to_owned(),
                 "FfxApiUiCompositionFlags" => "FFX_FRAMEGENERATION_UI_COMPOSITION_FLAG".to_owned(),
-                "FfxApiConfigureFrameGenerationSwapChainKeyVK" => {
-                    "FFX_API_CONFIGURE_FG_SWAPCHAIN_KEY".to_owned()
-                }
                 "FfxApiConfigureFrameGenerationSwapChainKeyDX12" => {
                     "FFX_API_CONFIGURE_FG_SWAPCHAIN_KEY".to_owned()
                 }
+                "FfxApiQueryResourceIdentifiers" => "FFX_API_QUERY_RESOURCE_INPUT".to_owned(),
+                "FfxApiConfigureFrameGenerationKey" => {
+                    "FFX_API_CONFIGURE_FRAMEGENERATION_KEY".to_owned()
+                }
                 e => e.TO_SHOUTY_SNEK_CASE(),
             };
-            let variant_name = original_variant_name.strip_prefix(&common_prefix).unwrap();
+            let variant_name = original_variant_name
+                .strip_prefix(&common_prefix)
+                .expect(original_variant_name);
             let no_prefix = variant_name.strip_prefix("_").expect(variant_name);
             // Keep the leading _ if the variant otherwise starts with a number, which is invalid
             Some(no_prefix.to_owned())
@@ -105,18 +107,8 @@ impl bindgen::callbacks::ParseCallbacks for Renamer {
                 let mut add = self.0.borrow_mut();
                 let enum_name = final_name.TO_SHOUTY_SNEK_CASE();
                 let enum_name = enum_name.replace("_DESC_", "_DESC_TYPE_");
-                let enum_name = if enum_name.ends_with("_VK")
-                    && !enum_name.ends_with("KEY_VALUE_VK")
-                    && !enum_name.ends_with("GPU_MEMORY_USAGE_VK")
-                {
-                    enum_name.replace("FRAME_GENERATION_SWAP_CHAIN", "FGSWAPCHAIN")
-                } else {
-                    enum_name.replace("FRAME_GENERATION_SWAP_CHAIN", "FRAMEGENERATIONSWAPCHAIN")
-                };
-                let enum_name = enum_name.replace(
-                    "SWAPCHAIN_REPLACEMENT_FUNCTIONS_VK",
-                    "FGSWAPCHAIN_FUNCTIONS_VK",
-                );
+                let enum_name =
+                    enum_name.replace("FRAME_GENERATION_SWAP_CHAIN", "FRAMEGENERATIONSWAPCHAIN");
                 let enum_name = enum_name.replace("FRAME_GENERATION", "FRAMEGENERATION");
                 let enum_name = enum_name.replace("REGISTER_UI_RESOURCE", "REGISTERUIRESOURCE");
                 let enum_name = enum_name.replace("KEY_VALUE", "KEYVALUE");
@@ -201,17 +193,16 @@ fn bindgen() -> (bindgen::Builder, Rc<RefCell<String>>) {
     )
 }
 
-fn generate_api_bindings(api_dir: &Path, vk_include_dir: &Path) {
-    generate_api_root_bindings(api_dir);
-    generate_upscale_bindings(api_dir);
-    generate_framegeneration_bindings(api_dir);
-    generate_vk_backend_bindings(api_dir, vk_include_dir);
-    generate_dx12_backend_bindings(api_dir);
+fn generate_api_bindings(ffx_kit_dir: &Path) {
+    generate_api_root_bindings(&ffx_kit_dir.join("api"));
+    generate_upscale_bindings(&ffx_kit_dir.join("upscalers"));
+    generate_framegeneration_bindings(&ffx_kit_dir.join("framegeneration"));
+    generate_dx12_backend_bindings(&ffx_kit_dir.join("api"));
 }
 
 fn generate_api_root_bindings(api_dir: &Path) {
-    let wrapper = api_dir.join("include/ffx_api/ffx_api.h");
-    let types = api_dir.join("include/ffx_api/ffx_api_types.h");
+    let wrapper = api_dir.join("include/ffx_api.h");
+    let types = api_dir.join("include/ffx_api_types.h");
 
     let (builder, custom_code) = bindgen();
     let bindings = builder
@@ -244,7 +235,7 @@ fn generate_api_root_bindings(api_dir: &Path) {
 }
 
 fn generate_upscale_bindings(api_dir: &Path) {
-    let wrapper = api_dir.join("include/ffx_api/ffx_upscale.h");
+    let wrapper = api_dir.join("include/ffx_upscale.h");
 
     let (builder, custom_code) = bindgen_no_dynamic_library();
     let bindings = builder
@@ -265,7 +256,7 @@ fn generate_upscale_bindings(api_dir: &Path) {
 }
 
 fn generate_framegeneration_bindings(api_dir: &Path) {
-    let wrapper = api_dir.join("include/ffx_api/ffx_framegeneration.h");
+    let wrapper = api_dir.join("include/ffx_framegeneration.h");
 
     let (builder, custom_code) = bindgen_no_dynamic_library();
     let bindings = builder
@@ -285,38 +276,35 @@ fn generate_framegeneration_bindings(api_dir: &Path) {
         .unwrap();
 }
 
-fn generate_vk_backend_bindings(api_dir: &Path, vk_include_dir: &Path) {
-    let wrapper = api_dir.join("include/ffx_api/vk/ffx_api_vk.h");
+fn generate_dx12_backend_bindings(api_dir: &Path) {
+    let wrapper = api_dir.join("include/dx12/ffx_api_dx12.h");
 
     let (builder, custom_code) = bindgen_no_dynamic_library();
     let bindings = builder
-        .clang_arg(format!("-I{}", vk_include_dir.display()))
         .header(wrapper.to_string_lossy())
         .allowlist_file(wrapper.to_string_lossy())
-        .no_default("ffxQueryFrameGenerationSwapChainGetGPUMemoryUsageVK")
         .generate()
         .expect("Unable to generate bindings");
 
-    let mut out = File::create("sys/src/api/vk_backend_bindings.rs").unwrap();
+    let mut out = File::create("sys/src/api/dx12_backend_bindings.rs").unwrap();
     bindings
         .write(Box::new(&mut out))
         .expect("Couldn't write bindings!");
     out.write_fmt(format_args!("{}", custom_code.borrow()))
         .unwrap();
-}
 
-fn generate_dx12_backend_bindings(api_dir: &Path) {
-    let wrapper = api_dir.join("include/ffx_api/dx12/ffx_api_dx12.h");
+    let wrapper = api_dir.join("../framegeneration/include/dx12/ffx_api_framegeneration_dx12.h");
 
     let (builder, custom_code) = bindgen_no_dynamic_library();
     let bindings = builder
         .header(wrapper.to_string_lossy())
         .allowlist_file(wrapper.to_string_lossy())
         .no_default("ffxQueryFrameGenerationSwapChainGetGPUMemoryUsageDX12")
+        .no_default("ffxQueryFrameGenerationSwapChainGetGPUMemoryUsageDX12V2")
         .generate()
         .expect("Unable to generate bindings");
 
-    let mut out = File::create("sys/src/api/dx12_backend_bindings.rs").unwrap();
+    let mut out = File::create("sys/src/api/framegeneration_dx12_bindings.rs").unwrap();
     bindings
         .write(Box::new(&mut out))
         .expect("Couldn't write bindings!");

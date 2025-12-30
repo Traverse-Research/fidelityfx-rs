@@ -72,23 +72,6 @@ pub mod framegeneration {
     include!("framegeneration_bindings.rs");
 }
 
-#[cfg(feature = "vulkan")]
-pub mod vk {
-    use super::*;
-
-    use ash::vk::{
-        Device as VkDevice, Fence as VkFence, PFN_vkAcquireNextImageKHR, PFN_vkGetDeviceProcAddr,
-        PFN_vkGetSwapchainImagesKHR, PFN_vkQueuePresentKHR, PFN_vkSetHdrMetadataEXT,
-        PhysicalDevice as VkPhysicalDevice, Queue as VkQueue, Result as VkResult,
-        SwapchainKHR as VkSwapchainKHR,
-    };
-    type VkAllocationCallbacks = ash::vk::AllocationCallbacks<'static>;
-    type VkSwapchainCreateInfoKHR = ash::vk::SwapchainCreateInfoKHR<'static>;
-    type VkSubmitInfo = ash::vk::SubmitInfo<'static>;
-
-    include!("vk_backend_bindings.rs");
-}
-
 #[cfg(feature = "dx12")]
 pub mod dx12 {
     use super::*;
@@ -98,19 +81,33 @@ pub mod dx12 {
     // a pointer.
 
     type ID3D12Device = std::ffi::c_void;
+    type ID3D12Heap = std::ffi::c_void;
+    type ID3D12Resource = std::ffi::c_void;
 
-    type IDXGISwapChain4 = std::ffi::c_void;
-    type ID3D12CommandQueue = std::ffi::c_void;
-    type IDXGIFactory = std::ffi::c_void;
-
-    type DXGI_SWAP_CHAIN_DESC = std::ffi::c_void;
-    type DXGI_SWAP_CHAIN_DESC1 = std::ffi::c_void;
-    type DXGI_SWAP_CHAIN_FULLSCREEN_DESC = std::ffi::c_void;
-
-    #[allow(clippy::upper_case_acronyms)]
-    type UINT = u32;
-    #[allow(clippy::upper_case_acronyms)]
-    type HWND = UINT;
+    type D3D12_CLEAR_VALUE = std::ffi::c_void;
+    type D3D12_HEAP_DESC = std::ffi::c_void;
+    type D3D12_HEAP_PROPERTIES = std::ffi::c_void;
+    type D3D12_RESOURCE_DESC = std::ffi::c_void;
+    type D3D12_RESOURCE_STATES = std::ffi::c_void;
 
     include!("dx12_backend_bindings.rs");
+
+    mod framegeneration {
+        use super::*;
+
+        type IDXGISwapChain4 = std::ffi::c_void;
+        type ID3D12CommandQueue = std::ffi::c_void;
+        type IDXGIFactory = std::ffi::c_void;
+
+        type DXGI_SWAP_CHAIN_DESC = std::ffi::c_void;
+        type DXGI_SWAP_CHAIN_DESC1 = std::ffi::c_void;
+        type DXGI_SWAP_CHAIN_FULLSCREEN_DESC = std::ffi::c_void;
+
+        #[allow(clippy::upper_case_acronyms)]
+        type UINT = u32;
+        #[allow(clippy::upper_case_acronyms)]
+        type HWND = UINT;
+
+        include!("framegeneration_dx12_bindings.rs");
+    }
 }
