@@ -11,6 +11,138 @@ pub const QUERY_DESC_TYPE_FRAMEGENERATION_GPU_MEMORY_USAGE: StructType_t = 13107
 pub const CONFIGURE_DESC_TYPE_FRAMEGENERATION_REGISTERDISTORTIONRESOURCE: StructType_t = 131080;
 pub const CREATE_CONTEXT_DESC_TYPE_FRAMEGENERATION_HUDLESS: StructType_t = 131081;
 pub const DISPATCH_DESC_TYPE_FRAMEGENERATION_PREPARE_CAMERAINFO: StructType_t = 131082;
+impl CreateContextFramegenerationFlags {
+    pub const ASYNC_WORKLOAD_SUPPORT: CreateContextFramegenerationFlags =
+        CreateContextFramegenerationFlags(1);
+    #[doc = "< A bit indicating if the motion vectors are rendered at display resolution."]
+    pub const DISPLAY_RESOLUTION_MOTION_VECTORS: CreateContextFramegenerationFlags =
+        CreateContextFramegenerationFlags(2);
+    #[doc = "< A bit indicating that the motion vectors have the jittering pattern applied to them."]
+    pub const MOTION_VECTORS_JITTER_CANCELLATION: CreateContextFramegenerationFlags =
+        CreateContextFramegenerationFlags(4);
+    #[doc = "< A bit indicating that the input depth buffer data provided is inverted [1..0]."]
+    pub const DEPTH_INVERTED: CreateContextFramegenerationFlags =
+        CreateContextFramegenerationFlags(8);
+    #[doc = "< A bit indicating that the input depth buffer data provided is using an infinite far plane."]
+    pub const DEPTH_INFINITE: CreateContextFramegenerationFlags =
+        CreateContextFramegenerationFlags(16);
+    #[doc = "< A bit indicating if the input color data provided to all inputs is using a high-dynamic range."]
+    pub const HIGH_DYNAMIC_RANGE: CreateContextFramegenerationFlags =
+        CreateContextFramegenerationFlags(32);
+    #[doc = "< A bit indicating that the runtime should check some API values and report issues."]
+    pub const DEBUG_CHECKING: CreateContextFramegenerationFlags =
+        CreateContextFramegenerationFlags(64);
+}
+impl ::std::ops::BitOr<CreateContextFramegenerationFlags> for CreateContextFramegenerationFlags {
+    type Output = Self;
+    #[inline]
+    fn bitor(self, other: Self) -> Self {
+        CreateContextFramegenerationFlags(self.0 | other.0)
+    }
+}
+impl ::std::ops::BitOrAssign for CreateContextFramegenerationFlags {
+    #[inline]
+    fn bitor_assign(&mut self, rhs: CreateContextFramegenerationFlags) {
+        self.0 |= rhs.0;
+    }
+}
+impl ::std::ops::BitAnd<CreateContextFramegenerationFlags> for CreateContextFramegenerationFlags {
+    type Output = Self;
+    #[inline]
+    fn bitand(self, other: Self) -> Self {
+        CreateContextFramegenerationFlags(self.0 & other.0)
+    }
+}
+impl ::std::ops::BitAndAssign for CreateContextFramegenerationFlags {
+    #[inline]
+    fn bitand_assign(&mut self, rhs: CreateContextFramegenerationFlags) {
+        self.0 &= rhs.0;
+    }
+}
+#[repr(transparent)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub struct CreateContextFramegenerationFlags(pub ::std::os::raw::c_int);
+impl DispatchFramegenerationFlags {
+    #[doc = "< A bit indicating that the debug tear lines will be drawn to the generated output."]
+    pub const DRAW_DEBUG_TEAR_LINES: DispatchFramegenerationFlags = DispatchFramegenerationFlags(1);
+    #[doc = "< A bit indicating that the debug reset indicators will be drawn to the generated output."]
+    pub const DRAW_DEBUG_RESET_INDICATORS: DispatchFramegenerationFlags =
+        DispatchFramegenerationFlags(2);
+    #[doc = "< A bit indicating that the generated output resource will contain debug views with relevant information."]
+    pub const DRAW_DEBUG_VIEW: DispatchFramegenerationFlags = DispatchFramegenerationFlags(4);
+    #[doc = "< A bit indicating that the context should only run frame interpolation and not modify the swapchain."]
+    pub const NO_SWAPCHAIN_CONTEXT_NOTIFY: DispatchFramegenerationFlags =
+        DispatchFramegenerationFlags(8);
+    #[doc = "< A bit indicating that the debug pacing lines will be drawn to the generated output."]
+    pub const DRAW_DEBUG_PACING_LINES: DispatchFramegenerationFlags =
+        DispatchFramegenerationFlags(16);
+    pub const RESERVED_1: DispatchFramegenerationFlags = DispatchFramegenerationFlags(32);
+    pub const RESERVED_2: DispatchFramegenerationFlags = DispatchFramegenerationFlags(64);
+}
+impl ::std::ops::BitOr<DispatchFramegenerationFlags> for DispatchFramegenerationFlags {
+    type Output = Self;
+    #[inline]
+    fn bitor(self, other: Self) -> Self {
+        DispatchFramegenerationFlags(self.0 | other.0)
+    }
+}
+impl ::std::ops::BitOrAssign for DispatchFramegenerationFlags {
+    #[inline]
+    fn bitor_assign(&mut self, rhs: DispatchFramegenerationFlags) {
+        self.0 |= rhs.0;
+    }
+}
+impl ::std::ops::BitAnd<DispatchFramegenerationFlags> for DispatchFramegenerationFlags {
+    type Output = Self;
+    #[inline]
+    fn bitand(self, other: Self) -> Self {
+        DispatchFramegenerationFlags(self.0 & other.0)
+    }
+}
+impl ::std::ops::BitAndAssign for DispatchFramegenerationFlags {
+    #[inline]
+    fn bitand_assign(&mut self, rhs: DispatchFramegenerationFlags) {
+        self.0 &= rhs.0;
+    }
+}
+#[repr(transparent)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub struct DispatchFramegenerationFlags(pub ::std::os::raw::c_int);
+impl UiCompositionFlags {
+    #[doc = "< A bit indicating that we use premultiplied alpha for UI composition."]
+    pub const USE_PREMUL_ALPHA: UiCompositionFlags = UiCompositionFlags(1);
+    #[doc = "< A bit indicating that the swapchain should doublebuffer the UI resource."]
+    pub const ENABLE_INTERNAL_UI_DOUBLE_BUFFERING: UiCompositionFlags = UiCompositionFlags(2);
+}
+impl ::std::ops::BitOr<UiCompositionFlags> for UiCompositionFlags {
+    type Output = Self;
+    #[inline]
+    fn bitor(self, other: Self) -> Self {
+        UiCompositionFlags(self.0 | other.0)
+    }
+}
+impl ::std::ops::BitOrAssign for UiCompositionFlags {
+    #[inline]
+    fn bitor_assign(&mut self, rhs: UiCompositionFlags) {
+        self.0 |= rhs.0;
+    }
+}
+impl ::std::ops::BitAnd<UiCompositionFlags> for UiCompositionFlags {
+    type Output = Self;
+    #[inline]
+    fn bitand(self, other: Self) -> Self {
+        UiCompositionFlags(self.0 & other.0)
+    }
+}
+impl ::std::ops::BitAndAssign for UiCompositionFlags {
+    #[inline]
+    fn bitand_assign(&mut self, rhs: UiCompositionFlags) {
+        self.0 &= rhs.0;
+    }
+}
+#[repr(transparent)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub struct UiCompositionFlags(pub ::std::os::raw::c_int);
 #[repr(C)]
 pub struct CreateContextDescFrameGeneration {
     pub header: CreateContextDescHeader,

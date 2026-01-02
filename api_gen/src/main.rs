@@ -249,8 +249,7 @@ fn generate_upscale_bindings(api_dir: &Path) {
     let (builder, custom_code) = bindgen_no_dynamic_library();
     let bindings = builder
         .header(wrapper.to_string_lossy())
-        .allowlist_type("[Ff]fx\\w+Upscale\\w*")
-        .allowlist_var("FFX_\\w+UPSCALE\\w*")
+        .allowlist_file(wrapper.to_string_lossy())
         .bitfield_enum("FfxApiCreateContextUpscaleFlags")
         .bitfield_enum("FfxApiDispatchFsrUpscaleFlags")
         .bitfield_enum("FfxApiDispatchUpscaleAutoreactiveFlags")
@@ -271,9 +270,7 @@ fn generate_framegeneration_bindings(api_dir: &Path) {
     let (builder, custom_code) = bindgen_no_dynamic_library();
     let bindings = builder
         .header(wrapper.to_string_lossy())
-        .allowlist_type("[Ff]fx\\w+FrameGeneration\\w*")
-        .allowlist_type("FfxApiPresentCallbackFunc")
-        .allowlist_var("FFX_\\w+FRAMEGENERATION\\w*")
+        .allowlist_file(wrapper.to_string_lossy())
         .bitfield_enum("FfxApiCreateContextFramegenerationFlags")
         .bitfield_enum("FfxApiDispatchFramegenerationFlags")
         .bitfield_enum("FfxApiUiCompositionFlags")
