@@ -1,6 +1,6 @@
-//! Bindings to the new `ffx-api` abstraction, generated from <https://github.com/GPUOpen-LibrariesAndSDKs/FidelityFX-SDK/tree/v2.1.1/Kits/FidelityFX/api>.
+//! Bindings to the new `ffx-api` abstraction, generated from <https://github.com/GPUOpen-LibrariesAndSDKs/FidelityFX-SDK/tree/v2.2.0/Kits/FidelityFX/api>.
 //!
-//! See <https://github.com/GPUOpen-LibrariesAndSDKs/FidelityFX-SDK/blob/v2.1.1/Kits/FidelityFX/docs/getting-started/ffx-api.md> for details on how to use this new API.
+//! See <https://github.com/GPUOpen-LibrariesAndSDKs/FidelityFX-SDK/blob/v2.2.0/Kits/FidelityFX/docs/getting-started/ffx-api.md> for details on how to use this new API.
 
 #![allow(
     non_upper_case_globals,

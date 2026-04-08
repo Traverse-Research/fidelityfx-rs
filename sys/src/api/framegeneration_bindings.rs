@@ -4,6 +4,7 @@ pub const FRAMEGENERATION_VERSION_MAJOR: u32 = 4;
 pub const FRAMEGENERATION_VERSION_MINOR: u32 = 0;
 pub const FRAMEGENERATION_VERSION_PATCH: u32 = 0;
 impl CreateContextFramegenerationFlags {
+    #[doc = "< A bit indicating that async compute workloads should be supported. Enables generation work on async compute queues."]
     pub const ASYNC_WORKLOAD_SUPPORT: CreateContextFramegenerationFlags =
         CreateContextFramegenerationFlags(1);
     #[doc = "< A bit indicating if the motion vectors are rendered at display resolution."]
@@ -68,7 +69,9 @@ impl DispatchFramegenerationFlags {
     #[doc = "< A bit indicating that the debug pacing lines will be drawn to the generated output."]
     pub const DRAW_DEBUG_PACING_LINES: DispatchFramegenerationFlags =
         DispatchFramegenerationFlags(16);
+    #[doc = "< Reserved for future use."]
     pub const RESERVED_1: DispatchFramegenerationFlags = DispatchFramegenerationFlags(32);
+    #[doc = "< Reserved for future use."]
     pub const RESERVED_2: DispatchFramegenerationFlags = DispatchFramegenerationFlags(64);
 }
 impl ::std::ops::BitOr<DispatchFramegenerationFlags> for DispatchFramegenerationFlags {
@@ -137,6 +140,7 @@ impl ::std::ops::BitAndAssign for UiCompositionFlags {
 pub struct UiCompositionFlags(pub ::std::os::raw::c_int);
 #[repr(C)]
 pub struct CreateContextDescFrameGeneration {
+    #[doc = "< Description header for frame generation context creation."]
     pub header: CreateContextDescHeader,
     #[doc = "< A combination of zero or more values from FfxApiCreateContextFramegenerationFlags."]
     pub flags: u32,
@@ -149,10 +153,11 @@ pub struct CreateContextDescFrameGeneration {
 }
 #[repr(C)]
 pub struct CallbackDescFrameGenerationPresent {
+    #[doc = "< Description header for present callback dispatch."]
     pub header: DispatchDescHeader,
-    #[doc = "< The device passed in (from a backend description) during context creation."]
+    #[doc = "< The GPU device (ID3D12Device for DX12, VkDevice for Vulkan) passed during context creation."]
     pub device: *mut ::std::os::raw::c_void,
-    #[doc = "< A command list that will be executed before presentation."]
+    #[doc = "< A command list (ID3D12GraphicsCommandList for DX12, VkCommandBuffer for Vulkan) that will be executed before presentation."]
     pub commandList: *mut ::std::os::raw::c_void,
     #[doc = "< Backbuffer image either rendered or generated."]
     pub currentBackBuffer: Resource,
@@ -167,22 +172,23 @@ pub struct CallbackDescFrameGenerationPresent {
 }
 #[repr(C)]
 pub struct DispatchDescFrameGeneration {
+    #[doc = "< Description header for frame generation dispatch."]
     pub header: DispatchDescHeader,
-    #[doc = "< The command list on which to register render commands."]
+    #[doc = "< The command list (ID3D12GraphicsCommandList for DX12, VkCommandBuffer for Vulkan) to record frame generation commands."]
     pub commandList: *mut ::std::os::raw::c_void,
-    #[doc = "< The current presentation color, this will be used as source data."]
+    #[doc = "< The current presentation color buffer to be used as source for frame generation."]
     pub presentColor: Resource,
-    #[doc = "< Destination targets (1 for each frame in numGeneratedFrames)."]
+    #[doc = "< Output destination targets for generated frames (1 for each frame in numGeneratedFrames)."]
     pub outputs: [Resource; 4usize],
-    #[doc = "< The number of frames to generate from the passed in color target."]
+    #[doc = "< The number of frames to generate from the input color target."]
     pub numGeneratedFrames: u32,
-    #[doc = "< A boolean value which when set to true, indicates the camera has moved discontinuously."]
+    #[doc = "< A boolean value which when set to true, indicates the camera has moved discontinuously and frame generation should reset."]
     pub reset: bool,
-    #[doc = "< The transfer function use to convert frame generation source color data to linear RGB. One of the values from FfxApiBackbufferTransferFunction."]
+    #[doc = "< The transfer function used to convert frame generation source color data to linear RGB. One of the values from FfxApiBackbufferTransferFunction."]
     pub backbufferTransferFunction: u32,
-    #[doc = "< Min and max luminance values, used when converting HDR colors to linear RGB."]
+    #[doc = "< Min and max luminance values (in nits), used when converting HDR colors to linear RGB."]
     pub minMaxLuminance: [f32; 2usize],
-    #[doc = "< The area of the backbuffer that should be used for generation in case only a part of the screen is used e.g. due to movie bars."]
+    #[doc = "< The area of the backbuffer that should be used for frame generation in case only a part of the screen is active (e.g. due to movie bars)."]
     pub generationRect: Rect2D,
     #[doc = "< Identifier used to select internal resources when async support is enabled. Must increment by exactly one (1) for each frame. Any non-exactly-one difference will reset the frame generation logic."]
     pub frameID: u64,
@@ -201,16 +207,17 @@ pub type FrameGenerationDispatchFunc = ::std::option::Option<
 >;
 #[repr(C)]
 pub struct ConfigureDescFrameGeneration {
+    #[doc = "< Description header for frame generation configuration."]
     pub header: ConfigureDescHeader,
-    #[doc = "< The swapchain to use with frame generation."]
+    #[doc = "< The swapchain to use with frame generation (IDXGISwapChain for DX12, VkSwapchainKHR for Vulkan)."]
     pub swapChain: *mut ::std::os::raw::c_void,
-    #[doc = "< A UI composition callback to call when finalizing the frame image."]
+    #[doc = "< Callback function called when finalizing the frame image for presentation and UI composition."]
     pub presentCallback: PresentCallbackFunc,
-    #[doc = "< A pointer to be passed to the UI composition callback."]
+    #[doc = "< User context pointer to be passed to the present callback function."]
     pub presentCallbackUserContext: *mut ::std::os::raw::c_void,
-    #[doc = "< The frame generation callback to use to generate a frame."]
+    #[doc = "< Callback function called to dispatch frame generation work and generate interpolated frames."]
     pub frameGenerationCallback: FrameGenerationDispatchFunc,
-    #[doc = "< A pointer to be passed to the frame generation callback."]
+    #[doc = "< User context pointer to be passed to the frame generation callback function."]
     pub frameGenerationCallbackUserContext: *mut ::std::os::raw::c_void,
     #[doc = "< Sets the state of frame generation. Set to false to disable frame generation."]
     pub frameGenerationEnabled: bool,
@@ -229,18 +236,19 @@ pub struct ConfigureDescFrameGeneration {
 }
 #[repr(C)]
 pub struct DispatchDescFrameGenerationPrepare {
+    #[doc = "< Description header for frame generation prepare dispatch."]
     pub header: DispatchDescHeader,
-    #[doc = "< Identifier used to select internal resources when async support is enabled. Must increment by exactly one (1) for each frame. Any non-exactly-one difference will reset the frame generation logic."]
+    #[doc = "< Frame identifier used to select internal resources when async support is enabled. Must increment by exactly one (1) for each frame. Any non-exactly-one difference will reset the frame generation logic."]
     pub frameID: u64,
     #[doc = "< Zero or combination of values from FfxApiDispatchFrameGenerationFlags."]
     pub flags: u32,
-    #[doc = "< A command list to record frame generation commands into."]
+    #[doc = "< The command list (ID3D12GraphicsCommandList for DX12, VkCommandBuffer for Vulkan) to record frame generation prepare commands."]
     pub commandList: *mut ::std::os::raw::c_void,
     #[doc = "< The dimensions used to render game content, dilatedDepth, dilatedMotionVectors are expected to be of ths size."]
     pub renderSize: Dimensions2D,
     #[doc = "< The subpixel jitter offset applied to the camera."]
     pub jitterOffset: FloatCoords2D,
-    #[doc = "< The scale factor to apply to motion vectors."]
+    #[doc = "< The scale factor to convert motion vectors to UV space. Set to (1.0, 1.0) if motion vectors are already in pixel space, or to renderSize dimensions if motion vectors are in UV space."]
     pub motionVectorScale: FloatCoords2D,
     #[doc = "< Time elapsed in milliseconds since the last frame."]
     pub frameTimeDelta: f32,
@@ -254,19 +262,20 @@ pub struct DispatchDescFrameGenerationPrepare {
     pub cameraFovAngleVertical: f32,
     #[doc = "< The scale factor to convert view space units to meters"]
     pub viewSpaceToMetersFactor: f32,
-    #[doc = "< The depth buffer data"]
+    #[doc = "< The depth buffer data for the current frame."]
     pub depth: Resource,
-    #[doc = "< The motion vector data"]
+    #[doc = "< The motion vector data for the current frame."]
     pub motionVectors: Resource,
 }
 #[repr(C)]
 pub struct ConfigureDescFrameGenerationKeyValue {
+    #[doc = "< Description header for frame generation key-value configuration."]
     pub header: ConfigureDescHeader,
     #[doc = "< Configuration key, member of the FfxApiConfigureFrameGenerationKey enumeration."]
     pub key: u64,
     #[doc = "< Integer value or enum value to set."]
     pub u64_: u64,
-    #[doc = "< Pointer to set or pointer to value to set."]
+    #[doc = "< Pointer value to set or pointer to value to set."]
     pub ptr: *mut ::std::os::raw::c_void,
 }
 #[repr(i32)]
@@ -280,25 +289,30 @@ pub enum ConfigureFrameGenerationKey {
 }
 #[repr(C)]
 pub struct QueryDescFrameGenerationGetGPUMemoryUsage {
+    #[doc = "< Description header for GPU memory usage query."]
     pub header: QueryDescHeader,
+    #[doc = "< Output pointer to receive GPU memory usage information for frame generation."]
     pub gpuMemoryUsageFrameGeneration: *mut EffectMemoryUsage,
 }
 #[repr(C)]
 pub struct ConfigureDescFrameGenerationRegisterDistortionFieldResource {
+    #[doc = "< Description header for distortion field resource configuration."]
     pub header: ConfigureDescHeader,
-    #[doc = "< A resource containing distortion offset data. Needs to be 2-component (ie. RG). Read by FG shaders via Sample. Pixel value encodes [UV coordinate of pixel after lens distortion effect- UV coordinate of pixel before lens distortion]."]
+    #[doc = "< A resource containing distortion offset data. Needs to be 2-component (ie. RG). Read by FG shaders via Sample. Pixel value encodes [UV coordinate of pixel after lens distortion effect - UV coordinate of pixel before lens distortion]."]
     pub distortionField: Resource,
 }
 #[repr(C)]
 pub struct CreateContextDescFrameGenerationHudless {
+    #[doc = "< Description header for hudless context creation."]
     pub header: CreateContextDescHeader,
     #[doc = "< The surface format for the hudless back buffer. One of the values from FfxApiSurfaceFormat."]
     pub hudlessBackBufferFormat: u32,
 }
 #[repr(C)]
 pub struct DispatchDescFrameGenerationPrepareCameraInfo {
+    #[doc = "< Description header for camera info configuration."]
     pub header: ConfigureDescHeader,
-    #[doc = "< The camera position in world space"]
+    #[doc = "< The camera position in world space."]
     pub cameraPosition: [f32; 3usize],
     #[doc = "< The camera up normalized vector in world space."]
     pub cameraUp: [f32; 3usize],
@@ -309,76 +323,80 @@ pub struct DispatchDescFrameGenerationPrepareCameraInfo {
 }
 #[repr(C)]
 pub struct QueryDescFrameGenerationGetGPUMemoryUsageV2 {
+    #[doc = "< Description header for GPU memory usage query."]
     pub header: QueryDescHeader,
-    #[doc = "< For DX12: pointer to ID3D12Device. For VK, pointer to VkDevice. App needs to fill out before Query() call."]
+    #[doc = "< The GPU device. For DX12: pointer to ID3D12Device. For VK: pointer to VkDevice. App needs to fill out before Query() call."]
     pub device: *mut ::std::os::raw::c_void,
-    #[doc = "< App needs to fill out before Query() call."]
+    #[doc = "< The maximum rendering resolution. App needs to fill out before Query() call."]
     pub maxRenderSize: Dimensions2D,
-    #[doc = "< App needs to fill out before Query() call."]
+    #[doc = "< The resolution at which both rendered and generated frames will be displayed. App needs to fill out before Query() call."]
     pub displaySize: Dimensions2D,
-    #[doc = "< A combination of zero or more values from FfxApiCreateContextFramegenerationFlags."]
+    #[doc = "< Context creation flags. A combination of zero or more values from FfxApiCreateContextFramegenerationFlags. App needs to fill out before Query() call."]
     pub createFlags: u32,
-    #[doc = "< A combination of zero or more values from FfxApiDispatchFrameGenerationFlags."]
+    #[doc = "< Dispatch flags. A combination of zero or more values from FfxApiDispatchFrameGenerationFlags. App needs to fill out before Query() call."]
     pub dispatchFlags: u32,
     #[doc = "< The surface format for the backbuffer. One of the values from FfxApiSurfaceFormat. App needs to fill out before Query() call."]
     pub backBufferFormat: u32,
-    #[doc = "< The surface format for HUDLessColor if used. Otherwise set value to FFX_API_SURFACE_FORMAT_UNKNOWN(0). App needs to fill out before Query() call."]
+    #[doc = "< The surface format for HUDLessColor resource if used. One of the values from FfxApiSurfaceFormat. Otherwise set value to FFX_API_SURFACE_FORMAT_UNKNOWN(0). App needs to fill out before Query() call."]
     pub hudlessBackBufferFormat: u32,
-    #[doc = "< Output values by Query() call."]
+    #[doc = "< Output pointer to receive GPU memory usage information for frame generation. Populated by Query() call."]
     pub gpuMemoryUsageFrameGeneration: *mut EffectMemoryUsage,
 }
 #[repr(C)]
 pub struct DispatchDescFrameGenerationPrepareV2 {
+    #[doc = "< Description header for frame generation prepare dispatch."]
     pub header: DispatchDescHeader,
-    #[doc = "< Identifier used to select internal resources when async support is enabled. Must increment by exactly one (1) for each frame. Any non-exactly-one difference will reset the frame generation logic."]
+    #[doc = "< Frame identifier used to select internal resources when async support is enabled. Must increment by exactly one (1) for each frame. Any non-exactly-one difference will reset the frame generation logic."]
     pub frameID: u64,
     #[doc = "< Zero or combination of values from FfxApiDispatchFrameGenerationFlags."]
     pub flags: u32,
-    #[doc = "< A command list to record frame generation commands into."]
+    #[doc = "< The command list (ID3D12GraphicsCommandList for DX12, VkCommandBuffer for Vulkan) to record frame generation prepare commands."]
     pub commandList: *mut ::std::os::raw::c_void,
-    #[doc = "< The dimensions used to render game content, dilatedDepth, dilatedMotionVectors are expected to be of ths size."]
+    #[doc = "< The dimensions used to render game content. dilatedDepth and dilatedMotionVectors are expected to be of this size."]
     pub renderSize: Dimensions2D,
     #[doc = "< The subpixel jitter offset applied to the camera."]
     pub jitterOffset: FloatCoords2D,
-    #[doc = "< The scale factor to apply to motion vectors."]
+    #[doc = "< The scale factor to convert motion vectors to UV space. Set to (1.0, 1.0) if motion vectors are already in pixel space, or to renderSize dimensions if motion vectors are in UV space."]
     pub motionVectorScale: FloatCoords2D,
     #[doc = "< Time elapsed in milliseconds since the last frame."]
     pub frameTimeDelta: f32,
-    #[doc = "< A boolean value which when set to true, indicates FrameGeneration will be called in reset mode"]
+    #[doc = "< A boolean value which when set to true, indicates the camera has moved discontinuously and frame generation should reset its internal state."]
     pub reset: bool,
     #[doc = "< The distance to the near plane of the camera."]
     pub cameraNear: f32,
-    #[doc = "< The distance to the far plane of the camera. This is used only used in case of non infinite depth."]
+    #[doc = "< The distance to the far plane of the camera. This is used only in case of non-infinite depth."]
     pub cameraFar: f32,
     #[doc = "< The camera angle field of view in the vertical direction (expressed in radians)."]
     pub cameraFovAngleVertical: f32,
-    #[doc = "< The scale factor to convert view space units to meters"]
+    #[doc = "< The scale factor to convert view space units to meters."]
     pub viewSpaceToMetersFactor: f32,
-    #[doc = "< The depth buffer data"]
+    #[doc = "< The depth buffer data for the current frame."]
     pub depth: Resource,
-    #[doc = "< The motion vector data"]
+    #[doc = "< The motion vector data for the current frame."]
     pub motionVectors: Resource,
-    #[doc = "< The camera position in world space"]
+    #[doc = "< The camera position in world space."]
     pub cameraPosition: [f32; 3usize],
-    #[doc = "< The camera up normalized vector in world space"]
+    #[doc = "< The camera up normalized vector in world space."]
     pub cameraUp: [f32; 3usize],
-    #[doc = "< The camera right normalized vector in world space"]
+    #[doc = "< The camera right normalized vector in world space."]
     pub cameraRight: [f32; 3usize],
-    #[doc = "< The camera forward normalized vector in world space"]
+    #[doc = "< The camera forward normalized vector in world space."]
     pub cameraForward: [f32; 3usize],
 }
 #[repr(C)]
 pub struct CallbackDescFrameGenerationPresentPremulAlpha {
-    #[doc = "< Header for versioning & ABI stability"]
+    #[doc = "< Header for versioning & ABI stability."]
     pub header: Header,
-    #[doc = "< Toggles whether UI gets premultiplied alpha blending or not"]
+    #[doc = "< Toggles whether UI gets premultiplied alpha blending or not."]
     pub usePremulAlpha: bool,
 }
+#[doc = " Callback function for waiting on a named fence to reach a specific value.\n @param fenceName The name of the fence to wait on.\n @param fenceValueToWaitFor The fence value to wait for.\n @return 0 on success, non-zero error code on failure."]
 pub type WaitCallbackFunc = ::std::option::Option<
     unsafe extern "C" fn(fenceName: *mut u16, fenceValueToWaitFor: u64) -> i32,
 >;
 #[repr(C)]
 pub struct CreateContextDescFrameGenerationVersion {
+    #[doc = "< Description header for frame generation version context creation."]
     pub header: CreateContextDescHeader,
     #[doc = "< The version of the API the application was built against. This must be set to FFX_FRAMEGENERATION_VERSION."]
     pub version: u32,
@@ -386,35 +404,35 @@ pub struct CreateContextDescFrameGenerationVersion {
 #[doc = " A structure representing the configuration options to pass to FrameInterpolationSwapChain\n\n @ingroup FfxInterface"]
 #[repr(C)]
 pub struct FrameGenerationConfig {
-    #[doc = "< Header for versioning & ABI stability"]
+    #[doc = "< Header for versioning & ABI stability."]
     pub header: Header,
-    #[doc = "< The <c><i>FfxSwapchain</i></c> to use with frame interpolation"]
+    #[doc = "< The <c><i>FfxSwapchain</i></c> to use with frame interpolation."]
     pub swapChain: *mut ::std::os::raw::c_void,
-    #[doc = "< A UI composition callback to call when finalizing the frame image"]
+    #[doc = "< A UI composition callback to call when finalizing the frame image."]
     pub presentCallback: PresentCallbackFunc,
-    #[doc = "< A pointer to be passed to the UI composition callback"]
+    #[doc = "< A pointer to be passed to the UI composition callback."]
     pub presentCallbackContext: *mut ::std::os::raw::c_void,
-    #[doc = "< The frame generation callback to use to generate the interpolated frame"]
+    #[doc = "< The frame generation callback to use to generate the interpolated frame."]
     pub frameGenerationCallback: FrameGenerationDispatchFunc,
-    #[doc = "< A pointer to be passed to the frame generation callback"]
+    #[doc = "< A pointer to be passed to the frame generation callback."]
     pub frameGenerationCallbackContext: *mut ::std::os::raw::c_void,
-    #[doc = "< Sets the state of frame generation. Set to false to disable frame generation"]
+    #[doc = "< Sets the state of frame generation. Set to false to disable frame generation."]
     pub frameGenerationEnabled: bool,
-    #[doc = "< Sets the state of async workloads. Set to true to enable interpolation work on async compute"]
+    #[doc = "< Sets the state of async workloads. Set to true to enable interpolation work on async compute."]
     pub allowAsyncWorkloads: bool,
-    #[doc = "< Sets the state of async presentation (console only). Set to true to enable present from async command queue"]
+    #[doc = "< Sets the state of async presentation (console only). Set to true to enable present from async command queue."]
     pub allowAsyncPresent: bool,
-    #[doc = "< The hudless back buffer image to use for UI extraction from backbuffer resource"]
+    #[doc = "< The hudless back buffer image to use for UI extraction from backbuffer resource."]
     pub HUDLessColor: Resource,
-    #[doc = "< Flags"]
+    #[doc = "< Zero or combination of flags from FfxApiDispatchFrameGenerationFlags."]
     pub flags: u32,
-    #[doc = "< Set to true to only present interpolated frame"]
+    #[doc = "< Set to true to only present interpolated frame."]
     pub onlyPresentInterpolated: bool,
-    #[doc = "< Set the area in the backbuffer that will be interpolated"]
+    #[doc = "< Set the area in the backbuffer that will be interpolated."]
     pub interpolationRect: Rect2D,
-    #[doc = "< A frame identifier used to synchronize resource usage in workloads"]
+    #[doc = "< A frame identifier used to synchronize resource usage in workloads."]
     pub frameID: u64,
-    #[doc = "< Sets the state of pacing debug lines. Set to true to display debug lines"]
+    #[doc = "< Sets the state of pacing debug lines. Set to true to display debug lines."]
     pub drawDebugPacingLines: bool,
 }
 impl Default for FrameGenerationConfig {
