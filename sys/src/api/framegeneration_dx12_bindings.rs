@@ -5,111 +5,124 @@ pub const FRAMEGENERATION_SWAPCHAIN_DX12_VERSION_MINOR: u32 = 1;
 pub const FRAMEGENERATION_SWAPCHAIN_DX12_VERSION_PATCH: u32 = 6;
 #[repr(C)]
 pub struct CreateContextDescFrameGenerationSwapChainWrapDX12 {
+    #[doc = "< Description header for frame generation swapchain wrapping context creation."]
     pub header: CreateContextDescHeader,
-    #[doc = "< Input swap chain to wrap, output frame interpolation swapchain."]
+    #[doc = "< Input swap chain to wrap with frame interpolation. On return, contains the wrapped frame interpolation swapchain."]
     pub swapchain: *mut *mut IDXGISwapChain4,
-    #[doc = "< Input command queue to be used for presentation."]
+    #[doc = "< The command queue to be used for presentation."]
     pub gameQueue: *mut ID3D12CommandQueue,
 }
 #[repr(C)]
 pub struct CreateContextDescFrameGenerationSwapChainNewDX12 {
+    #[doc = "< Description header for frame generation swapchain creation."]
     pub header: CreateContextDescHeader,
-    #[doc = "< Output frame interpolation swapchain."]
+    #[doc = "< Output pointer to receive the created frame interpolation swapchain."]
     pub swapchain: *mut *mut IDXGISwapChain4,
     #[doc = "< Swap chain creation parameters."]
     pub desc: *mut DXGI_SWAP_CHAIN_DESC,
-    #[doc = "< IDXGIFactory to use for DX12 swapchain creation."]
+    #[doc = "< The DXGI factory to use for DX12 swapchain creation."]
     pub dxgiFactory: *mut IDXGIFactory,
-    #[doc = "< Input command queue to be used for presentation."]
+    #[doc = "< The command queue to be used for presentation."]
     pub gameQueue: *mut ID3D12CommandQueue,
 }
 #[repr(C)]
 pub struct CreateContextDescFrameGenerationSwapChainForHwndDX12 {
+    #[doc = "< Description header for frame generation swapchain creation for HWND."]
     pub header: CreateContextDescHeader,
-    #[doc = "< Output frame interpolation swapchain."]
+    #[doc = "< Output pointer to receive the created frame interpolation swapchain."]
     pub swapchain: *mut *mut IDXGISwapChain4,
-    #[doc = "< HWND handle for the calling application;"]
+    #[doc = "< Window handle for the calling application."]
     pub hwnd: HWND,
     #[doc = "< Swap chain creation parameters."]
     pub desc: *mut DXGI_SWAP_CHAIN_DESC1,
-    #[doc = "< Fullscreen swap chain creation parameters."]
+    #[doc = "< Fullscreen swap chain creation parameters (can be NULL for windowed mode)."]
     pub fullscreenDesc: *mut DXGI_SWAP_CHAIN_FULLSCREEN_DESC,
-    #[doc = "< IDXGIFactory to use for DX12 swapchain creation."]
+    #[doc = "< The DXGI factory to use for DX12 swapchain creation."]
     pub dxgiFactory: *mut IDXGIFactory,
-    #[doc = "< Input command queue to be used for presentation."]
+    #[doc = "< The command queue to be used for presentation."]
     pub gameQueue: *mut ID3D12CommandQueue,
 }
 #[repr(C)]
 pub struct ConfigureDescFrameGenerationSwapChainRegisterUiResourceDX12 {
+    #[doc = "< Description header for UI resource registration configuration."]
     pub header: ConfigureDescHeader,
-    #[doc = "< Resource containing user interface for composition. May be empty."]
+    #[doc = "< Resource containing user interface to composite onto generated frames. May be empty."]
     pub uiResource: Resource,
-    #[doc = "< Zero or combination of values from FfxApiUiCompositionFlags."]
+    #[doc = "< UI composition flags. Zero or combination of values from FfxApiUiCompositionFlags."]
     pub flags: u32,
 }
 #[repr(C)]
 pub struct QueryDescFrameGenerationSwapChainInterpolationCommandListDX12 {
+    #[doc = "< Description header for interpolation command list query."]
     pub header: QueryDescHeader,
-    #[doc = "< Output command list (ID3D12GraphicsCommandList) to be used for frame generation dispatch."]
+    #[doc = "< Output pointer to receive the command list (ID3D12GraphicsCommandList) to be used for frame generation dispatch."]
     pub pOutCommandList: *mut *mut ::std::os::raw::c_void,
 }
 #[repr(C)]
 pub struct QueryDescFrameGenerationSwapChainInterpolationTextureDX12 {
+    #[doc = "< Description header for interpolation texture query."]
     pub header: QueryDescHeader,
-    #[doc = "< Output resource in which the frame interpolation result should be placed."]
+    #[doc = "< Output pointer to receive the resource in which the frame interpolation result should be placed."]
     pub pOutTexture: *mut Resource,
 }
 #[repr(C)]
 pub struct DispatchDescFrameGenerationSwapChainWaitForPresentsDX12 {
+    #[doc = "< Description header for wait for presents dispatch."]
     pub header: DispatchDescHeader,
 }
 #[repr(C)]
 pub struct ConfigureDescFrameGenerationSwapChainKeyValueDX12 {
+    #[doc = "< Description header for key-value configuration."]
     pub header: ConfigureDescHeader,
-    #[doc = "< Configuration key, member of the FfxApiConfigureFrameGenerationSwapChainKeyDX12 enumeration."]
+    #[doc = "< Configuration key from the FfxApiConfigureFrameGenerationSwapChainKeyDX12 enumeration."]
     pub key: u64,
-    #[doc = "< Integer value or enum value to set."]
+    #[doc = "< Integer or enum value to set."]
     pub u64_: u64,
-    #[doc = "< Pointer to set or pointer to value to set."]
+    #[doc = "< Pointer value to set or pointer to structure containing value to set."]
     pub ptr: *mut ::std::os::raw::c_void,
 }
 #[repr(i32)]
 #[non_exhaustive]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum ConfigureFrameGenerationSwapChainKeyDX12 {
-    #[doc = "< Sets FfxWaitCallbackFunc"]
+    #[doc = "< Sets FfxWaitCallbackFunc."]
     WAITCALLBACK = 0,
-    #[doc = "< Sets FfxApiSwapchainFramePacingTuning"]
+    #[doc = "< Sets FfxApiSwapchainFramePacingTuning."]
     FRAMEPACINGTUNING = 2,
 }
 #[repr(C)]
 pub struct QueryFrameGenerationSwapChainGetGPUMemoryUsageDX12 {
+    #[doc = "< Description header for GPU memory usage query."]
     pub header: QueryDescHeader,
+    #[doc = "< Output pointer to receive GPU memory usage information for frame generation swapchain."]
     pub gpuMemoryUsageFrameGenerationSwapchain: *mut EffectMemoryUsage,
 }
 #[repr(C)]
 pub struct QueryFrameGenerationSwapChainGetGPUMemoryUsageDX12V2 {
+    #[doc = "< Description header for GPU memory usage query."]
     pub header: QueryDescHeader,
-    #[doc = "< For DX12: pointer to ID3D12Device. App needs to fill out before Query() call."]
+    #[doc = "< The GPU device (pointer to ID3D12Device). App needs to fill out before Query() call."]
     pub device: *mut ::std::os::raw::c_void,
-    #[doc = "< App needs to fill out before Query() call."]
+    #[doc = "< The resolution at which both rendered and generated frames will be displayed. App needs to fill out before Query() call."]
     pub displaySize: Dimensions2D,
     #[doc = "< The surface format for the backbuffer. One of the values from FfxApiSurfaceFormat. App needs to fill out before Query() call."]
     pub backBufferFormat: u32,
     #[doc = "< The number of backbuffers in the swapchain. App needs to fill out before Query() call."]
     pub backBufferCount: u32,
-    #[doc = "< This is the resolution of the resource that will be used for UI composition. Set to (0,0) if providing null uiResource in  ffxConfigureDescFrameGenerationSwapChainRegisterUiResourceDX12. App needs to fill out before Query() call."]
+    #[doc = "< The resolution of the resource that will be used for UI composition. Set to (0,0) if providing null uiResource in  ffxConfigureDescFrameGenerationSwapChainRegisterUiResourceDX12. App needs to fill out before Query() call."]
     pub uiResourceSize: Dimensions2D,
     #[doc = "< The surface format for the uiResource. One of the values from FfxApiSurfaceFormat. Set to FFX_API_SURFACE_FORMAT_UNKNOWN(0) if providing null uiResource in  ffxConfigureDescFrameGenerationSwapChainRegisterUiResourceDX12. App needs to fill out before Query() call."]
     pub uiResourceFormat: u32,
-    #[doc = "< Zero or combination of values from FfxApiUiCompositionFlags. App needs to fill out before Query() call."]
+    #[doc = "< UI composition flags. Zero or combination of values from FfxApiUiCompositionFlags. App needs to fill out before Query() call."]
     pub flags: u32,
+    #[doc = "< Output pointer to receive GPU memory usage information for frame generation swapchain. Populated by Query() call."]
     pub gpuMemoryUsageFrameGenerationSwapchain: *mut EffectMemoryUsage,
 }
 #[repr(C)]
 pub struct CreateContextDescFrameGenerationSwapChainVersionDX12 {
+    #[doc = "< Description header for frame generation swapchain version context creation."]
     pub header: CreateContextDescHeader,
-    #[doc = "< The version of the API the application was built against. This must be set to FFX_FRAMEGENERATION_SWAPCHAIN_DX12_VERSION."]
+    #[doc = "< The API version the application was built against. This must be set to FFX_FRAMEGENERATION_SWAPCHAIN_DX12_VERSION."]
     pub version: u32,
 }
 
