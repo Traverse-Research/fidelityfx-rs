@@ -2,7 +2,7 @@
 
 pub const FRAMEGENERATION_VERSION_MAJOR: u32 = 4;
 pub const FRAMEGENERATION_VERSION_MINOR: u32 = 0;
-pub const FRAMEGENERATION_VERSION_PATCH: u32 = 0;
+pub const FRAMEGENERATION_VERSION_PATCH: u32 = 1;
 impl CreateContextFramegenerationFlags {
     #[doc = "< A bit indicating that async compute workloads should be supported. Enables generation work on async compute queues."]
     pub const ASYNC_WORKLOAD_SUPPORT: CreateContextFramegenerationFlags =
@@ -325,7 +325,7 @@ pub struct DispatchDescFrameGenerationPrepareCameraInfo {
 pub struct QueryDescFrameGenerationGetGPUMemoryUsageV2 {
     #[doc = "< Description header for GPU memory usage query."]
     pub header: QueryDescHeader,
-    #[doc = "< The GPU device. For DX12: pointer to ID3D12Device. For VK: pointer to VkDevice. App needs to fill out before Query() call."]
+    #[doc = "< The GPU device. For DX12: pointer to ID3D12Device. For VK: pointer to VkDeviceContext. App needs to fill out before Query() call."]
     pub device: *mut ::std::os::raw::c_void,
     #[doc = "< The maximum rendering resolution. App needs to fill out before Query() call."]
     pub maxRenderSize: Dimensions2D,

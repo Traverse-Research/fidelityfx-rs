@@ -2,7 +2,7 @@
 
 pub const FRAMEGENERATION_SWAPCHAIN_DX12_VERSION_MAJOR: u32 = 3;
 pub const FRAMEGENERATION_SWAPCHAIN_DX12_VERSION_MINOR: u32 = 1;
-pub const FRAMEGENERATION_SWAPCHAIN_DX12_VERSION_PATCH: u32 = 6;
+pub const FRAMEGENERATION_SWAPCHAIN_DX12_VERSION_PATCH: u32 = 7;
 #[repr(C)]
 pub struct CreateContextDescFrameGenerationSwapChainWrapDX12 {
     #[doc = "< Description header for frame generation swapchain wrapping context creation."]

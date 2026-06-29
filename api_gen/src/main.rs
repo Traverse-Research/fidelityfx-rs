@@ -117,6 +117,7 @@ impl bindgen::callbacks::ParseCallbacks for Renamer {
                 let enum_name = enum_name.replace("REGISTER_UI_RESOURCE", "REGISTERUIRESOURCE");
                 let enum_name = enum_name.replace("KEY_VALUE", "KEYVALUE");
                 let enum_name = enum_name.replace("GLOBAL_DEBUG1", "GLOBALDEBUG1");
+                let enum_name = enum_name.replace("GLOBAL_DEBUG", "GLOBALDEBUG");
                 let enum_name = enum_name.replace(
                     "GET_UPSCALE_RATIO_FROM_QUALITY_MODE",
                     "GETUPSCALERATIOFROMQUALITYMODE",

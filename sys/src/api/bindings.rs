@@ -8,6 +8,7 @@ pub const CONFIGURE_GLOBALDEBUG_LEVEL_ERRORS: u32 = 1;
 pub const CONFIGURE_GLOBALDEBUG_LEVEL_WARNINGS: u32 = 2;
 pub const CONFIGURE_GLOBALDEBUG_LEVEL_VERBOSE: u32 = 268435455;
 pub const CONFIGURE_DESC_TYPE_GLOBALDEBUG1: StructType_t = 1;
+pub const CONFIGURE_DESC_TYPE_GLOBALDEBUG: StructType_t = 7;
 pub const QUERY_DESC_TYPE_GET_VERSIONS: StructType_t = 4;
 pub const DESC_TYPE_OVERRIDE_VERSION: StructType_t = 5;
 pub const QUERY_DESC_TYPE_GET_PROVIDER_VERSION: StructType_t = 6;
@@ -69,6 +70,15 @@ pub type Message = ::std::option::Option<unsafe extern "C" fn(type_: u32, messag
 #[derive(Debug, Copy, Clone)]
 pub struct ConfigureDescGlobalDebug1 {
     pub header: ConfigureDescHeader,
+    pub fpMessage: Message,
+    pub debugLevel: u32,
+}
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct ConfigureDescGlobalDebug {
+    pub header: ConfigureDescHeader,
+    pub effectId: u64,
+    #[doc = "< A pointer to a function that can receive messages from the runtime. May be null."]
     pub fpMessage: Message,
     pub debugLevel: u32,
 }
@@ -551,6 +561,31 @@ pub type ConstantBufferAllocator = ::std::option::Option<
         dataSize: u64,
     ) -> ConstantBufferAllocation,
 >;
+#[doc = " A 4-component floating point vector"]
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone)]
+pub struct Float4 {
+    pub x: f32,
+    pub y: f32,
+    pub z: f32,
+    pub w: f32,
+}
+#[doc = " A 4x4 matrix in row-major layout with row-vector convention.\n This is the canonical format expected by FFX APIs.\n\n Memory layout: rows[row_index][column_index]\n Mathematical convention: v * M (row vector multiplied by matrix)"]
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone)]
+pub struct Matrix4x4 {
+    #[doc = "< Four rows of the matrix. Access as rows[row].x, rows[row].y etc."]
+    pub rows: [Float4; 4usize],
+}
+#[doc = " An inclusive floating-point interval [min, max].\n Valid instances must satisfy min <= max."]
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone)]
+pub struct FloatBounds {
+    #[doc = "< Lower bound of the interval."]
+    pub min: f32,
+    #[doc = "< Upper bound of the interval."]
+    pub max: f32,
+}
 pub struct Functions {
     __library: ::libloading::Library,
     pub CreateContext: unsafe extern "C" fn(
@@ -655,6 +690,16 @@ pub const fn MAKE_BACKEND_EFFECT_SUB_ID(
 
 unsafe impl TaggedStructure for ConfigureDescGlobalDebug1 {
     const TAG: StructType_t = CONFIGURE_DESC_TYPE_GLOBALDEBUG1;
+    fn header(&self) -> &Header {
+        &self.header
+    }
+    fn header_mut(&mut self) -> &mut Header {
+        &mut self.header
+    }
+}
+
+unsafe impl TaggedStructure for ConfigureDescGlobalDebug {
+    const TAG: StructType_t = CONFIGURE_DESC_TYPE_GLOBALDEBUG;
     fn header(&self) -> &Header {
         &self.header
     }

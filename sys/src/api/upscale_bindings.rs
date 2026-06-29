@@ -2,7 +2,7 @@
 
 pub const UPSCALER_VERSION_MAJOR: u32 = 4;
 pub const UPSCALER_VERSION_MINOR: u32 = 1;
-pub const UPSCALER_VERSION_PATCH: u32 = 0;
+pub const UPSCALER_VERSION_PATCH: u32 = 1;
 #[repr(i32)]
 #[non_exhaustive]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
@@ -320,7 +320,7 @@ pub struct QueryDescUpscaleGetGPUMemoryUsage {
 pub struct QueryDescUpscaleGetGPUMemoryUsageV2 {
     #[doc = "< Header descriptor, use type FFX_API_QUERY_DESC_TYPE_UPSCALE_GPU_MEMORY_USAGE_V2."]
     pub header: QueryDescHeader,
-    #[doc = "< For DX12: pointer to ID3D12Device. For VK, pointer to VkDevice. App needs to fill out before Query() call."]
+    #[doc = "< For DX12: pointer to ID3D12Device. For VK, pointer to VkDeviceContext. App needs to fill out before Query() call."]
     pub device: *mut ::std::os::raw::c_void,
     #[doc = "< App needs to fill out before Query() call."]
     pub maxRenderSize: Dimensions2D,
