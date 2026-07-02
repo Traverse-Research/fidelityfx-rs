@@ -8,6 +8,112 @@ fn main() {
     generate_api_bindings(ffx_kit_dir);
 }
 
+/// Build the regex passed to `allowlist_file` so it matches the path libclang reports for each
+/// declaration. `allowlist_file` takes a regex, but the full path produced by `Path::join` mixes `/`
+/// and `\` separators on Windows and libclang canonicalizes the reported path differently across
+/// versions — so passing the raw path can silently match nothing and emit an empty bindings file.
+/// Anchoring on the (unique) header file name instead is stable regardless of how the directory
+/// portion is formatted.
+fn allowlist_file_regex(wrapper: &Path) -> String {
+    let file_name = wrapper.file_name().unwrap().to_string_lossy();
+    format!(".*{}$", regex_escape(&file_name))
+}
+
+/// Minimal regex-escaper for the regex metacharacters that can appear in a header file name (`.`).
+fn regex_escape(s: &str) -> String {
+    s.replace('.', "\\.")
+}
+
+/// `const fn` helpers mirroring the FidelityFX `FFX_API_MAKE_*_SUB_ID` C macros, emitted once into
+/// the root `bindings.rs`. See [`emit_sub_id_consts`] for why these are needed.
+const SUB_ID_HELPERS: &str = r#"
+#[inline]
+const fn make_effect_sub_id(effect_id: u32, subversion: u32) -> StructType_t {
+    ((effect_id & EFFECT_MASK) | (subversion & !EFFECT_MASK)) as StructType_t
+}
+
+#[inline]
+const fn make_backend_sub_id(backend_id: u32, subversion: u32) -> StructType_t {
+    ((backend_id & BACKEND_MASK) | (subversion & !BACKEND_MASK)) as StructType_t
+}
+
+#[inline]
+const fn make_backend_effect_sub_id(backend_id: u32, effect_id: u32, subversion: u32) -> StructType_t {
+    ((subversion & !EFFECT_MASK)
+        | (effect_id & EFFECT_MASK)
+        | (backend_id & BACKEND_MASK)
+        | (subversion & !(BACKEND_MASK | EFFECT_MASK))) as StructType_t
+}
+"#;
+
+/// Emit `pub const`s for the `*_DESC_TYPE_*` (and related) identifiers that bindgen cannot generate.
+///
+/// In the v1.x SDK these were plain integer-literal `#define`s that bindgen emitted natively. The
+/// v2.x SDK changed them to invoke function-like macros — e.g.
+/// `#define FFX_API_CREATE_CONTEXT_DESC_TYPE_UPSCALE FFX_API_MAKE_EFFECT_SUB_ID(FFX_API_EFFECT_ID_UPSCALE, 0x00)` —
+/// which bindgen does not expand (cexpr cannot evaluate a function-like macro invocation, and
+/// `clang_macro_fallback` does not surface them either). The generated `TaggedStructure` impls
+/// reference these constants by name, so without them the crate does not compile.
+///
+/// Rather than hardcode computed values, we re-emit each `#define` as a Rust `const` that calls the
+/// matching `make_*_sub_id` helper with the same arguments (prefix-stripped to their generated Rust
+/// names), keeping the values derived from the SDK's own `EFFECT_ID_*`/`BACKEND_ID_*` constants.
+fn emit_sub_id_consts(header: &Path) -> String {
+    let source = std::fs::read_to_string(header).unwrap();
+    let mut out = String::new();
+
+    for line in source.lines() {
+        let line = line.trim();
+        let Some(rest) = line.strip_prefix("#define ") else {
+            continue;
+        };
+        let Some((name, value)) = rest.split_once(char::is_whitespace) else {
+            continue;
+        };
+        let value = value.trim();
+
+        let call = if let Some(args) = value.strip_prefix("FFX_API_MAKE_EFFECT_SUB_ID(") {
+            sub_id_call("make_effect_sub_id", args)
+        } else if let Some(args) = value.strip_prefix("FFX_API_MAKE_BACKEND_SUB_ID(") {
+            sub_id_call("make_backend_sub_id", args)
+        } else if let Some(args) = value.strip_prefix("FFX_API_MAKE_BACKEND_EFFECT_SUB_ID(") {
+            sub_id_call("make_backend_effect_sub_id", args)
+        } else {
+            continue;
+        };
+
+        let rust_name = strip_ffx_var_prefix(name);
+        out.push_str(&format!("pub const {rust_name}: StructType_t = {call};\n"));
+    }
+
+    out
+}
+
+/// Build a `make_*_sub_id(...)` call expression from the raw C macro argument list (everything up to
+/// the closing paren), stripping the `FFX_API_` prefix off identifier arguments so they match the
+/// generated Rust constant names, and leaving numeric literals (e.g. `0x00`) untouched.
+fn sub_id_call(helper: &str, args: &str) -> String {
+    let args = args.rsplit_once(')').map_or(args, |(a, _)| a);
+    let rust_args = args
+        .split(',')
+        .map(|arg| {
+            let arg = arg.trim();
+            arg.strip_prefix("FFX_API_")
+                .map_or_else(|| arg.to_owned(), str::to_owned)
+        })
+        .collect::<Vec<_>>()
+        .join(", ");
+    format!("{helper}({rust_args})")
+}
+
+/// Strip the `FFX_API_`/`FFX_` prefix from a `#define`d variable name, matching the `Var` renaming
+/// the [`Renamer`] callback applies to bindgen-generated vars.
+fn strip_ffx_var_prefix(name: &str) -> &str {
+    name.strip_prefix("FFX_API_")
+        .or_else(|| name.strip_prefix("FFX_"))
+        .unwrap_or(name)
+}
+
 #[derive(Debug)]
 struct Renamer(Rc<RefCell<String>>);
 impl bindgen::callbacks::ParseCallbacks for Renamer {
@@ -113,6 +219,7 @@ impl bindgen::callbacks::ParseCallbacks for Renamer {
                 let enum_name = enum_name.replace("REGISTER_UI_RESOURCE", "REGISTERUIRESOURCE");
                 let enum_name = enum_name.replace("KEY_VALUE", "KEYVALUE");
                 let enum_name = enum_name.replace("GLOBAL_DEBUG1", "GLOBALDEBUG1");
+                let enum_name = enum_name.replace("GLOBAL_DEBUG", "GLOBALDEBUG");
                 let enum_name = enum_name.replace(
                     "GET_UPSCALE_RATIO_FROM_QUALITY_MODE",
                     "GETUPSCALERATIOFROMQUALITYMODE",
@@ -232,6 +339,8 @@ fn generate_api_root_bindings(api_dir: &Path) {
         .expect("Couldn't write bindings!");
     out.write_fmt(format_args!("{}", custom_code.borrow()))
         .unwrap();
+    // `make_*_sub_id` helpers used by the `*_DESC_TYPE_*` constants emitted into the effect modules.
+    out.write_all(SUB_ID_HELPERS.as_bytes()).unwrap();
 }
 
 fn generate_upscale_bindings(api_dir: &Path) {
@@ -240,7 +349,7 @@ fn generate_upscale_bindings(api_dir: &Path) {
     let (builder, custom_code) = bindgen_no_dynamic_library();
     let bindings = builder
         .header(wrapper.to_string_lossy())
-        .allowlist_file(wrapper.to_string_lossy())
+        .allowlist_file(allowlist_file_regex(&wrapper))
         .bitfield_enum("FfxApiCreateContextUpscaleFlags")
         .bitfield_enum("FfxApiDispatchFsrUpscaleFlags")
         .bitfield_enum("FfxApiDispatchUpscaleAutoreactiveFlags")
@@ -251,6 +360,8 @@ fn generate_upscale_bindings(api_dir: &Path) {
     bindings
         .write(Box::new(&mut out))
         .expect("Couldn't write bindings!");
+    out.write_all(emit_sub_id_consts(&wrapper).as_bytes())
+        .unwrap();
     out.write_fmt(format_args!("{}", custom_code.borrow()))
         .unwrap();
 }
@@ -261,7 +372,7 @@ fn generate_framegeneration_bindings(api_dir: &Path) {
     let (builder, custom_code) = bindgen_no_dynamic_library();
     let bindings = builder
         .header(wrapper.to_string_lossy())
-        .allowlist_file(wrapper.to_string_lossy())
+        .allowlist_file(allowlist_file_regex(&wrapper))
         .bitfield_enum("FfxApiCreateContextFramegenerationFlags")
         .bitfield_enum("FfxApiDispatchFramegenerationFlags")
         .bitfield_enum("FfxApiUiCompositionFlags")
@@ -272,6 +383,8 @@ fn generate_framegeneration_bindings(api_dir: &Path) {
     bindings
         .write(Box::new(&mut out))
         .expect("Couldn't write bindings!");
+    out.write_all(emit_sub_id_consts(&wrapper).as_bytes())
+        .unwrap();
     out.write_fmt(format_args!("{}", custom_code.borrow()))
         .unwrap();
 }
@@ -282,7 +395,7 @@ fn generate_dx12_backend_bindings(api_dir: &Path) {
     let (builder, custom_code) = bindgen_no_dynamic_library();
     let bindings = builder
         .header(wrapper.to_string_lossy())
-        .allowlist_file(wrapper.to_string_lossy())
+        .allowlist_file(allowlist_file_regex(&wrapper))
         .generate()
         .expect("Unable to generate bindings");
 
@@ -290,6 +403,8 @@ fn generate_dx12_backend_bindings(api_dir: &Path) {
     bindings
         .write(Box::new(&mut out))
         .expect("Couldn't write bindings!");
+    out.write_all(emit_sub_id_consts(&wrapper).as_bytes())
+        .unwrap();
     out.write_fmt(format_args!("{}", custom_code.borrow()))
         .unwrap();
 
@@ -298,7 +413,7 @@ fn generate_dx12_backend_bindings(api_dir: &Path) {
     let (builder, custom_code) = bindgen_no_dynamic_library();
     let bindings = builder
         .header(wrapper.to_string_lossy())
-        .allowlist_file(wrapper.to_string_lossy())
+        .allowlist_file(allowlist_file_regex(&wrapper))
         .no_default("ffxQueryFrameGenerationSwapChainGetGPUMemoryUsageDX12")
         .no_default("ffxQueryFrameGenerationSwapChainGetGPUMemoryUsageDX12V2")
         .generate()
@@ -308,6 +423,8 @@ fn generate_dx12_backend_bindings(api_dir: &Path) {
     bindings
         .write(Box::new(&mut out))
         .expect("Couldn't write bindings!");
+    out.write_all(emit_sub_id_consts(&wrapper).as_bytes())
+        .unwrap();
     out.write_fmt(format_args!("{}", custom_code.borrow()))
         .unwrap();
 }

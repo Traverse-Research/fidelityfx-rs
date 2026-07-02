@@ -53,6 +53,8 @@ pub struct CreateBackendDX12AllocationCallbacksDesc {
     #[doc = "< Constant buffer allocation function (can be null)"]
     pub pfnFfxConstantBufferAllocator: ConstantBufferAllocator,
 }
+pub const CREATE_CONTEXT_DESC_TYPE_BACKEND_DX12: StructType_t = make_backend_sub_id(BACKEND_ID_DX12, 0x02);
+pub const CREATE_CONTEXT_DESC_TYPE_BACKEND_DX12_ALLOCATION_CALLBACKS: StructType_t = make_backend_sub_id(BACKEND_ID_DX12, 0x03);
 
 unsafe impl TaggedStructure for CreateBackendDX12Desc {
     const TAG: StructType_t = CREATE_CONTEXT_DESC_TYPE_BACKEND_DX12;

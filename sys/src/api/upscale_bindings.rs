@@ -2,7 +2,7 @@
 
 pub const UPSCALER_VERSION_MAJOR: u32 = 4;
 pub const UPSCALER_VERSION_MINOR: u32 = 1;
-pub const UPSCALER_VERSION_PATCH: u32 = 0;
+pub const UPSCALER_VERSION_PATCH: u32 = 1;
 #[repr(i32)]
 #[non_exhaustive]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
@@ -320,7 +320,7 @@ pub struct QueryDescUpscaleGetGPUMemoryUsage {
 pub struct QueryDescUpscaleGetGPUMemoryUsageV2 {
     #[doc = "< Header descriptor, use type FFX_API_QUERY_DESC_TYPE_UPSCALE_GPU_MEMORY_USAGE_V2."]
     pub header: QueryDescHeader,
-    #[doc = "< For DX12: pointer to ID3D12Device. For VK, pointer to VkDevice. App needs to fill out before Query() call."]
+    #[doc = "< For DX12: pointer to ID3D12Device. For VK, pointer to VkDeviceContext. App needs to fill out before Query() call."]
     pub device: *mut ::std::os::raw::c_void,
     #[doc = "< App needs to fill out before Query() call."]
     pub maxRenderSize: Dimensions2D,
@@ -364,6 +364,18 @@ pub struct CreateContextDescUpscaleVersion {
     #[doc = "< The version of the API the application was built against. This must be set to FFX_UPSCALER_VERSION."]
     pub version: u32,
 }
+pub const CREATE_CONTEXT_DESC_TYPE_UPSCALE: StructType_t = make_effect_sub_id(EFFECT_ID_UPSCALE, 0x00);
+pub const DISPATCH_DESC_TYPE_UPSCALE: StructType_t = make_effect_sub_id(EFFECT_ID_UPSCALE, 0x01);
+pub const QUERY_DESC_TYPE_UPSCALE_GETUPSCALERATIOFROMQUALITYMODE: StructType_t = make_effect_sub_id(EFFECT_ID_UPSCALE, 0x02);
+pub const QUERY_DESC_TYPE_UPSCALE_GETRENDERRESOLUTIONFROMQUALITYMODE: StructType_t = make_effect_sub_id(EFFECT_ID_UPSCALE, 0x03);
+pub const QUERY_DESC_TYPE_UPSCALE_GETJITTERPHASECOUNT: StructType_t = make_effect_sub_id(EFFECT_ID_UPSCALE, 0x04);
+pub const QUERY_DESC_TYPE_UPSCALE_GETJITTEROFFSET: StructType_t = make_effect_sub_id(EFFECT_ID_UPSCALE, 0x05);
+pub const DISPATCH_DESC_TYPE_UPSCALE_GENERATEREACTIVEMASK: StructType_t = make_effect_sub_id(EFFECT_ID_UPSCALE, 0x06);
+pub const CONFIGURE_DESC_TYPE_UPSCALE_KEYVALUE: StructType_t = make_effect_sub_id(EFFECT_ID_UPSCALE, 0x07);
+pub const QUERY_DESC_TYPE_UPSCALE_GPU_MEMORY_USAGE: StructType_t = make_effect_sub_id(EFFECT_ID_UPSCALE, 0x08);
+pub const QUERY_DESC_TYPE_UPSCALE_GPU_MEMORY_USAGE_V2: StructType_t = make_effect_sub_id(EFFECT_ID_UPSCALE, 0x09);
+pub const QUERY_DESC_TYPE_UPSCALE_GET_RESOURCE_REQUIREMENTS: StructType_t = make_effect_sub_id(EFFECT_ID_UPSCALE, 0x0a);
+pub const CREATE_CONTEXT_DESC_TYPE_UPSCALE_VERSION: StructType_t = make_effect_sub_id(EFFECT_ID_UPSCALE, 0x0b);
 
 unsafe impl TaggedStructure for CreateContextDescUpscale {
     const TAG: StructType_t = CREATE_CONTEXT_DESC_TYPE_UPSCALE;

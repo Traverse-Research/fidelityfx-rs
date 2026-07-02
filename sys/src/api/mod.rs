@@ -1,6 +1,6 @@
-//! Bindings to the new `ffx-api` abstraction, generated from <https://github.com/GPUOpen-LibrariesAndSDKs/FidelityFX-SDK/tree/v2.2.0/Kits/FidelityFX/api>.
+//! Bindings to the new `ffx-api` abstraction, generated from <https://github.com/GPUOpen-LibrariesAndSDKs/FidelityFX-SDK/tree/v2.3.0/Kits/FidelityFX/api>.
 //!
-//! See <https://github.com/GPUOpen-LibrariesAndSDKs/FidelityFX-SDK/blob/v2.2.0/Kits/FidelityFX/docs/getting-started/ffx-api.md> for details on how to use this new API.
+//! See <https://github.com/GPUOpen-LibrariesAndSDKs/FidelityFX-SDK/blob/v2.3.0/Kits/FidelityFX/docs/getting-started/ffx-api.md> for details on how to use this new API.
 
 #![allow(
     non_upper_case_globals,
@@ -92,7 +92,7 @@ pub mod dx12 {
 
     include!("dx12_backend_bindings.rs");
 
-    mod framegeneration {
+    pub mod framegeneration {
         use super::*;
 
         type IDXGISwapChain4 = std::ffi::c_void;

@@ -2,7 +2,7 @@
 
 pub const FRAMEGENERATION_VERSION_MAJOR: u32 = 4;
 pub const FRAMEGENERATION_VERSION_MINOR: u32 = 0;
-pub const FRAMEGENERATION_VERSION_PATCH: u32 = 0;
+pub const FRAMEGENERATION_VERSION_PATCH: u32 = 1;
 impl CreateContextFramegenerationFlags {
     #[doc = "< A bit indicating that async compute workloads should be supported. Enables generation work on async compute queues."]
     pub const ASYNC_WORKLOAD_SUPPORT: CreateContextFramegenerationFlags =
@@ -325,7 +325,7 @@ pub struct DispatchDescFrameGenerationPrepareCameraInfo {
 pub struct QueryDescFrameGenerationGetGPUMemoryUsageV2 {
     #[doc = "< Description header for GPU memory usage query."]
     pub header: QueryDescHeader,
-    #[doc = "< The GPU device. For DX12: pointer to ID3D12Device. For VK: pointer to VkDevice. App needs to fill out before Query() call."]
+    #[doc = "< The GPU device. For DX12: pointer to ID3D12Device. For VK: pointer to VkDeviceContext. App needs to fill out before Query() call."]
     pub device: *mut ::std::os::raw::c_void,
     #[doc = "< The maximum rendering resolution. App needs to fill out before Query() call."]
     pub maxRenderSize: Dimensions2D,
@@ -444,6 +444,21 @@ impl Default for FrameGenerationConfig {
         }
     }
 }
+pub const CREATE_CONTEXT_DESC_TYPE_FRAMEGENERATION: StructType_t = make_effect_sub_id(EFFECT_ID_FRAMEGENERATION, 0x01);
+pub const CALLBACK_DESC_TYPE_FRAMEGENERATION_PRESENT: StructType_t = make_effect_sub_id(EFFECT_ID_FRAMEGENERATION, 0x05);
+pub const DISPATCH_DESC_TYPE_FRAMEGENERATION: StructType_t = make_effect_sub_id(EFFECT_ID_FRAMEGENERATION, 0x03);
+pub const CONFIGURE_DESC_TYPE_FRAMEGENERATION: StructType_t = make_effect_sub_id(EFFECT_ID_FRAMEGENERATION, 0x02);
+pub const DISPATCH_DESC_TYPE_FRAMEGENERATION_PREPARE: StructType_t = make_effect_sub_id(EFFECT_ID_FRAMEGENERATION, 0x04);
+pub const CONFIGURE_DESC_TYPE_FRAMEGENERATION_KEYVALUE: StructType_t = make_effect_sub_id(EFFECT_ID_FRAMEGENERATION, 0x06);
+pub const QUERY_DESC_TYPE_FRAMEGENERATION_GPU_MEMORY_USAGE: StructType_t = make_effect_sub_id(EFFECT_ID_FRAMEGENERATION, 0x07);
+pub const CONFIGURE_DESC_TYPE_FRAMEGENERATION_REGISTERDISTORTIONRESOURCE: StructType_t = make_effect_sub_id(EFFECT_ID_FRAMEGENERATION, 0x08);
+pub const CREATE_CONTEXT_DESC_TYPE_FRAMEGENERATION_HUDLESS: StructType_t = make_effect_sub_id(EFFECT_ID_FRAMEGENERATION, 0x09);
+pub const DISPATCH_DESC_TYPE_FRAMEGENERATION_PREPARE_CAMERAINFO: StructType_t = make_effect_sub_id(EFFECT_ID_FRAMEGENERATION, 0x0a);
+pub const QUERY_DESC_TYPE_FRAMEGENERATION_GPU_MEMORY_USAGE_V2: StructType_t = make_effect_sub_id(EFFECT_ID_FRAMEGENERATION, 0x0b);
+pub const DISPATCH_DESC_TYPE_FRAMEGENERATION_PREPARE_V2: StructType_t = make_effect_sub_id(EFFECT_ID_FRAMEGENERATION, 0x0c);
+pub const CALLBACK_DESC_TYPE_FRAMEGENERATION_PRESENT_PREMUL_ALPHA: StructType_t = make_effect_sub_id(EFFECT_ID_FRAMEGENERATION, 0x0d);
+pub const CREATE_CONTEXT_DESC_TYPE_FRAMEGENERATION_VERSION: StructType_t = make_effect_sub_id(EFFECT_ID_FRAMEGENERATION, 0x0e);
+pub const FRAME_GENERATION_CONFIG: StructType_t = make_effect_sub_id(EFFECT_ID_FRAMEGENERATION, 0x0f);
 
 unsafe impl TaggedStructure for CreateContextDescFrameGeneration {
     const TAG: StructType_t = CREATE_CONTEXT_DESC_TYPE_FRAMEGENERATION;
