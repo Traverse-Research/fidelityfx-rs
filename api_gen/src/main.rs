@@ -173,6 +173,12 @@ unsafe impl TaggedStructure for {final_name} {{
     }
 }
 
+/// Converts a single `Path` to a regex, replacing the `.` (commonly used as extension separator) to
+/// an explicit match.
+fn escape_regex_file_path(p: &Path) -> String {
+    p.to_string_lossy().replace('.', "\\.")
+}
+
 fn bindgen_no_dynamic_library() -> (bindgen::Builder, Rc<RefCell<String>>) {
     let custom_code = Rc::new(RefCell::new(String::new()));
     let builder = bindgen::Builder::default()
@@ -249,7 +255,7 @@ fn generate_upscale_bindings(api_dir: &Path) {
     let (builder, custom_code) = bindgen_no_dynamic_library();
     let bindings = builder
         .header(wrapper.to_string_lossy())
-        .allowlist_file(wrapper.to_string_lossy())
+        .allowlist_file(escape_regex_file_path(&wrapper))
         .bitfield_enum("FfxApiCreateContextUpscaleFlags")
         .bitfield_enum("FfxApiDispatchFsrUpscaleFlags")
         .bitfield_enum("FfxApiDispatchUpscaleAutoreactiveFlags")
@@ -270,7 +276,7 @@ fn generate_framegeneration_bindings(api_dir: &Path) {
     let (builder, custom_code) = bindgen_no_dynamic_library();
     let bindings = builder
         .header(wrapper.to_string_lossy())
-        .allowlist_file(wrapper.to_string_lossy())
+        .allowlist_file(escape_regex_file_path(&wrapper))
         .bitfield_enum("FfxApiCreateContextFramegenerationFlags")
         .bitfield_enum("FfxApiDispatchFramegenerationFlags")
         .bitfield_enum("FfxApiUiCompositionFlags")
@@ -292,7 +298,7 @@ fn generate_vk_backend_bindings(api_dir: &Path, vk_include_dir: &Path) {
     let bindings = builder
         .clang_arg(format!("-I{}", vk_include_dir.display()))
         .header(wrapper.to_string_lossy())
-        .allowlist_file(wrapper.to_string_lossy())
+        .allowlist_file(escape_regex_file_path(&wrapper))
         .no_default("ffxQueryFrameGenerationSwapChainGetGPUMemoryUsageVK")
         .generate()
         .expect("Unable to generate bindings");
@@ -311,7 +317,7 @@ fn generate_dx12_backend_bindings(api_dir: &Path) {
     let (builder, custom_code) = bindgen_no_dynamic_library();
     let bindings = builder
         .header(wrapper.to_string_lossy())
-        .allowlist_file(wrapper.to_string_lossy())
+        .allowlist_file(escape_regex_file_path(&wrapper))
         .no_default("ffxQueryFrameGenerationSwapChainGetGPUMemoryUsageDX12")
         .generate()
         .expect("Unable to generate bindings");
