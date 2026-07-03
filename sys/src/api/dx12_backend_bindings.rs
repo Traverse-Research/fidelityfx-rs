@@ -54,6 +54,25 @@ pub struct CreateBackendDX12AllocationCallbacksDesc {
     pub pfnFfxConstantBufferAllocator: ConstantBufferAllocator,
 }
 
+pub const fn MAKE_EFFECT_SUB_ID(effectId: u32, subversion: u32) -> StructType_t {
+    ((effectId & EFFECT_MASK) | (subversion & !EFFECT_MASK)) as StructType_t
+}
+
+pub const fn MAKE_BACKEND_SUB_ID(backendId: u32, subversion: u32) -> StructType_t {
+    ((backendId & BACKEND_MASK) | (subversion & !BACKEND_MASK)) as StructType_t
+}
+
+pub const fn MAKE_BACKEND_EFFECT_SUB_ID(
+    backendId: u32,
+    effectId: u32,
+    subversion: u32,
+) -> StructType_t {
+    ((subversion & !EFFECT_MASK)
+        | (effectId & EFFECT_MASK)
+        | (backendId & BACKEND_MASK)
+        | (subversion & !(BACKEND_MASK | EFFECT_MASK))) as StructType_t
+}
+
 pub const CREATE_CONTEXT_DESC_TYPE_BACKEND_DX12: StructType_t =
     MAKE_BACKEND_SUB_ID(BACKEND_ID_DX12, 0x02);
 

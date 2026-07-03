@@ -365,15 +365,11 @@ pub struct CreateContextDescUpscaleVersion {
     pub version: u32,
 }
 
-pub const fn UPSCALER_MAKE_VERSION(major: u32, minor: u32, patch: u32) -> u32 {
+pub const fn MAKE_VERSION(major: u32, minor: u32, patch: u32) -> u32 {
     ((major) << 22) | ((minor) << 12) | (patch)
 }
 
-pub const UPSCALER_VERSION: u32 = UPSCALER_MAKE_VERSION(
-    UPSCALER_VERSION_MAJOR,
-    UPSCALER_VERSION_MINOR,
-    UPSCALER_VERSION_PATCH,
-);
+pub const VERSION: u32 = MAKE_VERSION(VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 
 pub const CREATE_CONTEXT_DESC_TYPE_UPSCALE: StructType_t =
     MAKE_EFFECT_SUB_ID(EFFECT_ID_UPSCALE, 0x00);

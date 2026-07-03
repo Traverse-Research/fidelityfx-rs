@@ -12,7 +12,7 @@ fn main() {
 #[derive(Debug)]
 struct Renamer {
     append_str: Rc<RefCell<String>>,
-    is_main_api: bool,
+    api_prefix: &'static str,
 }
 impl bindgen::callbacks::ParseCallbacks for Renamer {
     fn item_name(&self, item_info: bindgen::callbacks::ItemInfo) -> Option<String> {
@@ -179,22 +179,8 @@ unsafe impl TaggedStructure for {final_name} {{
             return;
         }
 
-        let (scope, return_structtype) = if name.starts_with("FFX_API_MAKE_") {
-            if !self.is_main_api {
-                return;
-            }
-
-            assert!(name.ends_with("_SUB_ID"), "{sig}");
-
-            ("FFX_API_", true)
-        } else {
-            // TODO: Strip submodule-specific prefix (by replacing `is_main_api`).
-            // Especially important if one module includes another module and would
-            // otherwise generate duplicate functions.
-            ("FFX_", false)
-        };
-
-        if let Some(name) = name.strip_prefix(scope) {
+        if let Some(name) = name.strip_prefix(self.api_prefix) {
+            let return_structtype = name.starts_with("MAKE_") && name.ends_with("_SUB_ID");
             let params = rest.strip_suffix(')').unwrap().split(',');
 
             use std::fmt::Write as _;
@@ -226,7 +212,7 @@ unsafe impl TaggedStructure for {final_name} {{
 
             for token in contents {
                 let token = std::str::from_utf8(token).unwrap();
-                let token = token.strip_prefix(scope).unwrap_or(token);
+                let token = token.strip_prefix(self.api_prefix).unwrap_or(token);
                 if token == "~" {
                     add.push('!');
                 } else {
@@ -255,6 +241,8 @@ unsafe impl TaggedStructure for {final_name} {{
             let mut add = self.append_str.borrow_mut();
 
             add.push_str("\npub const ");
+            // Despite living across various modules, all these DESC_TYPE constants start with
+            // FFX_API_ because they extend the "base enum"
             add.push_str(name.strip_prefix("FFX_API_").unwrap());
             add.push_str(": StructType_t = ");
 
@@ -271,21 +259,21 @@ unsafe impl TaggedStructure for {final_name} {{
                 }
             }
             add.push_str(";\n");
-        } else if name.starts_with("FFX")
-            && !name.starts_with("FFX_PRAGMA")
+        } else if !name.starts_with("FFX_PRAGMA")
             && name != "FFX_API_ENTRY"
+            && let Some(name) = name.strip_prefix(self.api_prefix)
         {
             let mut add = self.append_str.borrow_mut();
 
             add.push_str("\npub const ");
-            add.push_str(name.strip_prefix("FFX_").unwrap());
+            add.push_str(name);
             add.push_str(": u32 = ");
 
             // Skip the identifier name
             for t in &tokens[1..] {
                 let value = std::str::from_utf8(&t.raw).unwrap();
                 if t.kind == TokenKind::Identifier {
-                    add.push_str(value.strip_prefix("FFX_").unwrap());
+                    add.push_str(value.strip_prefix(self.api_prefix).unwrap());
                 } else {
                     add.push_str(value);
                 }
@@ -310,7 +298,7 @@ fn escape_regex_file_path(p: &Path) -> String {
     p.replace('.', "\\.")
 }
 
-fn bindgen_no_dynamic_library(is_main_api: bool) -> (bindgen::Builder, Rc<RefCell<String>>) {
+fn bindgen_no_dynamic_library(api_prefix: &'static str) -> (bindgen::Builder, Rc<RefCell<String>>) {
     let custom_code = Rc::new(RefCell::new(String::new()));
     let builder = bindgen::Builder::default()
         .layout_tests(false)
@@ -321,7 +309,7 @@ fn bindgen_no_dynamic_library(is_main_api: bool) -> (bindgen::Builder, Rc<RefCel
         .allowlist_recursively(false)
         .parse_callbacks(Box::new(Renamer {
             append_str: custom_code.clone(),
-            is_main_api,
+            api_prefix,
         }))
         .default_enum_style(bindgen::EnumVariation::Rust {
             non_exhaustive: true,
@@ -331,8 +319,8 @@ fn bindgen_no_dynamic_library(is_main_api: bool) -> (bindgen::Builder, Rc<RefCel
     (builder, custom_code)
 }
 
-fn bindgen(is_main_api: bool) -> (bindgen::Builder, Rc<RefCell<String>>) {
-    let (builder, custom_code) = bindgen_no_dynamic_library(is_main_api);
+fn bindgen(api_prefix: &'static str) -> (bindgen::Builder, Rc<RefCell<String>>) {
+    let (builder, custom_code) = bindgen_no_dynamic_library(api_prefix);
     (
         builder
             .dynamic_library_name("Functions")
@@ -388,7 +376,7 @@ fn generate_api_root_bindings(api_dir: &Path) {
     let wrapper = api_dir.join("include/ffx_api.h");
     let types = api_dir.join("include/ffx_api_types.h");
 
-    let (builder, custom_code) = bindgen(true);
+    let (builder, custom_code) = bindgen("FFX_API_");
     let bindings = builder
         .headers([wrapper.to_string_lossy(), types.to_string_lossy()])
         .allowlist_function("ffx\\w+")
@@ -422,7 +410,7 @@ fn generate_api_root_bindings(api_dir: &Path) {
 fn generate_upscale_bindings(api_dir: &Path) {
     let wrapper = api_dir.join("include/ffx_upscale.h");
 
-    let (builder, custom_code) = bindgen_no_dynamic_library(false);
+    let (builder, custom_code) = bindgen_no_dynamic_library("FFX_UPSCALER_");
     let bindings = builder
         .header(wrapper.to_string_lossy())
         .allowlist_file(escape_regex_file_path(&wrapper))
@@ -444,7 +432,7 @@ fn generate_upscale_bindings(api_dir: &Path) {
 fn generate_framegeneration_bindings(api_dir: &Path) {
     let wrapper = api_dir.join("include/ffx_framegeneration.h");
 
-    let (builder, custom_code) = bindgen_no_dynamic_library(false);
+    let (builder, custom_code) = bindgen_no_dynamic_library("FFX_FRAMEGENERATION_");
     let bindings = builder
         .header(wrapper.to_string_lossy())
         .allowlist_file(escape_regex_file_path(&wrapper))
@@ -464,7 +452,7 @@ fn generate_framegeneration_bindings(api_dir: &Path) {
 
     let wrapper = api_dir.join("include/dx12/ffx_api_framegeneration_dx12.h");
 
-    let (builder, custom_code) = bindgen_no_dynamic_library(false);
+    let (builder, custom_code) = bindgen_no_dynamic_library("FFX_FRAMEGENERATION_SWAPCHAIN_DX12_");
     let bindings = builder
         .header(wrapper.to_string_lossy())
         .allowlist_file(escape_regex_file_path(&wrapper))
@@ -485,7 +473,7 @@ fn generate_framegeneration_bindings(api_dir: &Path) {
 fn generate_dx12_backend_bindings(api_dir: &Path) {
     let wrapper = api_dir.join("include/dx12/ffx_api_dx12.h");
 
-    let (builder, custom_code) = bindgen_no_dynamic_library(false);
+    let (builder, custom_code) = bindgen_no_dynamic_library("FFX_API_");
     let bindings = builder
         .header(wrapper.to_string_lossy())
         .allowlist_file(escape_regex_file_path(&wrapper))

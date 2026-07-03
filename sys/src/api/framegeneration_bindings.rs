@@ -445,15 +445,11 @@ impl Default for FrameGenerationConfig {
     }
 }
 
-pub const fn FRAMEGENERATION_MAKE_VERSION(major: u32, minor: u32, patch: u32) -> u32 {
+pub const fn MAKE_VERSION(major: u32, minor: u32, patch: u32) -> u32 {
     ((major) << 22) | ((minor) << 12) | (patch)
 }
 
-pub const FRAMEGENERATION_VERSION: u32 = FRAMEGENERATION_MAKE_VERSION(
-    FRAMEGENERATION_VERSION_MAJOR,
-    FRAMEGENERATION_VERSION_MINOR,
-    FRAMEGENERATION_VERSION_PATCH,
-);
+pub const VERSION: u32 = MAKE_VERSION(VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 
 pub const CREATE_CONTEXT_DESC_TYPE_FRAMEGENERATION: StructType_t =
     MAKE_EFFECT_SUB_ID(EFFECT_ID_FRAMEGENERATION, 0x01);
