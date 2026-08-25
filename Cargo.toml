@@ -1,5 +1,17 @@
 [workspace]
+resolver = "2"
 members = [
   "api_gen",
+  "bin",
   "sys",
 ]
+
+[workspace.package]
+authors = ["Traverse Research <support@traverseresearch.nl>"]
+edition = "2021"
+homepage = "https://traverseresearch.nl"
+keywords = ["fidelityfx", "fsr", "upscaling", "d3d12"]
+license = "MIT"
+repository = "https://github.com/Traverse-Research/fidelityfx-rs"
+rust-version = "1.74"
+version = "0.1.0+v2.3.0"

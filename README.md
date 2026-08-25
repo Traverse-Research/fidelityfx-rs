@@ -15,5 +15,6 @@ Rust bindings for [AMD's FidelityFX SDK], including bindings to the newer [`ffx-
 
 | Crates | | |
 | - | - | - |
-| [`fidelityfx-sys`](./sys) | Provides the FidelityFX SDK and raw C bindings into it | [![Latest version](https://img.shields.io/crates/v/fidelityfx-sys.svg?logo=rust)](https://crates.io/crates/fidelityfx-sys) [![Documentation](https://docs.rs/fidelityfx-sys/badge.svg)](https://docs.rs/fidelityfx-sys) |
+| [`fidelityfx-sys`](./sys) | Raw C-based bindings into the FidelityFX SDK | [![Latest version](https://img.shields.io/crates/v/fidelityfx-sys.svg?logo=rust)](https://crates.io/crates/fidelityfx-sys) [![Documentation](https://docs.rs/fidelityfx-sys/badge.svg)](https://docs.rs/fidelityfx-sys) |
+| [`fidelityfx-bin`](./bin) | Prebuilt binaries from the source repository | [![Latest version](https://img.shields.io/crates/v/fidelityfx-bin.svg?logo=rust)](https://crates.io/crates/fidelityfx-bin) [![Documentation](https://docs.rs/fidelityfx-bin/badge.svg)](https://docs.rs/fidelityfx-bin) |
 

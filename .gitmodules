@@ -1,4 +1,3 @@
 [submodule "sys/FidelityFX-SDK"]
 	path = sys/FidelityFX-SDK
 	url = https://github.com/GPUOpen-LibrariesAndSDKs/FidelityFX-SDK
-	update = none
