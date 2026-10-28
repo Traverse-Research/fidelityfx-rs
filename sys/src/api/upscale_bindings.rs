@@ -2,7 +2,7 @@
 
 pub const UPSCALER_VERSION_MAJOR: u32 = 4;
 pub const UPSCALER_VERSION_MINOR: u32 = 1;
-pub const UPSCALER_VERSION_PATCH: u32 = 1;
+pub const UPSCALER_VERSION_PATCH: u32 = 2;
 #[repr(i32)]
 #[non_exhaustive]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
@@ -185,7 +185,7 @@ pub struct DispatchDescUpscale {
     pub output: Resource,
     #[doc = "< The subpixel jitter offset applied to the camera."]
     pub jitterOffset: FloatCoords2D,
-    #[doc = "< The scale factor to apply to motion vectors."]
+    #[doc = "< The scale factor to convert motion vectors to pixel space. Internally: pixelSpaceMV = motionVector * motionVectorScale. Set to renderSize if motion vectors are in UV space [0,1], or to (1.0, 1.0) if motion vectors are already in pixel space. When using display-resolution motion vectors, set to displaySize."]
     pub motionVectorScale: FloatCoords2D,
     #[doc = "< The resolution that was used for rendering the input resources."]
     pub renderSize: Dimensions2D,

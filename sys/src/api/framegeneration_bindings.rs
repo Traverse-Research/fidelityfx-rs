@@ -2,7 +2,8 @@
 
 pub const FRAMEGENERATION_VERSION_MAJOR: u32 = 4;
 pub const FRAMEGENERATION_VERSION_MINOR: u32 = 0;
-pub const FRAMEGENERATION_VERSION_PATCH: u32 = 1;
+pub const FRAMEGENERATION_VERSION_PATCH: u32 = 2;
+pub const FRAMEGENERATION_PREPARE_REPLACEMENT_SUFFIX: &[u8; 10] = b"PrepareV2\0";
 impl CreateContextFramegenerationFlags {
     #[doc = "< A bit indicating that async compute workloads should be supported. Enables generation work on async compute queues."]
     pub const ASYNC_WORKLOAD_SUPPORT: CreateContextFramegenerationFlags =
@@ -248,7 +249,7 @@ pub struct DispatchDescFrameGenerationPrepare {
     pub renderSize: Dimensions2D,
     #[doc = "< The subpixel jitter offset applied to the camera."]
     pub jitterOffset: FloatCoords2D,
-    #[doc = "< The scale factor to convert motion vectors to UV space. Set to (1.0, 1.0) if motion vectors are already in pixel space, or to renderSize dimensions if motion vectors are in UV space."]
+    #[doc = "< The scale factor to convert motion vectors to pixel space. Internally: pixelSpaceMV = motionVector * motionVectorScale. Set to renderSize if motion vectors are in UV space [0,1], or to (1.0, 1.0) if motion vectors are already in pixel space. When using display-resolution motion vectors, set to displaySize."]
     pub motionVectorScale: FloatCoords2D,
     #[doc = "< Time elapsed in milliseconds since the last frame."]
     pub frameTimeDelta: f32,
@@ -356,7 +357,7 @@ pub struct DispatchDescFrameGenerationPrepareV2 {
     pub renderSize: Dimensions2D,
     #[doc = "< The subpixel jitter offset applied to the camera."]
     pub jitterOffset: FloatCoords2D,
-    #[doc = "< The scale factor to convert motion vectors to UV space. Set to (1.0, 1.0) if motion vectors are already in pixel space, or to renderSize dimensions if motion vectors are in UV space."]
+    #[doc = "< The scale factor to convert motion vectors to pixel space. Internally: pixelSpaceMV = motionVector * motionVectorScale. Set to renderSize if motion vectors are in UV space [0,1], or to (1.0, 1.0) if motion vectors are already in pixel space. When using display-resolution motion vectors, set to displaySize."]
     pub motionVectorScale: FloatCoords2D,
     #[doc = "< Time elapsed in milliseconds since the last frame."]
     pub frameTimeDelta: f32,
