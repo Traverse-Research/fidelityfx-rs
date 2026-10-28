@@ -35,6 +35,9 @@ jobs:
       - uses: actions/checkout@v7
         with:
           submodules: true
+      - name: Checkout Vulkan-Headers
+        # Only needed for generating bindings, hence configured with update=none to not be cloned by cargo
+        run: git submodule update --init --checkout sys/Vulkan-Headers
       - name: Clean
         run: rm sys/src/**/*bindings.rs
       - name: Generate

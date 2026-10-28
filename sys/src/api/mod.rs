@@ -89,6 +89,36 @@ pub mod framegeneration {
 
         include!("framegeneration_dx12_bindings.rs");
     }
+
+    #[cfg(feature = "vulkan")]
+    pub mod vk {
+        use super::*;
+        use crate::api::vk::*;
+
+        use ash::vk::{
+            Device as VkDevice, PFN_vkAcquireNextImageKHR, PFN_vkGetSwapchainImagesKHR,
+            PFN_vkQueuePresentKHR, PFN_vkSetHdrMetadataEXT, PhysicalDevice as VkPhysicalDevice,
+            Result as VkResult, SwapchainKHR as VkSwapchainKHR,
+        };
+        // Only used behind a pointer; opaque because ash dropped its lifetime parameter after 0.38
+        type VkAllocationCallbacks = c_void;
+        type VkSwapchainCreateInfoKHR = ash::vk::SwapchainCreateInfoKHR<'static>;
+
+        include!("framegeneration_vk_bindings.rs");
+    }
+}
+
+#[cfg(feature = "vulkan")]
+pub mod vk {
+    use super::*;
+
+    use ash::vk::{
+        Device as VkDevice, Fence as VkFence, PFN_vkGetDeviceProcAddr,
+        PhysicalDevice as VkPhysicalDevice, Queue as VkQueue, Result as VkResult,
+    };
+    type VkSubmitInfo = ash::vk::SubmitInfo<'static>;
+
+    include!("vk_backend_bindings.rs");
 }
 
 #[cfg(feature = "dx12")]

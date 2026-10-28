@@ -5,8 +5,9 @@ use heck::ToShoutySnekCase;
 
 fn main() {
     let ffx_kit_dir = Path::new("sys/FidelityFX-SDK/Kits/FidelityFX/");
+    let vk_include_dir = Path::new("sys/Vulkan-Headers/include");
 
-    generate_api_bindings(ffx_kit_dir);
+    generate_api_bindings(ffx_kit_dir, vk_include_dir);
 }
 
 #[derive(Debug)]
@@ -63,6 +64,9 @@ impl bindgen::callbacks::ParseCallbacks for Renamer {
                 }
                 "FfxApiDispatchFramegenerationFlags" => "FFX_FRAMEGENERATION_FLAG".to_owned(),
                 "FfxApiUiCompositionFlags" => "FFX_FRAMEGENERATION_UI_COMPOSITION_FLAG".to_owned(),
+                "FfxApiConfigureFrameGenerationSwapChainKeyVK" => {
+                    "FFX_API_CONFIGURE_FG_SWAPCHAIN_KEY".to_owned()
+                }
                 "FfxApiConfigureFrameGenerationSwapChainKeyDX12" => {
                     "FFX_API_CONFIGURE_FG_SWAPCHAIN_KEY".to_owned()
                 }
@@ -111,8 +115,21 @@ impl bindgen::callbacks::ParseCallbacks for Renamer {
                 let mut add = self.append_str.borrow_mut();
                 let enum_name = final_name.TO_SHOUTY_SNEK_CASE();
                 let enum_name = enum_name.replace("_DESC_", "_DESC_TYPE_");
-                let enum_name =
-                    enum_name.replace("FRAME_GENERATION_SWAP_CHAIN", "FRAMEGENERATIONSWAPCHAIN");
+                // The Vulkan swapchain descriptor types are abbreviated to `FGSWAPCHAIN`, except
+                // for a few that were added later
+                let enum_name = if enum_name.ends_with("_VK")
+                    && !enum_name.ends_with("KEY_VALUE_VK")
+                    && !enum_name.ends_with("GPU_MEMORY_USAGE_VK")
+                    && !enum_name.ends_with("VERSION_VK")
+                {
+                    enum_name.replace("FRAME_GENERATION_SWAP_CHAIN", "FGSWAPCHAIN")
+                } else {
+                    enum_name.replace("FRAME_GENERATION_SWAP_CHAIN", "FRAMEGENERATIONSWAPCHAIN")
+                };
+                let enum_name = enum_name.replace(
+                    "SWAPCHAIN_REPLACEMENT_FUNCTIONS_VK",
+                    "FGSWAPCHAIN_FUNCTIONS_VK",
+                );
                 let enum_name = enum_name.replace("FRAME_GENERATION", "FRAMEGENERATION");
                 let enum_name = enum_name.replace("REGISTER_UI_RESOURCE", "REGISTERUIRESOURCE");
                 let enum_name = enum_name.replace("KEY_VALUE", "KEYVALUE");
@@ -141,7 +158,9 @@ impl bindgen::callbacks::ParseCallbacks for Renamer {
                     enum_name.replace("INTERPOLATION_TEXTURE", "INTERPOLATIONTEXTURE");
 
                 if let Some(backend) = enum_name.strip_prefix("CREATE_BACKEND_") {
-                    let backend = backend.strip_suffix("_DESC").unwrap();
+                    // Also matches `CreateBackendVKDesc_DEPRECATED`
+                    let backend = backend.replace("_DESC_TYPE_", "_");
+                    let backend = backend.strip_suffix("_DESC").unwrap_or(&backend);
                     enum_name = format!("CREATE_CONTEXT_DESC_TYPE_BACKEND_{backend}");
                 }
 
@@ -377,11 +396,12 @@ fn write_formatted(target: impl Into<std::process::Stdio>) -> ChildWriter {
     ChildWriter(cmd)
 }
 
-fn generate_api_bindings(ffx_kit_dir: &Path) {
+fn generate_api_bindings(ffx_kit_dir: &Path, vk_include_dir: &Path) {
     generate_api_root_bindings(&ffx_kit_dir.join("api/"));
     generate_upscale_bindings(&ffx_kit_dir.join("upscalers/"));
-    generate_framegeneration_bindings(&ffx_kit_dir.join("framegeneration/"));
+    generate_framegeneration_bindings(&ffx_kit_dir.join("framegeneration/"), vk_include_dir);
     generate_dx12_backend_bindings(&ffx_kit_dir.join("api/"));
+    generate_vk_backend_bindings(&ffx_kit_dir.join("api/"), vk_include_dir);
 }
 
 fn generate_api_root_bindings(api_dir: &Path) {
@@ -441,7 +461,7 @@ fn generate_upscale_bindings(api_dir: &Path) {
         .unwrap();
 }
 
-fn generate_framegeneration_bindings(api_dir: &Path) {
+fn generate_framegeneration_bindings(api_dir: &Path, vk_include_dir: &Path) {
     let wrapper = api_dir.join("include/ffx_framegeneration.h");
 
     let (builder, custom_code) = bindgen_no_dynamic_library(false);
@@ -480,6 +500,25 @@ fn generate_framegeneration_bindings(api_dir: &Path) {
         .expect("Couldn't write bindings!");
     out.write_fmt(format_args!("{}", custom_code.borrow()))
         .unwrap();
+    let wrapper = api_dir.join("include/vk/ffx_api_framegeneration_vk.h");
+
+    let (builder, custom_code) = bindgen_no_dynamic_library(false);
+    let bindings = builder
+        .clang_arg(format!("-I{}", vk_include_dir.display()))
+        .header(wrapper.to_string_lossy())
+        .allowlist_file(escape_regex_file_path(&wrapper))
+        .no_default("ffxQueryFrameGenerationSwapChainGetGPUMemoryUsageVK")
+        .no_default("ffxQueryFrameGenerationSwapChainGetGPUMemoryUsageVKV2")
+        .generate()
+        .expect("Unable to generate bindings");
+
+    let out = File::create("sys/src/api/framegeneration_vk_bindings.rs").unwrap();
+    let mut out = write_formatted(out);
+    bindings
+        .write(Box::new(out.deref_mut()))
+        .expect("Couldn't write bindings!");
+    out.write_fmt(format_args!("{}", custom_code.borrow()))
+        .unwrap();
 }
 
 fn generate_dx12_backend_bindings(api_dir: &Path) {
@@ -493,6 +532,26 @@ fn generate_dx12_backend_bindings(api_dir: &Path) {
         .expect("Unable to generate bindings");
 
     let out = File::create("sys/src/api/dx12_backend_bindings.rs").unwrap();
+    let mut out = write_formatted(out);
+    bindings
+        .write(Box::new(out.deref_mut()))
+        .expect("Couldn't write bindings!");
+    out.write_fmt(format_args!("{}", custom_code.borrow()))
+        .unwrap();
+}
+
+fn generate_vk_backend_bindings(api_dir: &Path, vk_include_dir: &Path) {
+    let wrapper = api_dir.join("include/vk/ffx_api_vk.h");
+
+    let (builder, custom_code) = bindgen_no_dynamic_library(false);
+    let bindings = builder
+        .clang_arg(format!("-I{}", vk_include_dir.display()))
+        .header(wrapper.to_string_lossy())
+        .allowlist_file(escape_regex_file_path(&wrapper))
+        .generate()
+        .expect("Unable to generate bindings");
+
+    let out = File::create("sys/src/api/vk_backend_bindings.rs").unwrap();
     let mut out = write_formatted(out);
     bindings
         .write(Box::new(out.deref_mut()))
