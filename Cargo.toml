@@ -14,4 +14,4 @@ keywords = ["fidelityfx", "fsr", "upscaling", "d3d12"]
 license = "MIT"
 repository = "https://github.com/Traverse-Research/fidelityfx-rs"
 rust-version = "1.74"
-version = "0.1.0+v2.3.0"
+version = "0.1.0+v2.4.0"

@@ -53,12 +53,14 @@ impl Platform {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum RenderApi {
     DirectX12,
+    Vulkan,
 }
 
 impl RenderApi {
     pub fn name(self) -> &'static str {
         match self {
             Self::DirectX12 => "dx12",
+            Self::Vulkan => "vk",
         }
     }
 }

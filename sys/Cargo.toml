@@ -14,7 +14,9 @@ version.workspace = true
 
 [dependencies]
 libloading = "0.8"
+ash = { version = "0.38", optional = true, default-features = false }
 
 [features]
-default = ["dx12"]
+default = ["vulkan", "dx12"]
+vulkan = ["dep:ash"]
 dx12 = []

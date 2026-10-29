@@ -7,7 +7,6 @@ pub const CONFIGURE_GLOBALDEBUG_LEVEL_SILENCE: u32 = 0;
 pub const CONFIGURE_GLOBALDEBUG_LEVEL_ERRORS: u32 = 1;
 pub const CONFIGURE_GLOBALDEBUG_LEVEL_WARNINGS: u32 = 2;
 pub const CONFIGURE_GLOBALDEBUG_LEVEL_VERBOSE: u32 = 268435455;
-pub const CONFIGURE_DESC_TYPE_GLOBALDEBUG1: StructType_t = 1;
 pub const CONFIGURE_DESC_TYPE_GLOBALDEBUG: StructType_t = 7;
 pub const QUERY_DESC_TYPE_GET_VERSIONS: StructType_t = 4;
 pub const DESC_TYPE_OVERRIDE_VERSION: StructType_t = 5;
@@ -18,9 +17,11 @@ pub const EFFECT_ID_FRAMEGENERATIONSWAPCHAIN: u32 = 196608;
 pub const EFFECT_ID_FRAMEGENERATIONSWAPCHAIN_VK: u32 = 262144;
 pub const EFFECT_ID_DENOISER: u32 = 327680;
 pub const EFFECT_ID_RADIANCECACHE: u32 = 393216;
+pub const EFFECT_COUNT: u32 = 6;
 pub const BACKEND_ID_DX12: u32 = 0;
-pub const BACKEND_ID_XBOX: u32 = 16777216;
-pub const BACKEND_ID_VK: u32 = 33554432;
+pub const BACKEND_ID_VK: u32 = 16777216;
+pub const BACKEND_ID_XBOX: u32 = 33554432;
+pub const CONFIGURE_DESC_TYPE_GLOBALDEBUG1: StructType_t = 1;
 pub const RESOURCE_NAME_SIZE: u32 = 64;
 impl ReturnCodes {
     #[doc = "< The oparation was successful."]
@@ -68,13 +69,6 @@ pub struct MsgType(pub ::std::os::raw::c_int);
 pub type Message = ::std::option::Option<unsafe extern "C" fn(type_: u32, message: *const u16)>;
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
-pub struct ConfigureDescGlobalDebug1 {
-    pub header: ConfigureDescHeader,
-    pub fpMessage: Message,
-    pub debugLevel: u32,
-}
-#[repr(C)]
-#[derive(Debug, Copy, Clone)]
 pub struct ConfigureDescGlobalDebug {
     pub header: ConfigureDescHeader,
     pub effectId: u64,
@@ -88,7 +82,7 @@ pub struct QueryDescGetVersions {
     pub header: QueryDescHeader,
     #[doc = "< Create description for the effect whose versions should be enumerated."]
     pub createDescType: u64,
-    #[doc = "< For DX12: pointer to ID3D12Device."]
+    #[doc = "< For DX12: pointer to ID3D12Device. For VK, pointer to VkDeviceContext."]
     pub device: *mut ::std::os::raw::c_void,
     #[doc = "< Input capacity of id and name arrays. Output number of returned versions. If initially zero, output is number of available versions."]
     pub outputCount: *mut u64,
@@ -137,6 +131,13 @@ impl Default for AllocationCallbacks {
             s.assume_init()
         }
     }
+}
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct ConfigureDescGlobalDebug1 {
+    pub header: ConfigureDescHeader,
+    pub fpMessage: Message,
+    pub debugLevel: u32,
 }
 #[repr(i32)]
 #[non_exhaustive]
@@ -688,16 +689,6 @@ pub const fn MAKE_BACKEND_EFFECT_SUB_ID(
         | (subversion & !(BACKEND_MASK | EFFECT_MASK))) as StructType_t
 }
 
-unsafe impl TaggedStructure for ConfigureDescGlobalDebug1 {
-    const TAG: StructType_t = CONFIGURE_DESC_TYPE_GLOBALDEBUG1;
-    fn header(&self) -> &Header {
-        &self.header
-    }
-    fn header_mut(&mut self) -> &mut Header {
-        &mut self.header
-    }
-}
-
 unsafe impl TaggedStructure for ConfigureDescGlobalDebug {
     const TAG: StructType_t = CONFIGURE_DESC_TYPE_GLOBALDEBUG;
     fn header(&self) -> &Header {
@@ -730,6 +721,16 @@ unsafe impl TaggedStructure for OverrideVersion {
 
 unsafe impl TaggedStructure for QueryGetProviderVersion {
     const TAG: StructType_t = QUERY_DESC_TYPE_GET_PROVIDER_VERSION;
+    fn header(&self) -> &Header {
+        &self.header
+    }
+    fn header_mut(&mut self) -> &mut Header {
+        &mut self.header
+    }
+}
+
+unsafe impl TaggedStructure for ConfigureDescGlobalDebug1 {
+    const TAG: StructType_t = CONFIGURE_DESC_TYPE_GLOBALDEBUG1;
     fn header(&self) -> &Header {
         &self.header
     }
